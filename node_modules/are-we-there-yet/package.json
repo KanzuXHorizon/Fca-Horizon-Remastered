@@ -1,0 +1,57 @@
+{
+  "_args": [
+    [
+      "are-we-there-yet@1.0.6",
+      "C:\\Users\\HP.KANZUWAKAZAKI\\OneDrive\\Desktop\\PenguinFile\\Penguin"
+    ]
+  ],
+  "_from": "are-we-there-yet@1.0.6",
+  "_id": "are-we-there-yet@1.0.6",
+  "_inBundle": false,
+  "_integrity": "sha1-otKMkxAqpsyWJFomy5VN4G7FPww=",
+  "_location": "/fca-xuyen-get/are-we-there-yet",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "are-we-there-yet@1.0.6",
+    "name": "are-we-there-yet",
+    "escapedName": "are-we-there-yet",
+    "rawSpec": "1.0.6",
+    "saveSpec": null,
+    "fetchSpec": "1.0.6"
+  },
+  "_requiredBy": [
+    "/fca-xuyen-get/npmlog"
+  ],
+  "_resolved": "https://registry.npmjs.org/are-we-there-yet/-/are-we-there-yet-1.0.6.tgz",
+  "_spec": "1.0.6",
+  "_where": "C:\\Users\\HP.KANZUWAKAZAKI\\OneDrive\\Desktop\\PenguinFile\\Penguin",
+  "author": {
+    "name": "Rebecca Turner",
+    "url": "http://re-becca.org"
+  },
+  "bugs": {
+    "url": "https://github.com/iarna/are-we-there-yet/issues"
+  },
+  "dependencies": {
+    "delegates": "^1.0.0",
+    "readable-stream": "^2.0.0 || ^1.1.13"
+  },
+  "description": "Keep track of the overall completion of many dispirate processes",
+  "devDependencies": {
+    "tap": "^5.2.0"
+  },
+  "homepage": "https://github.com/iarna/are-we-there-yet",
+  "license": "ISC",
+  "main": "index.js",
+  "name": "are-we-there-yet",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iarna/are-we-there-yet.git"
+  },
+  "scripts": {
+    "test": "tap test/*.js"
+  },
+  "version": "1.0.6"
+}
