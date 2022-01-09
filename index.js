@@ -80,9 +80,9 @@ function buildAPI(globalOptions, html, jar) {
         return val.cookieString().split("=")[0] === "c_user";
     });
 
-    if (maybeCookie.length === 0) throw { error: "Error retrieving userID. This can be caused by a lot of things, including getting blocked by Facebook for logging in from an unknown location. Try logging in with a browser to verify." };
+    if (maybeCookie.length === 0) throw { error: "Phát Hiện Lỗi Vị Trí ! Hãy Thử Đăng Nhập Vô Trình Duyệt Chorme Ẩn Danh Và Thử Lại !" };
 
-    if (html.indexOf("/checkpoint/block/?next") > -1) log.warn("login", "Checkpoint detected. Please log in with a browser to verify.");
+    if (html.indexOf("/checkpoint/block/?next") > -1) log.warn("login", "Phát Hiện CheckPoint !, Hãy Thử Đăng Nhập Vô Trình Duyệt Ẩn Danh Và Thử Lại !");
 
     var userID = maybeCookie[0].cookieString().split("=")[1].toString();
     log.info("login", `Logged in as ${userID}`);
@@ -103,24 +103,24 @@ function buildAPI(globalOptions, html, jar) {
         irisSeqID = oldFBMQTTMatch[1];
         mqttEndpoint = oldFBMQTTMatch[2];
         region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
-        log.info("login", `Got this account's message region: ${region}`);
+        log.info("login", `Đã Lấy Được Vị Trí Tin Nhắn Của Tài Khoản Là : ${region}`);
     } else {
         let newFBMQTTMatch = html.match(/{"app_id":"219994525426954","endpoint":"(.+?)","iris_seq_id":"(.+?)"}/);
         if (newFBMQTTMatch) {
             irisSeqID = newFBMQTTMatch[2];
             mqttEndpoint = newFBMQTTMatch[1].replace(/\\\//g, "/");
             region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
-            log.info("login", `Got this account's message region: ${region}`);
+            log.info("login", `Đã Lấy Được Vị Trí Tin Nhắn Của Tài Khoản Là :  ${region}`);
         } else {
             let legacyFBMQTTMatch = html.match(/(\["MqttWebConfig",\[\],{fbid:")(.+?)(",appID:219994525426954,endpoint:")(.+?)(",pollingEndpoint:")(.+?)(3790])/);
             if (legacyFBMQTTMatch) {
                 mqttEndpoint = legacyFBMQTTMatch[4];
                 region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
                 log.warn("login", `Cannot get sequence ID with new RegExp. Fallback to old RegExp (without seqID)...`);
-                log.info("login", `Got this account's message region: ${region}`);
+                log.info("login", `Đã Lấy Được Vị Trí Tin Nhắn Của Tài Khoản Là : ${region}`);
                 log.info("login", `[Unused] Polling endpoint: ${legacyFBMQTTMatch[6]}`);
             } else {
-                log.warn("login", "Cannot get MQTT region & sequence ID.");
+                log.warn("login", "Không Thể Lấy ID Hãy Thử Lại !");
                 noMqttData = html;
             }
         }
@@ -476,7 +476,7 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
     // At the end we call the callback or catch an exception
     mainPromise
         .then(function() {
-            log.info("login", 'Done logging in.');
+            log.info("login", 'Hoàn Thành Quá Trình Đăng Nhập !');
             return callback(null, api);
         })
         .catch(function(e) {

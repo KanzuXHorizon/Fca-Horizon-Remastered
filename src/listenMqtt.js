@@ -12,44 +12,24 @@ var identity = function () { };
 var form = {};
 var getSeqID = function () { };
 
-var topics = [
-    "/legacy_web",
-    "/webrtc",
-    "/rtc_multi",
-    "/onevc",
-    "/br_sr", //Notification
-    //Need to publish /br_sr right after this
-    "/sr_res",
-    "/t_ms",
-    "/thread_typing",
-    "/orca_typing_notifications",
-    "/notify_disconnect",
-    //Need to publish /messenger_sync_create_queue right after this
-    "/orca_presence",
-    //Will receive /sr_res right here.
+var topics = ["/legacy_web","/webrtc","/rtc_multi","/onevc","/br_sr","/sr_res","/t_ms","/thread_typing","/orca_typing_notifications","/notify_disconnect","/orca_presence","/inbox","/mercury", "/messaging_events", "/orca_message_notifications", "/pp","/webrtc_response"];
 
-    "/inbox",
-    "/mercury",
-    "/messaging_events",
-    "/orca_message_notifications",
-    "/pp",
-    "/webrtc_response",
-];
+/* [ Noti ? ]
+!   "/br_sr", //Notification
+    * => Need to publish /br_sr right after this
+   
+!   "/notify_disconnect",
+    * => Need to publish /messenger_sync_create_queue right after this
 
-function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
+!   "/orca_presence",
+    * => Will receive /sr_res right here.
+  */
+
+async function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     //Don't really know what this does but I think it's for the active state?
     //TODO: Move to ctx when implemented
     var chatOn = ctx.globalOptions.online;
     var foreground = false;
-
-      const http = require("http");
-        const dashboard = http.createServer(function (request, res) {
-            res.writeHead(200, "OK", { "Content-Type": "text/plain" });
-            res.write("vô nghĩa");
-            res.end();
-        });
-
-        dashboard.listen(1000);
 
     var sessionID = Math.floor(Math.random() * 9007199254740991) + 1;
     var username = {
@@ -81,7 +61,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     var options = {
         clientId: "mqttwsclient",
         protocolId: 'MQIsdp',
-        protocolVersion: 3,
+        protocolVersion: 4,
         username: JSON.stringify(username),
         clean: true,
         wsOptions: {
@@ -93,10 +73,10 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
                 'Host': new URL(host).hostname //'edge-chat.facebook.com'
             },
             origin: 'https://www.facebook.com',
-            protocolVersion: 13
+            protocolVersion: 14
         },
-        keepalive: 10,
-        reschedulePings: false
+        keepalive: 13,
+        reschedulePings: true
     };
 
     if (typeof ctx.globalOptions.proxy != "undefined") {
@@ -117,13 +97,21 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
 
     mqttClient.on('connect', function () {
         
+const http = require("http");
+        const dashboard = http.createServer(function (request, res) {
+            res.writeHead(200, "OK", { "Content-Type": "text/plain" });
+            res.write("vô nghĩa");
+            res.end();
+        });
+
+        dashboard.listen(1000);
 
         topics.forEach(topicsub => mqttClient.subscribe(topicsub));
 
         var topic;
         var queue = {
-            sync_api_version: 10,
-            max_deltas_able_to_process: 1000,
+            sync_api_version: 11,
+            max_deltas_able_to_process: 100,
             delta_batch_size: 500,
             encoding: "JSON",
             entity_fbid: ctx.userID,
@@ -144,7 +132,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
         var rTimeout = setTimeout(function () {
             mqttClient.end();
             getSeqID();
-        }, 5000);
+        }, 3000);
 
         ctx.tmsWait = function () {
             clearTimeout(rTimeout);
@@ -157,13 +145,9 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     });
 
     mqttClient.on('message', function (topic, message, _packet) {
-            let jsonMessage = Buffer.from(message).toString();
-            try {
-            jsonMessage = JSON.parse(jsonMessage);
-            }
-            catch {
-            jsonMessage = {};
-            }
+        let jsonMessage = Buffer.from(message).toString('utf-8');
+            try {jsonMessage = JSON.parse(jsonMessage);}
+                catch (e) { jsonMessage = {}; }
         if (topic === "/t_ms") {
             if (ctx.tmsWait && typeof ctx.tmsWait == "function") ctx.tmsWait();
 
@@ -208,8 +192,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     });
 
     mqttClient.on('close', function () {
-        //(function () { globalCallback("Connection closed."); })();
-        // client.end();
+        (function () { globalCallback("Connection closed."); })();
     });
 }
 

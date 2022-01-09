@@ -1,7 +1,7 @@
 /* eslint-disable no-prototype-builtins */
 "use strict";
 
-var bluebird = require("bluebird");
+const bluebird = require("bluebird");
 var request = bluebird.promisify(require("request").defaults({ jar: true }));
 var stream = require("stream");
 var log = require("npmlog");
@@ -1193,21 +1193,21 @@ function getAppState(jar) {
         .concat(jar.getCookies("https://www.messenger.com"));
 }
 module.exports = {
-    isReadableStream,
-    get,
-    post,
-    postFormData,
-    generateThreadingID,
-    generateOfflineThreadingID,
-    getGUID,
-    getFrom,
-    makeParsable,
-    arrToForm,
-    getSignatureID,
+    isReadableStream:isReadableStream,
+    get:get,
+    post:post,
+    postFormData:postFormData,
+    generateThreadingID:generateThreadingID,
+    generateOfflineThreadingID:generateOfflineThreadingID,
+    getGUID:getGUID,
+    getFrom:getFrom,
+    makeParsable:makeParsable,
+    arrToForm:arrToForm,
+    getSignatureID:getSignatureID,
     getJar: request.jar,
-    generateTimestampRelative,
-    makeDefaults,
-    parseAndCheckLogin,
+    generateTimestampRelative:generateTimestampRelative,
+    makeDefaults:makeDefaults,
+    parseAndCheckLogin:parseAndCheckLogin,
     saveCookies,
     getType,
     _formatAttachment,

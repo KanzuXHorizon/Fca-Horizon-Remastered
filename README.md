@@ -1,61 +1,82 @@
-This repo is a fork from main repo and will usually have new features bundled faster than main repo (and maybe bundle some bugs, too).
+Lưu Ý! Đây Là Sản Phẩm Được Horizon Remake ( Chính Bởi Facebook-Chat-Api Của Schmavery, Tác Giả Không Chịu Trách Nghiệm Nào !), Nếu Có Lỗi Hãy Thử Sử Dụng Sang Sản Phẩm Khác !
 
-# Unofficial Facebook Chat API
-<img alt="version" src="https://img.shields.io/github/package-json/v/miraiPr0ject/fca-horizon-remake?label=github&style=flat-square">
+## Support For : 
++ Horizon Lucius Synthesis IV
++ MiraiPr0ject
++ C3C
++ Kb2a
++ LawerBot
++ Lazic (Private)
++ Goat
++ Jabd
++ Sumi
 
-Facebook now has an official API for chat bots [here](https://developers.facebook.com/docs/messenger-platform).
 
-This API is the only way to automate chat functionalities on a user account. We do this by emulating the browser. This means doing the exact same GET/POST requests and tricking Facebook into thinking we're accessing the website normally. Because we're doing it this way, this API won't work with an auth token but requires the credentials of a Facebook account.
+# Api Cho ChatBot Messenger
 
-_Disclaimer_: We are not responsible if your account gets banned for spammy activities such as sending lots of messages to people you don't know, sending messages very quickly, sending spammy looking URLs, logging in and out very quickly... Be responsible Facebook citizens.
+Facebook Giờ Đã Có Api Cho ChatBot 😪 Tại Đey => [Đây Nè](https://developers.facebook.com/docs/messenger-platform).
 
-See [below](#projects-using-this-api) for projects using this API.
+Api Này Có Thể Khiến Cho Bạn Payy Acc Như Cách Acc Bạn Chưa Từng Có, Hãy Chú Ý Nhé =))
 
-See the [full changelog](/CHANGELOG.md) for release details.
+Lưu Ý ! Nếu Bạn Muốn Sài Api Này Hãy Xem Document Tại [Đây Nè](https://github.com/Schmavery/facebook-chat-api).
 
-## Install
-If you just want to use fca-horizon-remake, you should use this command:
+## Tải Về 
+Nếu Bạn Muốn Sử Dụng, Hãy Tải Nó Bằng Cách:
+```bash
+npm i fca-horizon-remake
+```
+or
 ```bash
 npm install fca-horizon-remake
 ```
-It will download `fca-horizon-remake` from NPM repositories
 
-### Bleeding edge
-If you want to use bleeding edge (directly from github) to test new features or submit bug report, this is the command for you:
+Nó Sẽ Tải Vô node_modules (Lib Của Bạn)
+
+### Tải Bản Mới Nhất Hoặc Update
+Nếu Bạn Muốn Sử Dụng Phiên Bản Mới Nhất Hay Cập Nhật Thì Hãy Vô Terminal Hoặc Command Promt Nhập :
 ```bash
-npm install fca-horizon-remake
+npm install fca-horizon-remake@latest
+```
+Hoặc
+```bash
+npm i fca-horizon-remake@latest
 ```
 
-## Testing your bots
-If you want to test your bots without creating another account on Facebook, you can use [Facebook Whitehat Accounts](https://www.facebook.com/whitehat/accounts/).
+## Nếu Bạn Muốn Test Api 
+Lợi Ích Cho Việc Này Thì Bạn Sẽ Không Tốn Thời Gian Pay Acc Và Có Acc 😪
+Hãy Sử Dụng Với Tài Khoản Thử Nghiệm => [Facebook Whitehat Accounts](https://www.facebook.com/whitehat/accounts/).
 
-## Example Usage
+## Cách Sử Dụng
 ```javascript
-const login = require("fca-horizon-remake");
+const login = require("fca-horizon-remake"); // lấy từ lib ra 
 
-// Create simple echo bot
-login({email: "FB_EMAIL", password: "FB_PASSWORD"}, (err, api) => {
-    if(err) return console.error(err);
+// đăng nhập
+login({email: "Gmail Account", password: "Mật Khẩu Facebook Của Bạn"}, (err, api) => {
 
+    if(err) return console.error(err); // trường hợp lỗi
+
+    // tạo bot tự động nhái theo bạn:
     api.listen((err, message) => {
         api.sendMessage(message.body, message.threadID);
     });
+
 });
 ```
 
-Result:
-
+Kết Quả Là Nó Sẽ Nhái Bạn Như Hình Dưới:
 <img width="517" alt="screen shot 2016-11-04 at 14 36 00" src="https://cloud.githubusercontent.com/assets/4534692/20023545/f8c24130-a29d-11e6-9ef7-47568bdbc1f2.png">
 
+Nếu Bạn Muốn Sử Dụng Nâng Cao Thì Hãy Sử Dụng Các Loại Bot Được Liệt Kê Ở Trên !
 
-## Documentation
 
-You can see it [here](DOCS.md).
+## Danh Sách
+
+Bạn Có Thể Đọc Full Api Tại => [here](DOCS.md).
 
 ## Main Functionality
 
 ### Sending a message
-#### api.sendMessage(message, threadID[, callback][, messageID])
+#### api.sendMessage(message, threadID[, calblack][, messageID])
 
 Various types of message can be sent:
 * *Regular:* set field `body` to the desired message as a string.
@@ -75,13 +96,13 @@ const login = require("fca-horizon-remake");
 login({email: "FB_EMAIL", password: "FB_PASSWORD"}, (err, api) => {
     if(err) return console.error(err);
 
-    var yourID = "000000000000000";
+    var yourID = "000000000000000"; // id facebook của bạn
     var msg = "Hey!";
     api.sendMessage(msg, yourID);
 });
 ```
 
-__Example (File upload)__
+__Example (Cách Upload File Qua Tin Nhắn)__
 ```js
 const login = require("fca-horizon-remake");
 
@@ -99,26 +120,25 @@ login({email: "FB_EMAIL", password: "FB_PASSWORD"}, (err, api) => {
 ```
 
 ------------------------------------
-### Saving session.
+### Lưu Lại Thông Tin Đăng Nhập.
 
-To avoid logging in every time you should save AppState (cookies etc.) to a file, then you can use it without having password in your scripts.
-
-__Example__
+Để Lưu Lại Thì Bạn Cần 1 Apstate Kiểu (Cookie, etc,..) Để Lưu Lại Hoặc Là Sử Dụng Mã Login Như Trên Để Đăng Nhập !
+__Hướng Dẫn Với Appstate__
 
 ```js
 const fs = require("fs");
 const login = require("fca-horizon-remake");
 
-var credentials = {email: "FB_EMAIL", password: "FB_PASSWORD"};
+var credentials = {email: "FB_EMAIL", password: "FB_PASSWORD"}; // thông tin tk
 
 login(credentials, (err, api) => {
     if(err) return console.error(err);
-
-    fs.writeFileSync('appstate.json', JSON.stringify(api.getAppState()));
+    // đăng nhập
+    fs.writeFileSync('appstate.json', JSON.stringify(api.getAppState())); //tạo appstate
 });
 ```
 
-Alternative: Use [c3c-fbstate](https://github.com/c3cbot/c3c-fbstate) to get fbstate.json (appstate.json)
+Hoặc Dễ Dàng Hơn ( Chuyên Nghiệp ) Bạn Có Thể Dùng => [c3c-fbstate](https://github.com/c3cbot/c3c-fbstate) Để Lấy Fbstate And Rename Lại Thành Apstate Cũng Được ! (appstate.json)
 
 ------------------------------------
 
@@ -193,33 +213,3 @@ login({appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8'))}, (err, ap
 >     logLevel: "silent"
 > });
 > ```
-
-<a name="projects-using-this-api"></a>
-## Projects using this API:
-
-- [c3c](https://github.com/lequanglam/c3c) - A bot that can be customizable using plugins. Support Facebook & Discord.
-- [Miraiv2](https://github.com/miraiPr0ject/miraiv2) - A simple Facebook Messenger Bot made by CatalizCS and SpermLord.
-
-## Projects using this API (original repository, facebook-chat-api):
-
-- [Messer](https://github.com/mjkaufer/Messer) - Command-line messaging for Facebook Messenger
-- [messen](https://github.com/tomquirk/messen) - Rapidly build Facebook Messenger apps in Node.js
-- [Concierge](https://github.com/concierge/Concierge) - Concierge is a highly modular, easily extensible general purpose chat bot with a built in package manager
-- [Marc Zuckerbot](https://github.com/bsansouci/marc-zuckerbot) - Facebook chat bot
-- [Marc Thuckerbot](https://github.com/bsansouci/lisp-bot) - Programmable lisp bot
-- [MarkovsInequality](https://github.com/logicx24/MarkovsInequality) - Extensible chat bot adding useful functions to Facebook Messenger
-- [AllanBot](https://github.com/AllanWang/AllanBot-Public) - Extensive module that combines the facebook api with firebase to create numerous functions; no coding experience is required to implement this.
-- [Larry Pudding Dog Bot](https://github.com/Larry850806/facebook-chat-bot) - A facebook bot you can easily customize the response
-- [fbash](https://github.com/avikj/fbash) - Run commands on your computer's terminal over Facebook Messenger
-- [Klink](https://github.com/KeNt178/klink) - This Chrome extension will 1-click share the link of your active tab over Facebook Messenger
-- [Botyo](https://github.com/ivkos/botyo) - Modular bot designed for group chat rooms on Facebook
-- [matrix-puppet-facebook](https://github.com/matrix-hacks/matrix-puppet-facebook) - A facebook bridge for [matrix](https://matrix.org)
-- [facebot](https://github.com/Weetbix/facebot) - A facebook bridge for Slack.
-- [Botium](https://github.com/codeforequity-at/botium-core) - The Selenium for Chatbots
-- [Messenger-CLI](https://github.com/AstroCB/Messenger-CLI) - A command-line interface for sending and receiving messages through Facebook Messenger.
-- [AssumeZero-Bot](https://github.com/AstroCB/AssumeZero-Bot) – A highly customizable Facebook Messenger bot for group chats.
-- [Miscord](https://github.com/Bjornskjald/miscord) - An easy-to-use Facebook bridge for Discord.
-- [chat-bridge](https://github.com/rexx0520/chat-bridge) - A Messenger, Telegram and IRC chat bridge.
-- [messenger-auto-reply](https://gitlab.com/theSander/messenger-auto-reply) - An auto-reply service for Messenger.
-- [BotCore](https://github.com/AstroCB/BotCore) – A collection of tools for writing and managing Facebook Messenger bots.
-- [mnotify](https://github.com/AstroCB/mnotify) – A command-line utility for sending alerts and notifications through Facebook Messenger.
