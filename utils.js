@@ -1037,7 +1037,7 @@ function parseAndCheckLogin(ctx, defaultFuncs, retryCount) {
                 }
             }
 
-            if (res.error === 1357001) throw { error: "Not logged in." };
+            if (res.error === 1357001) throw { error: "Chưa Đăng Nhập Được - Appstate Đã Bị Lỗi" };
             return res;
         });
     };

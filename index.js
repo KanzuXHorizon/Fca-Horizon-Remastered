@@ -85,11 +85,13 @@ function buildAPI(globalOptions, html, jar) {
     if (html.indexOf("/checkpoint/block/?next") > -1) log.warn("login", "Phát Hiện CheckPoint !, Hãy Thử Đăng Nhập Vô Trình Duyệt Ẩn Danh Và Thử Lại !");
 
     var userID = maybeCookie[0].cookieString().split("=")[1].toString();
-    log.info("login", `Logged in as ${userID}`);
+    log.info("login", `Đăng Nhập Tại ID: ${userID}`);
 
     try {
         clearInterval(checkVerified);
-    } catch (_) {}
+    } catch (e) {
+        console.log(e);
+    }
 
     var clientID = (Math.random() * 2147483648 | 0).toString(16);
 
@@ -261,11 +263,11 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
             .then(utils.saveCookies(jar))
             .then(function(res) {
                 var headers = res.headers;
-                if (!headers.location) throw { error: "Wrong username/password." };
+                if (!headers.location) throw { error: "Sai Mật Khẩu Hoặc Tài Khoản !" };
 
                 // This means the account has login approvals turned on.
                 if (headers.location.indexOf('https://www.facebook.com/checkpoint/') > -1) {
-                    log.info("login", "You have login approvals turned on.");
+                    log.info("login", "Heyyy M Bật Hai Bảo Mật Kìa");
                     var nextURL = 'https://www.facebook.com/checkpoint/?next=https%3A%2F%2Fwww.facebook.com%2Fhome.php';
 
                     return utils

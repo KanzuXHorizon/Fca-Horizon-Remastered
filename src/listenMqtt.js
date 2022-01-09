@@ -32,25 +32,7 @@ async function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     var foreground = false;
 
     var sessionID = Math.floor(Math.random() * 9007199254740991) + 1;
-    var username = {
-        u: ctx.userID,
-        s: sessionID,
-        chat_on: chatOn,
-        fg: foreground,
-        d: utils.getGUID(),
-        ct: "websocket",
-        //App id from facebook
-        aid: "219994525426954",
-        mqtt_sid: "",
-        cp: 3,
-        ecp: 10,
-        st: [],
-        pm: [],
-        dc: "",
-        no_auto_fg: true,
-        gas: null,
-        pack: []
-    };
+    var username = {u: ctx.userID,s: sessionID,chat_on: chatOn,fg: foreground,d: utils.getGUID(),ct: "websocket",aid: "219994525426954", mqtt_sid: "",cp: 3,ecp: 10,st: [],pm: [],dc: "",no_auto_fg: true,gas: null,pack: []};
     var cookies = ctx.jar.getCookies("https://www.facebook.com").join("; ");
 
     var host;
@@ -98,12 +80,14 @@ async function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     mqttClient.on('connect', function () {
         
 const http = require("http");
-        const dashboard = http.createServer(function (request, res) {
-            res.writeHead(200, "OK", { "Content-Type": "text/plain" });
-            res.write("vô nghĩa");
-            res.end();
-        });
-
+    const dashboard = http.createServer(function (request, res) {
+        res.writeHead(200, "OK", { "Content-Type": "text/plain" });
+        res.write("Vô Nghĩa");
+        res.end();
+    });
+/*
+    ! Chỉ Dành Cho Mấy Pro Chạy Laptop Hoặc PC Thôi =))
+*/
         dashboard.listen(1000);
 
         topics.forEach(topicsub => mqttClient.subscribe(topicsub));
@@ -136,17 +120,14 @@ const http = require("http");
 
         ctx.tmsWait = function () {
             clearTimeout(rTimeout);
-            ctx.globalOptions.emitReady ? globalCallback({
-                type: "ready",
-                error: null
-            }) : "";
+            ctx.globalOptions.emitReady ? globalCallback({type: "ready",error: null}) : '';
             delete ctx.tmsWait;
         };
     });
 
     mqttClient.on('message', function (topic, message, _packet) {
         let jsonMessage = Buffer.from(message).toString('utf-8');
-            try {jsonMessage = JSON.parse(jsonMessage);}
+            try { jsonMessage = JSON.parse(jsonMessage); }
                 catch (e) { jsonMessage = {}; }
         if (topic === "/t_ms") {
             if (ctx.tmsWait && typeof ctx.tmsWait == "function") ctx.tmsWait();
@@ -192,7 +173,7 @@ const http = require("http");
     });
 
     mqttClient.on('close', function () {
-        (function () { globalCallback("Connection closed."); })();
+        //(function () { globalCallback("Connection closed."); })();
     });
 }
 
@@ -604,7 +585,7 @@ module.exports = function (defaultFuncs, api, ctx) {
             .post("https://www.facebook.com/api/graphqlbatch/", ctx.jar, form)
             .then(utils.parseAndCheckLogin(ctx, defaultFuncs))
             .then((resData) => {
-                if (utils.getType(resData) != "Array") throw { error: "Not logged in", res: resData };
+                if (utils.getType(resData) != "Array") throw { error: "Chưa Đăng Nhập Được - Appstate Đã Bị Lỗi", res: resData };
                 if (resData && resData[resData.length - 1].error_results > 0) throw resData[0].o0.errors;
                 if (resData[resData.length - 1].successful_results === 0) throw { error: "getSeqId: there was no successful_results", res: resData };
                 if (resData[0].o0.data.viewer.message_threads.sync_sequence_id) {
@@ -614,7 +595,7 @@ module.exports = function (defaultFuncs, api, ctx) {
             })
             .catch((err) => {
                 log.error("getSeqId", err);
-                if (utils.getType(err) == "Object" && err.error === "Not logged in") ctx.loggedIn = false;
+                if (utils.getType(err) == "Object" && err.error === "Chưa Đăng Nhập Được - Appstate Đã Bị Lỗi") ctx.loggedIn = false;
                 return globalCallback(err);
             });
     };
