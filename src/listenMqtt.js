@@ -61,7 +61,7 @@ async function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     var options = {
         clientId: "mqttwsclient",
         protocolId: 'MQIsdp',
-        protocolVersion: 4,
+        protocolVersion: 3,
         username: JSON.stringify(username),
         clean: true,
         wsOptions: {
@@ -73,7 +73,7 @@ async function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
                 'Host': new URL(host).hostname //'edge-chat.facebook.com'
             },
             origin: 'https://www.facebook.com',
-            protocolVersion: 14
+            protocolVersion: 13
         },
         keepalive: 13,
         reschedulePings: true
