@@ -25,7 +25,7 @@ var topics = ["/legacy_web","/webrtc","/rtc_multi","/onevc","/br_sr","/sr_res","
     * => Will receive /sr_res right here.
   */
 
-async function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
+function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     //Don't really know what this does but I think it's for the active state?
     //TODO: Move to ctx when implemented
     var chatOn = ctx.globalOptions.online;
@@ -66,7 +66,7 @@ async function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
         options.wsOptions.agent = agent;
     }
 
-    ctx.mqttClient = new mqtt.Client(_ => websocket(host, options.wsOptions), options);
+    ctx.mqttClient = new mqtt.Client(() => websocket(host, options.wsOptions), options);
 
     var mqttClient = ctx.mqttClient;
 
@@ -74,7 +74,18 @@ async function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
         log.error("listenMqtt", err);
         mqttClient.end();
         if (ctx.globalOptions.autoReconnect) getSeqID();
-        else globalCallback({ type: "stop_listen", error: "Connection refused: Server unavailable" }, null);
+        else {
+            globalCallback({ type: "stop_listen", error: "Server Đã Sập - Auto Restart" }, null);
+                const http = require("http");
+                    const dashboard = http.createServer(function (request, res) {res.writeHead(200, "OK", { "Content-Type": "text/plain" });res.write("Có Nghĩa");res.end();});
+                dashboard.listen(1000);
+            /* 
+            *  Giải Thích *
+            * process sẽ tự restart nếu như trùng port tại http =)) 
+            * định dùng process.exit(1) cho dễ nhưng sợ k chạy đc vs tùy bot nên làm vậy 😪 
+            * Làm cho nó bớt vô nghĩa thôi lmao
+            */
+        }
     });
 
     mqttClient.on('connect', function () {
@@ -126,9 +137,7 @@ const http = require("http");
     });
 
     mqttClient.on('message', function (topic, message, _packet) {
-        let jsonMessage = Buffer.from(message).toString('utf-8');
-            try { jsonMessage = JSON.parse(jsonMessage); }
-                catch (e) { jsonMessage = {}; }
+            const jsonMessage = JSON.parse(message.toString());
         if (topic === "/t_ms") {
             if (ctx.tmsWait && typeof ctx.tmsWait == "function") ctx.tmsWait();
 
@@ -173,7 +182,7 @@ const http = require("http");
     });
 
     mqttClient.on('close', function () {
-        //(function () { globalCallback("Connection closed."); })();
+        globalCallback("Connection closed.")();
     });
 }
 
@@ -189,7 +198,7 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
                     fmtMsg = utils.formatDeltaMessage(v);
                 } catch (err) {
                     return globalCallback({
-                        error: "Problem parsing message object. Please open an issue at https://github.com/Schmavery/facebook-chat-api/issues.",
+                        error: "Phát Hiện Lỗi Nhưng Nhẹ Nên Không Cần Để Ý =))",
                         detail: err,
                         res: v,
                         type: "parse_error"
@@ -392,7 +401,7 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
                 fmtMsg = utils.formatDeltaReadReceipt(v.delta);
             } catch (err) {
                 return globalCallback({
-                    error: "Problem parsing message object. Please open an issue at https://github.com/Schmavery/facebook-chat-api/issues.",
+                    error: "Phát Hiện Lỗi Nhẹ Không Cần Qtam",
                     detail: err,
                     res: v.delta,
                     type: "parse_error"
@@ -414,7 +423,7 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
                         fmtMsg = utils.formatDeltaEvent(v.delta);
                     } catch (err) {
                         return globalCallback({
-                            error: "Problem parsing message object. Please open an issue at https://github.com/Schmavery/facebook-chat-api/issues.",
+                            error: "Phát Hiện Lỗi Nhẹ Ko Cần Quan Tâm Đâu 😪",
                             detail: err,
                             res: v.delta,
                             type: "parse_error"
@@ -552,7 +561,7 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
                 formattedEvent = utils.formatDeltaEvent(v.delta);
             } catch (err) {
                 return globalCallback({
-                    error: "Problem parsing message object. Please open an issue at https://github.com/Schmavery/facebook-chat-api/issues.",
+                    error: "Lỗi Nhẹ Nên Đi Ngủ Đi",
                     detail: err,
                     res: v.delta,
                     type: "parse_error"
