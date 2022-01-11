@@ -479,6 +479,7 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
     mainPromise
         .then(function() {
             log.info("login", 'Hoàn Thành Quá Trình Đăng Nhập !');
+            log.info("Horizon", 'Chúc Admin Một Ngày Tốt Lành Nhé !');
             return callback(null, api);
         })
         .catch(function(e) {
