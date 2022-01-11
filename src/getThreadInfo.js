@@ -197,7 +197,7 @@ module.exports = function(defaultFuncs, api, ctx) {
         callback(null, formatThreadGraphQLResponse(resData[0]));
       })
       .catch(function(err) {
-        log.error("getThreadInfoGraphQL", err);
+        log.error("getThreadInfoGraphQL", "Lỗi: getThreadInfoGraphQL Có Thể Do Bạn Spam Quá Nhiều, Hãy Thử Lại !");
         return callback(err);
       });
 
