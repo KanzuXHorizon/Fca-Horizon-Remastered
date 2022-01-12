@@ -482,15 +482,15 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
                 log.info("Loli", 'Chúc Bạn Một Ngày Tốt Lành Nhé !'); // =))))))))))))))))))
                     //!---------- Auto Check, Update START -----------------!//
                     var axios = require('axios');
-                var semver = require('semver');
+                //var semver = require('semver');
             var { readFileSync } = require('fs-extra');
         const { execSync } = require('child_process');
     axios.get('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then((res) => {
         const localbrand = JSON.parse(readFileSync('./package.json')).version;
-            if (semver.lt(localbrand, res.data.version)) {
+            if (localbrand != res.data.version) {
                 log.warn("Update",`Có Phiên Bản Mới Là: ${res.data.version} | Auto Update - Start !`);
                     try {
-                        execSync('npm install -s --prefer-offline --no-audit --package-lock false fca-horizon-remake@latest');
+                        execSync('npm install fca-horizon-remake@latest', { stdio: 'ignore' });
                     }
                 catch (err) {
                     log.warn('Lỗi Auto Update !' + err);
