@@ -502,7 +502,7 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
             }
                 }
                 else { 
-                    log.info("Update",`Bạn Đang Sử Dụng Phiên Bản Mới Nhất !`);
+                    log.info("Update",`Bạn Đang Sử Dụng Phiên Bản Mới Nhất ` + localbrand + ' !');
                     return callback(null, api);
                 }
             });
