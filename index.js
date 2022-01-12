@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var utils = require("./utils");
 var cheerio = require("cheerio");
@@ -479,8 +479,24 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
     mainPromise
         .then(function() {
             log.info("login", 'Hoàn Thành Quá Trình Đăng Nhập !');
-            log.info("Horizon", 'Chúc Admin Một Ngày Tốt Lành Nhé !');
-            return callback(null, api);
+            log.info("Loli", 'Chúc Bạn Một Ngày Tốt Lành Nhé !'); // =))))))))))))))))))
+            /*
+                * Check Update
+            */
+            var axios = require('axios');
+            var semver = require('semver');
+            var { readFileSync } = require('fs-extra')
+                axios.get('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then((res) => {
+                const local = JSON.parse(readFileSync('./package.json')).version;
+                if (semver.lt(local, res.data.version)) {
+                log.info("Update",`Có Phiên Bản Mới Là: ${res.data.version} Hãy Cập Nhật Để Trải Nghiệm Tốt Nhất !`);
+                return callback(null, api);
+                }
+                else { 
+                    log.info("Update",`Bạn Đang Sử Dụng Phiên Bản Mới Nhất !`);
+                    return callback(null, api);
+                    }
+                });
         })
         .catch(function(e) {
             log.error("login", e.error || e);

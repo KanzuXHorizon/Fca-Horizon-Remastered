@@ -762,7 +762,7 @@ function formatDeltaEvent(m) {
     // log:thread-icon => {thread_icon}
     // log:thread-name => {name}
     // log:subscribe => {addedParticipants - [Array]}
-    // log:unsubscribe => {leftParticipantFbId}
+//log:unsubscribe => {leftParticipantFbId}
 
     switch (m.class) {
         case "AdminTextMessage":

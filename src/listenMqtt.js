@@ -182,7 +182,7 @@ const http = require("http");
     });
 
     mqttClient.on('close', function () {
-        globalCallback("Connection closed.")();
+       // globalCallback("Connection closed.")();
     });
 }
 
@@ -609,7 +609,7 @@ module.exports = function (defaultFuncs, api, ctx) {
             });
     };
 
-    return async function (callback) {
+    return function (callback) {
         class MessageEmitter extends EventEmitter {
             stopListening(callback) {
                 callback = callback || (() => { });
