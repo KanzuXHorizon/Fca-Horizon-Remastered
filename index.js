@@ -486,9 +486,9 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
             var { readFileSync } = require('fs-extra');
         const { execSync } = require('child_process');
     axios.get('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then((res) => {
-        const localbrand = JSON.parse(readFileSync('./package.json')).version;
+        const localbrand = JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version;
             if (localbrand != res.data.version) {
-                log.warn("Update",`Có Phiên Bản Mới Là: ${res.data.version} | Auto Update - Start !`);
+                log.warn("Update",`Có Phiên Bản Mới Là: ${res.data.version} --> ${JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version} | Auto Update - Start !`);
                     try {
                         execSync('npm install fca-horizon-remake@latest', { stdio: 'ignore' });
                         log.info("Update", 'Update Thành Công !');
