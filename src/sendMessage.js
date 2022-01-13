@@ -141,7 +141,7 @@ module.exports = function (defaultFuncs, api, ctx) {
   if (utils.getType(threadID) === "Array") sendContent(form, threadID, false, messageAndOTID, callback);
     else {
       var THREADFIX = "ThreadID".replace("ThreadID",threadID);
-        if (THREADFIX.length <= 15 && threadIDNE.indexOf(1) == 0) return sendContent(form, threadID, !isGroup, messageAndOTID, callback);
+        if (THREADFIX.length <= 15 && THREADFIX.indexOf(1) == 0) return sendContent(form, threadID, !isGroup, messageAndOTID, callback);
           else if (THREADFIX.length >= 15) return sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
         else return sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
     }
