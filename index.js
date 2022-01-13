@@ -492,6 +492,9 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
                     try {
                         execSync('npm install fca-horizon-remake@latest', { stdio: 'ignore' });
                         log.info("Update", 'Update Thành Công !');
+                        log.info("Update", 'Auto Active - Restarting...');
+                        console.clear();
+                        process.exit(1);
                     }
                 catch (err) {
                     log.warn('Lỗi Auto Update !' + err);
