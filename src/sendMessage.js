@@ -136,15 +136,17 @@ module.exports = function (defaultFuncs, api, ctx) {
   }
 
   function send(form, threadID, messageAndOTID, callback, isGroup) {
-    // We're doing a query to this to check if the given id is the id of
-    // a user or of a group chat. The form will be different depending
-    // on that.
-    if (utils.getType(threadID) === "Array") sendContent(form, threadID, false, messageAndOTID, callback);
+   // fix lỗi = cach fetch threadID
+   // iq 5 trieu nam =)) 
+  if (utils.getType(threadID) === "Array") sendContent(form, threadID, false, messageAndOTID, callback);
     else {
-      if (utils.getType(isGroup) != "Boolean") sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
-      else sendContent(form, threadID, !isGroup, messageAndOTID, callback);
+      var THREADFIX = "ThreadID".replace("ThreadID",threadID);
+        if (THREADFIX.length <= 15 && threadIDNE.indexOf(1) == 0) return sendContent(form, threadID, !isGroup, messageAndOTID, callback);
+          else if (THREADFIX.length >= 15) return sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
+        else return sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
+      }
     }
-  }
+  };
 
   function handleUrl(msg, form, callback, cb) {
     if (msg.url) {
