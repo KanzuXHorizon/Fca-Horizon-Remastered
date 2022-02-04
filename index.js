@@ -3,6 +3,7 @@
 var utils = require("./utils");
 var cheerio = require("cheerio");
 var log = require("npmlog");
+var logger = require('./logger');
 
 var checkVerified = null;
 
@@ -85,7 +86,7 @@ function buildAPI(globalOptions, html, jar) {
     if (html.indexOf("/checkpoint/block/?next") > -1) log.warn("login", "Phát Hiện CheckPoint !, Hãy Thử Đăng Nhập Vô Trình Duyệt Ẩn Danh Và Thử Lại !");
 
     var userID = maybeCookie[0].cookieString().split("=")[1].toString();
-    log.info("Horizon =>", `Đăng Nhập Tại ID: ${userID}`);
+    logger(`Đăng Nhập Tại ID: ${userID}`, "[ Horizon ]");
 
     try {
         clearInterval(checkVerified);
@@ -105,22 +106,22 @@ function buildAPI(globalOptions, html, jar) {
         irisSeqID = oldFBMQTTMatch[1];
         mqttEndpoint = oldFBMQTTMatch[2];
         region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
-        log.info("Horizon =>", `Vùng Của Tài Khoản Là: ${region}`);
+        logger(`Vùng Của Tài Khoản Là: ${region}`, "[ Horizon ]");
     } else {
         let newFBMQTTMatch = html.match(/{"app_id":"219994525426954","endpoint":"(.+?)","iris_seq_id":"(.+?)"}/);
         if (newFBMQTTMatch) {
             irisSeqID = newFBMQTTMatch[2];
             mqttEndpoint = newFBMQTTMatch[1].replace(/\\\//g, "/");
             region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
-            log.info("Horizon =>", `Vùng Của Tài Khoản Là:  ${region}`);
+            logger(`Vùng Của Tài Khoản Là:  ${region}`, "[ Horizon ]");
         } else {
             let legacyFBMQTTMatch = html.match(/(\["MqttWebConfig",\[\],{fbid:")(.+?)(",appID:219994525426954,endpoint:")(.+?)(",pollingEndpoint:")(.+?)(3790])/);
             if (legacyFBMQTTMatch) {
                 mqttEndpoint = legacyFBMQTTMatch[4];
                 region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
                 log.warn("login", `Cannot get sequence ID with new RegExp. Fallback to old RegExp (without seqID)...`);
-                log.info("Horizon =>", `Vùng Của Tài Khoản Là: ${region}`);
-                log.info("login", `[Unused] Polling endpoint: ${legacyFBMQTTMatch[6]}`);
+                logger(`Vùng Của Tài Khoản Là: ${region}`, "[ Horizon ]");
+                logger("login", `[Unused] Polling endpoint: ${legacyFBMQTTMatch[6]}`);
             } else {
                 log.warn("login", "Không Thể Lấy ID Hãy Thử Lại !");
                 noMqttData = html;
@@ -257,7 +258,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
         });
         // ---------- Very Hacky Part Ends -----------------
 
-        log.info("Horizon =>", "Đang Đăng Nhập...");
+        logger("Đang Đăng Nhập...", "[ Horizon ]");
         return utils
             .post("https://www.facebook.com/login/device-based/regular/login/?login_attempt=1&lwv=110", jar, form, loginOptions)
             .then(utils.saveCookies(jar))
@@ -267,7 +268,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
 
                 // This means the account has login approvals turned on.
                 if (headers.location.indexOf('https://www.facebook.com/checkpoint/') > -1) {
-                    log.info("Horizon =>", "Bạn Đang Bật 2 Bảo Mật !");
+                    logger("Bạn Đang Bật 2 Bảo Mật !", "[ Horizon ]");
                     var nextURL = 'https://www.facebook.com/checkpoint/?next=https%3A%2F%2Fwww.facebook.com%2Fhome.php';
 
                     return utils
@@ -359,7 +360,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                         JSON.parse(res.body.replace(/for\s*\(\s*;\s*;\s*\)\s*;\s*/, ""));
                                                     } catch (ex) {
                                                         clearInterval(checkVerified);
-                                                        log.info("Horizon =>", "Xác Nhận Từ Trình Duyệt, Đang Đăng Nhập...");
+                                                        logger("Xác Nhận Từ Trình Duyệt, Đang Đăng Nhập...", "[ Horizon ]");
                                                         if (callback === prCallback) {
                                                             callback = function(err, api) {
                                                                 if (err) return prReject(err);
@@ -490,17 +491,16 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
                     return;
                 }
                 finally {
-                    log.info("Horizon =>", random);
+                    logger(random, "[ Horizon ]");
                 }
                 setInterval(async function () {await BroadCast()},1800 * 1000);
             }
 
             //!---------- Junk Code - Fca-BroadCasr -----------------!//
-
     mainPromise
         .then(function() {
-            log.info("Horizon =>", 'Hoàn Thành Quá Trình Đăng Nhập !');
-                log.info("Horizon =>", 'Chúc Bạn Một Ngày Tốt Lành Nhé !');
+            logger('Hoàn Thành Quá Trình Đăng Nhập !', "[ Horizon ]");
+                logger('Chúc Bạn Một Ngày Tốt Lành Nhé !', "[ Horizon ]");
                     //!---------- Auto Check, Update START -----------------!//
                     var axios = require('axios');
                 //var semver = require('semver');
@@ -512,15 +512,15 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
                 log.warn("Horizon =>",`Có Phiên Bản Mới Là: ${JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version}  --> ${res.data.version} | Tự Động Update`);
                     try {
                         execSync('npm install fca-horizon-remake@latest', { stdio: 'ignore' });
-                        log.info("Horizon =>", 'Nâng Cấp Phi    ên Bản Thành Công!');
-                        log.info("Horizon =>", 'Đang Khởi Động Lại...');
+                        logger("Nâng Cấp Phiên Bản Thành Công!","[ Horizon ]")
+                        logger('Đang Khởi Động Lại...', '[ Horizon ]');
                         console.clear();
                         process.exit(1);
                     }
                 catch (err) {
                     log.warn('Lỗi Auto Update !' + err);
-                    log.info("Horizon =>", 'Nâng Cấp Thất Bại !');
-                    log.info("Horizon =>", "Hãy Tự Nâng Cấp Bằng Cách Nhập npm i fca-horizon-remake@latest")
+                    logger('Nâng Cấp Thất Bại !',"[ Horizon ]");
+                    logger("Hãy Tự Nâng Cấp Bằng Cách Nhập npm i fca-horizon-remake@latest","[ Horizon ]")
                     await new Promise(resolve => setTimeout(resolve, 5*1000));
                 }
             finally {
@@ -528,7 +528,7 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
             }
                 }
                 else { 
-                    log.info("Horizon =>",`Bạn Đang Sử Dụng Phiên Bản Mới Nhất: ` + localbrand + ' !');
+                    logger(`Bạn Đang Sử Dụng Phiên Bản Mới Nhất: ` + localbrand + ' !', "[ Horizon ]");
                     await BroadCast();
                     await new Promise(resolve => setTimeout(resolve, 2*1000));
                     callback(null, api);
