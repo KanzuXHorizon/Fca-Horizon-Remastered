@@ -142,8 +142,8 @@ module.exports = function (defaultFuncs, api, ctx) {
     else {
       var THREADFIX = "ThreadID".replace("ThreadID",threadID);
         if (THREADFIX.length <= 15 && THREADFIX.indexOf(1) == 0) return sendContent(form, threadID, !isGroup, messageAndOTID, callback);
-          else if (THREADFIX.length >= 15) return sendContent(form, threadID, threadID.length === 16, messageAndOTID, callback);
-        else return sendContent(form, threadID, threadID.length === 16, messageAndOTID, callback);
+          else if (THREADFIX.length >= 15) return sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
+        else return sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
     }
   }
   function handleUrl(msg, form, callback, cb) {
