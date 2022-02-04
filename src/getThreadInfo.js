@@ -2,7 +2,7 @@
 
 var utils = require("../utils");
 var log = require("npmlog");
-
+// tương lai đi rồi fix ahahha
 function formatEventReminders(reminder) {
   return {
     reminderID: reminder.id,

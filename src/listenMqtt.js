@@ -76,15 +76,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
         if (ctx.globalOptions.autoReconnect) getSeqID();
         else {
             globalCallback({ type: "stop_listen", error: "Server Đã Sập - Auto Restart" }, null);
-                const http = require("http");
-                    const dashboard = http.createServer(function (request, res) {res.writeHead(200, "OK", { "Content-Type": "text/plain" });res.write("Có Nghĩa");res.end();});
-                dashboard.listen(1000);
-            /* 
-            *  Giải Thích *
-            * process sẽ tự restart nếu như trùng port tại http =)) 
-            * định dùng process.exit(1) cho dễ nhưng sợ k chạy đc vs tùy bot nên làm vậy 😪 
-            * Làm cho nó bớt vô nghĩa thôi lmao
-            */
+            return process.exit(1);
         }
     });
 
@@ -93,13 +85,13 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
 const http = require("http");
     const dashboard = http.createServer(function (request, res) {
         res.writeHead(200, "OK", { "Content-Type": "text/plain" });
-        res.write("Vô Nghĩa");
+        res.write("If Fca-horizon-remake error, Pls contact fb.com/Lazic.Kanzu");
         res.end();
     });
 /*
-    ! Chỉ Dành Cho Mấy Pro Chạy Laptop Hoặc PC Thôi =))
+    ! Vô Nghĩa Thành Ko Có Nghĩa 
 */
-        dashboard.listen(1000);
+        dashboard.listen(25565);
 
         topics.forEach(topicsub => mqttClient.subscribe(topicsub));
 
@@ -182,7 +174,6 @@ const http = require("http");
     });
 
     mqttClient.on('close', function () {
-       // globalCallback("Connection closed.")();
     });
 }
 
@@ -197,12 +188,7 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
                 try {
                     fmtMsg = utils.formatDeltaMessage(v);
                 } catch (err) {
-                    return globalCallback({
-                        error: "Phát Hiện Lỗi Nhưng Nhẹ Nên Không Cần Để Ý =))",
-                        detail: err,
-                        res: v,
-                        type: "parse_error"
-                    });
+                    return log.error("Lỗi Nhẹ", null);
                 }
                 if (fmtMsg)
                     if (ctx.globalOptions.autoMarkDelivery) markDelivery(ctx, api, fmtMsg.threadID, fmtMsg.messageID);
@@ -400,12 +386,7 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
             try {
                 fmtMsg = utils.formatDeltaReadReceipt(v.delta);
             } catch (err) {
-                return globalCallback({
-                    error: "Phát Hiện Lỗi Nhẹ Không Cần Qtam",
-                    detail: err,
-                    res: v.delta,
-                    type: "parse_error"
-                });
+                return log.error("Lỗi Nhẹ", null)
             }
             return (function () { globalCallback(null, fmtMsg); })();
         case "AdminTextMessage":
@@ -422,12 +403,7 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
                     try {
                         fmtMsg = utils.formatDeltaEvent(v.delta);
                     } catch (err) {
-                        return globalCallback({
-                            error: "Phát Hiện Lỗi Nhẹ Ko Cần Quan Tâm Đâu 😪",
-                            detail: err,
-                            res: v.delta,
-                            type: "parse_error"
-                        });
+                        return log.error("Lỗi Nhẹ", null)
                     }
                     return (function () { globalCallback(null, fmtMsg); })();
                 default:
@@ -560,12 +536,7 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
             try {
                 formattedEvent = utils.formatDeltaEvent(v.delta);
             } catch (err) {
-                return globalCallback({
-                    error: "Lỗi Nhẹ Nên Đi Ngủ Đi",
-                    detail: err,
-                    res: v.delta,
-                    type: "parse_error"
-                });
+                return log.error("Lỗi Nhẹ", null)
             }
             return (!ctx.globalOptions.selfListen && formattedEvent.author.toString() === ctx.userID) || !ctx.loggedIn ? undefined : (function () { globalCallback(null, formattedEvent); })();
     }
