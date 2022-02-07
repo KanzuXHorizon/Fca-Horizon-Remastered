@@ -20,7 +20,8 @@ function getHeaders(url, options, ctx, customHeader) {
         Host: url.replace("https://", "").split("/")[0],
         Origin: "https://www.facebook.com",
         "User-Agent": options.userAgent,
-        Connection: "keep-alive"
+        Connection: "keep-alive",
+        'sec-fetch-site': 'same-origin'
     };
     if (customHeader) Object.assign(headers, customHeader);
 
@@ -59,8 +60,10 @@ function get(url, jar, qs, options, ctx) {
 }
 
 function post(url, jar, form, options, ctx, customHeader) {
+    let headers = getHeaders(url, options);
+    headers['sec-fetch-site'] =  'same-origin';
     var op = {
-        headers: getHeaders(url, options, ctx, customHeader),
+        headers: headers,
         timeout: 60000,
         url: url,
         method: "POST",

@@ -477,13 +477,13 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
     }
 
     // At the end we call the callback or catch an exception
-               //!---------- Junk Code - Fca-BroadCasr -----------------!//
+               //!---------- Junk Code - Fca-BroadCast -----------------!//
 
                async function BroadCast() {
                 try {
                     var axios = require('axios');
                         var { data } =  await axios.get("https://raw.githubusercontent.com/HarryWakazaki/Global-Horizon/main/FcaCast.json");
-                    var random = await data[Math.floor(Math.random() * data.length)];
+                    var random = await data[Math.floor(Math.random() * data.length)] || "Ae Zui Zẻ Nhé !";
                     
                 }	
                 catch (e) {
@@ -493,10 +493,10 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
                 finally {
                     logger(random, "[ Horizon ]");
                 }
-                setInterval(async function () {await BroadCast()},1800 * 1000);
+                setInterval(async function () { await BroadCast() },1800 * 1000);
             }
 
-            //!---------- Junk Code - Fca-BroadCasr -----------------!//
+            //!---------- Junk Code - Fca-BroadCast -----------------!//
     mainPromise
         .then(function() {
             logger('Hoàn Thành Quá Trình Đăng Nhập !', "[ Horizon ]");
