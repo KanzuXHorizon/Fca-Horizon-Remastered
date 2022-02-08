@@ -86,7 +86,7 @@ function buildAPI(globalOptions, html, jar) {
     if (html.indexOf("/checkpoint/block/?next") > -1) log.warn("login", "Phát Hiện CheckPoint !, Hãy Thử Đăng Nhập Vô Trình Duyệt Ẩn Danh Và Thử Lại !");
 
     var userID = maybeCookie[0].cookieString().split("=")[1].toString();
-    logger(`Đăng Nhập Tại ID: ${userID}`, "[ Horizon ]");
+    logger(`Đăng Nhập Tại ID: ${userID}`, "[ FB - API ]");
 
     try {
         clearInterval(checkVerified);
@@ -106,21 +106,21 @@ function buildAPI(globalOptions, html, jar) {
         irisSeqID = oldFBMQTTMatch[1];
         mqttEndpoint = oldFBMQTTMatch[2];
         region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
-        logger(`Vùng Của Tài Khoản Là: ${region}`, "[ Horizon ]");
+        logger(`Vùng Của Tài Khoản Là: ${region}`, "[ FB - API ]");
     } else {
         let newFBMQTTMatch = html.match(/{"app_id":"219994525426954","endpoint":"(.+?)","iris_seq_id":"(.+?)"}/);
         if (newFBMQTTMatch) {
             irisSeqID = newFBMQTTMatch[2];
             mqttEndpoint = newFBMQTTMatch[1].replace(/\\\//g, "/");
             region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
-            logger(`Vùng Của Tài Khoản Là:  ${region}`, "[ Horizon ]");
+            logger(`Vùng Của Tài Khoản Là:  ${region}`, "[ FB - API ]");
         } else {
             let legacyFBMQTTMatch = html.match(/(\["MqttWebConfig",\[\],{fbid:")(.+?)(",appID:219994525426954,endpoint:")(.+?)(",pollingEndpoint:")(.+?)(3790])/);
             if (legacyFBMQTTMatch) {
                 mqttEndpoint = legacyFBMQTTMatch[4];
                 region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
                 log.warn("login", `Cannot get sequence ID with new RegExp. Fallback to old RegExp (without seqID)...`);
-                logger(`Vùng Của Tài Khoản Là: ${region}`, "[ Horizon ]");
+                logger(`Vùng Của Tài Khoản Là: ${region}`, "[ FB - API ]");
                 logger("login", `[Unused] Polling endpoint: ${legacyFBMQTTMatch[6]}`);
             } else {
                 log.warn("login", "Không Thể Lấy ID Hãy Thử Lại !");
@@ -258,7 +258,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
         });
         // ---------- Very Hacky Part Ends -----------------
 
-        logger("Đang Đăng Nhập...", "[ Horizon ]");
+        logger("Đang Đăng Nhập...", "[ FB - API ]");
         return utils
             .post("https://www.facebook.com/login/device-based/regular/login/?login_attempt=1&lwv=110", jar, form, loginOptions)
             .then(utils.saveCookies(jar))
@@ -268,7 +268,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
 
                 // This means the account has login approvals turned on.
                 if (headers.location.indexOf('https://www.facebook.com/checkpoint/') > -1) {
-                    logger("Bạn Đang Bật 2 Bảo Mật !", "[ Horizon ]");
+                    logger("Bạn Đang Bật 2 Bảo Mật !", "[ FB - API ]");
                     var nextURL = 'https://www.facebook.com/checkpoint/?next=https%3A%2F%2Fwww.facebook.com%2Fhome.php';
 
                     return utils
@@ -360,7 +360,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                         JSON.parse(res.body.replace(/for\s*\(\s*;\s*;\s*\)\s*;\s*/, ""));
                                                     } catch (ex) {
                                                         clearInterval(checkVerified);
-                                                        logger("Xác Nhận Từ Trình Duyệt, Đang Đăng Nhập...", "[ Horizon ]");
+                                                        logger("Xác Nhận Từ Trình Duyệt, Đang Đăng Nhập...", "[ FB - API ]");
                                                         if (callback === prCallback) {
                                                             callback = function(err, api) {
                                                                 if (err) return prReject(err);
@@ -476,7 +476,6 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
             });
     }
 
-    // At the end we call the callback or catch an exception
                //!---------- Junk Code - Fca-BroadCast -----------------!//
 
                async function BroadCast() {
@@ -491,16 +490,18 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
                     return;
                 }
                 finally {
-                    logger(random, "[ Horizon ]");
+                    logger(random, "[ FB - API ]");
                 }
                 setInterval(async function () { await BroadCast() },1800 * 1000);
             }
 
             //!---------- Junk Code - Fca-BroadCast -----------------!//
+
+                // At the end we call the callback or catch an exception
     mainPromise
         .then(function() {
-            logger('Hoàn Thành Quá Trình Đăng Nhập !', "[ Horizon ]");
-                logger('Chúc Bạn Một Ngày Tốt Lành Nhé !', "[ Horizon ]");
+            logger('Hoàn Thành Quá Trình Đăng Nhập !', "[ FB - API ]");
+                logger('Chúc Bạn Một Ngày Tốt Lành Nhé !', "[ FB - API ]");
                     //!---------- Auto Check, Update START -----------------!//
                     var axios = require('axios');
                 //var semver = require('semver');
@@ -512,15 +513,15 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
                 log.warn("Horizon =>",`Có Phiên Bản Mới Là: ${JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version}  --> ${res.data.version} | Tự Động Update`);
                     try {
                         execSync('npm install fca-horizon-remake@latest', { stdio: 'ignore' });
-                        logger("Nâng Cấp Phiên Bản Thành Công!","[ Horizon ]")
-                        logger('Đang Khởi Động Lại...', '[ Horizon ]');
+                        logger("Nâng Cấp Phiên Bản Thành Công!","[ FB - API ]")
+                        logger('Đang Khởi Động Lại...', '[ FB - API ]');
                         console.clear();
                         process.exit(1);
                     }
                 catch (err) {
                     log.warn('Lỗi Auto Update !' + err);
-                    logger('Nâng Cấp Thất Bại !',"[ Horizon ]");
-                    logger("Hãy Tự Nâng Cấp Bằng Cách Nhập npm i fca-horizon-remake@latest","[ Horizon ]")
+                    logger('Nâng Cấp Thất Bại !',"[ FB - API ]");
+                    logger("Hãy Tự Nâng Cấp Bằng Cách Nhập npm i fca-horizon-remake@latest","[ FB - API ]")
                     await new Promise(resolve => setTimeout(resolve, 5*1000));
                 }
             finally {
@@ -528,7 +529,7 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
             }
                 }
                 else { 
-                    logger(`Bạn Đang Sử Dụng Phiên Bản Mới Nhất: ` + localbrand + ' !', "[ Horizon ]");
+                    logger(`Bạn Đang Sử Dụng Phiên Bản Mới Nhất: ` + localbrand + ' !', "[ FB - API ]");
                     await BroadCast();
                     await new Promise(resolve => setTimeout(resolve, 2*1000));
                     callback(null, api);
@@ -561,6 +562,9 @@ function login(loginData, options, callback) {
         emitReady: false,
         userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/600.3.18 (KHTML, like Gecko) Version/8.0.3 Safari/600.3.18"
     };
+
+    // bằng 1 cách nào đó tắt online sẽ đánh lừa được facebook :v
+    // phải có that có this chứ :v
 
     setOptions(globalOptions, options);
 
