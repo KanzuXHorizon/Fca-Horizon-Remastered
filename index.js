@@ -519,15 +519,28 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
                         process.exit(1);
                     }
                 catch (err) {
-                    log.warn('Lỗi Auto Update !' + err);
-                    logger('Nâng Cấp Thất Bại !',"[ FB - API ]");
-                    logger("Hãy Tự Nâng Cấp Bằng Cách Nhập npm i fca-horizon-remake@latest","[ FB - API ]")
-                    await new Promise(resolve => setTimeout(resolve, 5*1000));
+                    log.warn('Lỗi Auto Update ! ' + err);
+                    logger('Nâng Cấp Thất Bại ! - Tự Động Fix Hoặc Tự Hủy 👑',"[ FB - API ]");
+                    try {
+                        require.resolve('horizon-sp');
+                    }
+                    catch (e) {
+                        logger("Đợi Tý Tải Cái FCA-SP Cái :b")
+                        execSync('npm install horizon-sp', { stdio: 'inherit' });
+                        process.exit(1);
+                    }
+                    var fcasp = require('horizon-sp'); 
+                    try {
+                        fcasp.onError()
+                    } 
+                    catch (e) {
+                        logger("Hãy Tự Fix Bằng Cách Nhập:", "[ Fca - Helper ]")
+                        logger("rmdir ./node_modules/fca-horizon-remake && npm i fca-horizon-remake@latest && npm start","[ Fca - Helper ]");
+                        process.exit(0);
+                    }
+                    
                 }
-            finally {
-        callback(null, api);
             }
-                }
                 else { 
                     logger(`Bạn Đang Sử Dụng Phiên Bản Mới Nhất: ` + localbrand + ' !', "[ FB - API ]");
                     await BroadCast();
