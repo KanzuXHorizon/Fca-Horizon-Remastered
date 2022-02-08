@@ -476,26 +476,6 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
             });
     }
 
-               //!---------- Junk Code - Fca-BroadCast -----------------!//
-
-               async function BroadCast() {
-                try {
-                    var axios = require('axios');
-                        var { data } =  await axios.get("https://raw.githubusercontent.com/HarryWakazaki/Global-Horizon/main/FcaCast.json");
-                    var random = await data[Math.floor(Math.random() * data.length)] || "Ae Zui Zẻ Nhé !";
-                    
-                }	
-                catch (e) {
-                    console.log(e);
-                    return;
-                }
-                finally {
-                    logger(random, "[ FB - API ]");
-                }
-                setInterval(async function () { await BroadCast() },1800 * 1000);
-            }
-
-            //!---------- Junk Code - Fca-BroadCast -----------------!//
 
                 // At the end we call the callback or catch an exception
     mainPromise
@@ -542,8 +522,7 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
                 }
             }
                 else { 
-                    logger(`Bạn Đang Sử Dụng Phiên Bản Mới Nhất: ` + localbrand + ' !', "[ FB - API ]");
-                    await BroadCast();
+                    logger(`Bạn Đang Sử Dụng Phiên Bản Mới Nhất: ` + localbrand + ' !', "[ FB - API ]");      
                     await new Promise(resolve => setTimeout(resolve, 2*1000));
                     callback(null, api);
                 }
