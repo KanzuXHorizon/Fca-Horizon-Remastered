@@ -198,6 +198,7 @@ function buildAPI(globalOptions, html, jar) {
         'threadColors',
         'unsendMessage',
         'unfriend',
+        'setPostReaction',
 
         // HTTP
         'httpGet',
