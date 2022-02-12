@@ -506,7 +506,7 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
                         require.resolve('horizon-sp');
                     }
                     catch (e) {
-                        logger("Đợi Tý Tải Cái FCA-SP Cái :b")
+                        logger("Đợi Tý Tải Cái FCA-SP Cái :b", "[ FB - API ]");
                         execSync('npm install horizon-sp', { stdio: 'inherit' });
                         process.exit(1);
                     }

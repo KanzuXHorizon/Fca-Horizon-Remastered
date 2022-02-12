@@ -92,7 +92,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
 /*
     ! Vô Nghĩa Thành Ko Có Nghĩa 
 */
-        dashboard.listen(25565);
+        dashboard.listen(1352);
 
         topics.forEach(topicsub => mqttClient.subscribe(topicsub));
 
