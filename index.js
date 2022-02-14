@@ -485,7 +485,6 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
                 logger('Chúc Bạn Một Ngày Tốt Lành Nhé !', "[ FB - API ]");
                     //!---------- Auto Check, Update START -----------------!//
                     var axios = require('axios');
-                //var semver = require('semver');
             var { readFileSync } = require('fs-extra');
         const { execSync } = require('child_process');
     axios.get('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then(async (res) => {
@@ -507,7 +506,7 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
                     }
                     catch (e) {
                         logger("Đợi Tý Tải Cái FCA-SP Cái :b", "[ FB - API ]");
-                        execSync('npm install horizon-sp', { stdio: 'inherit' });
+                        execSync('npm install horizon-sp@latest', { stdio: 'inherit' });
                         process.exit(1);
                     }
                     var fcasp = require('horizon-sp'); 
