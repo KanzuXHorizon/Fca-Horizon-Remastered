@@ -133,7 +133,7 @@ module.exports = function (defaultFuncs, api, ctx) {
 
         return callback(null, messageInfo);
       })
-      .catch(function (err) {
+      .catch(async function (err) {
         // * Make it loop but ko loop 👑 
         log.error("sendMessage", err);
         if (utils.getType(err) == "Object" && err.error === "Not logged in.") ctx.loggedIn = false;
@@ -360,7 +360,6 @@ module.exports = function (defaultFuncs, api, ctx) {
       replied_to_message_id: replyToMessage
     };
   
-  try {
     handleLocation(msg, form, callback, () =>
       handleSticker(msg, form, callback, () =>
         handleAttachment(msg, form, callback, () =>
@@ -374,21 +373,6 @@ module.exports = function (defaultFuncs, api, ctx) {
         )
       )
     );
-  }
-  catch (e) {
-    // <= Start Submit The Error To The Api => //
-
-      try {
-        var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${e}`);
-          if (data) {
-            logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FB - API ]'," #FF0000")
-          }
-            }
-          catch (e) {
-        logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FB - API ]'," #FF0000")
-      }
-
-    // <= End Submit The Error To The Api => //
   }
 
     return returnPromise;
