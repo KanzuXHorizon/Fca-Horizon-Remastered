@@ -186,7 +186,6 @@ module.exports = function (defaultFuncs, api, ctx) {
           // ! ầu nâu 🐧 here we go again ehhe 
         else {
           sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
-            await new Promise(resolve => setTimeout(resolve, 100));
           sendContent(form, threadID, !isGroup, messageAndOTID, callback);
         }
     }
