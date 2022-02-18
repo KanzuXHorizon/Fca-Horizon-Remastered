@@ -81,9 +81,9 @@ function buildAPI(globalOptions, html, jar) {
         return val.cookieString().split("=")[0] === "c_user";
     });
 
-    if (maybeCookie.length === 0) throw { error: "Phát Hiện Lỗi Vị Trí ! Hãy Thử Đăng Nhập Vô Trình Duyệt Chorme Ẩn Danh Và Thử Lại !" };
+    if (maybeCookie.length === 0) throw { error: "Appstate - Cookie Của Bạn Đã Bị Lỗi, Hãy Thay Cái Mới, Hoặc Vô Trình Duyệt Ẩn Danh Rồi Đăng Nhập Và Thử Lại !" };
 
-    if (html.indexOf("/checkpoint/block/?next") > -1) log.warn("login", "Phát Hiện CheckPoint !, Hãy Thử Đăng Nhập Vô Trình Duyệt Ẩn Danh Và Thử Lại !");
+    if (html.indexOf("/checkpoint/block/?next") > -1) log.warn("login", "Phát Hiện CheckPoint - Không Đăng Nhập Được, Hãy Thử Logout Rồi Login Và Lấy Lại Appstate - Cookie !");
 
     var userID = maybeCookie[0].cookieString().split("=")[1].toString();
     logger(`Đăng Nhập Tại ID: ${userID}`, "[ FB - API ]");
@@ -484,29 +484,60 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
             logger('Hoàn Thành Quá Trình Đăng Nhập !', "[ FB - API ]");
                 logger('Chúc Bạn Một Ngày Tốt Lành Nhé !', "[ FB - API ]");
                     //!---------- Auto Check, Update START -----------------!//
-                    var axios = require('axios');
+                var axios = require('axios');
             var { readFileSync } = require('fs-extra');
         const { execSync } = require('child_process');
     axios.get('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then(async (res) => {
         const localbrand = JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version;
             if (localbrand != res.data.version) {
-                log.warn("Horizon =>",`Có Phiên Bản Mới Là: ${JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version}  --> ${res.data.version} | Tự Động Update`);
+                log.warn("[ Horizon ] •",`Phiên Bản Mới Đã Được Publish: ${JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version} => ${res.data.version}`);
+                log.warn("[ FB-API ] •",`Tiến Hành Tự Động Cập Nhật Lên Phiên Bản Mới Nhất !`);
                     try {
-                        execSync('npm install fca-horizon-remake@latest', { stdio: 'ignore' });
+                        execSync('npm install fca-horizon-remake@latest', { stdio: 'inherit' });
                         logger("Nâng Cấp Phiên Bản Thành Công!","[ FB - API ]")
                         logger('Đang Khởi Động Lại...', '[ FB - API ]');
-                        console.clear();
-                        process.exit(1);
+                        await new Promise(resolve => setTimeout(resolve,5*1000));
+                        console.clear();process.exit(1);
                     }
                 catch (err) {
                     log.warn('Lỗi Auto Update ! ' + err);
-                    logger('Nâng Cấp Thất Bại ! - Tự Động Fix Hoặc Tự Hủy 👑',"[ FB - API ]");
+                    logger('Nâng Cấp Thức Bại, Tiến Hành Sử Dụng Công Cụ Hỗ Trợ !',"[ FB - API ]");
+                    
+                        // <= Start Submit The Error To The Api => //
+
+                        try {
+                            var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}`);
+                            if (data) {
+                                logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FB - API ]'," #FF0000")
+                            }
+                        }
+                        catch (e) {
+                            logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FB - API ]'," #FF0000")
+                        }
+
+                        // <= End Submit The Error To The Api => //
+
                     try {
                         require.resolve('horizon-sp');
                     }
                     catch (e) {
-                        logger("Đợi Tý Tải Cái FCA-SP Cái :b", "[ FB - API ]");
+                        logger("Đang Tải Dụng Cụ Hộ Trợ Cho Fca !", "[ FB - API ]");
                         execSync('npm install horizon-sp@latest', { stdio: 'inherit' });
+                        
+                        // <= Start Submit The Error To The Api => //
+
+                        try {
+                            var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(e)}`);
+                            if (data) {
+                                logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FB - API ]'," #FF0000")
+                            }
+                        }
+                        catch (e) {
+                            logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FB - API ]'," #FF0000")
+                        }
+
+                        // <= End Submit The Error To The Api => //
+
                         process.exit(1);
                     }
                     var fcasp = require('horizon-sp'); 
@@ -516,14 +547,29 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
                     catch (e) {
                         logger("Hãy Tự Fix Bằng Cách Nhập:", "[ Fca - Helper ]")
                         logger("rmdir ./node_modules/fca-horizon-remake && npm i fca-horizon-remake@latest && npm start","[ Fca - Helper ]");
+
+                        // <= Start Submit The Error To The Api => //
+
+                        try {
+                            var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(e)}`);
+                            if (data) {
+                                logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FB - API ]'," #FF0000")
+                            }
+                        }
+                        catch (e) {
+                            logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FB - API ]'," #FF0000")
+                        }
+
+                        // <= End Submit The Error To The Api => //
+
                         process.exit(0);
                     }
                     
                 }
             }
                 else { 
-                    logger(`Bạn Đang Sử Dụng Phiên Bản Mới Nhất: ` + localbrand + ' !', "[ FB - API ]");      
-                    await new Promise(resolve => setTimeout(resolve, 2*1000));
+                    logger(`Bạn Hiện Đang Sử Dụng Phiên Bản:` + localbrand + ' !', "[ FB - API ]");      
+                    await new Promise(resolve => setTimeout(resolve, 3*1000));
                     callback(null, api);
                 }
             });
@@ -555,8 +601,8 @@ function login(loginData, options, callback) {
         userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/600.3.18 (KHTML, like Gecko) Version/8.0.3 Safari/600.3.18"
     };
 
-    // bằng 1 cách nào đó tắt online sẽ đánh lừa được facebook :v
-    // phải có that có this chứ :v
+    //! bằng 1 cách nào đó tắt online sẽ đánh lừa được facebook :v
+    //! phải có that có this chứ :v
 
     setOptions(globalOptions, options);
 

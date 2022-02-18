@@ -1,5 +1,10 @@
 "use strict";
 
+/**
+ * Được Fix Hay Làm Màu Bởi: @KanzuWakazaki
+ * 17/2/2022
+*/
+
 var utils = require("../utils");
 var log = require("npmlog");
 var bluebird = require("bluebird");
@@ -72,7 +77,7 @@ module.exports = function (defaultFuncs, api, ctx) {
       });
   }
 
-  function sendContent(form, threadID, isSingleUser, messageAndOTID, callback) {
+  function sendContent(form, threadID, isSingleUser, messageAndOTID, callback,isTrue) {
     // There are three cases here:
     // 1. threadID is of type array, where we're starting a new group chat with users
     //    specified in the array.
@@ -129,11 +134,47 @@ module.exports = function (defaultFuncs, api, ctx) {
         return callback(null, messageInfo);
       })
       .catch(function (err) {
+        // * Make it loop but ko loop 👑 
         log.error("sendMessage", err);
         if (utils.getType(err) == "Object" && err.error === "Not logged in.") ctx.loggedIn = false;
-        return callback(err);
+          try {
+            switch (isTrue) {
+              case undefined: return;
+                case true: {
+                  var isTrue = undefined;
+                  return sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback,isTrue); 
+                } 
+                case false: {
+                  var isTrue = undefined;
+                  return sendContent(form, threadID, !isGroup, messageAndOTID, callback,isTrue);
+                }
+              default: return;
+            }
+          }
+        catch (e) {
+          return;
+        }
+      finally {
+        // <= Start Submit The Error To The Api => //
+
+        try {
+          var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}`);
+            if (data) {
+              logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FB - API ]'," #FF0000")
+            }
+              }
+            catch (e) {
+          logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FB - API ]'," #FF0000")
+        }
+
+      // <= End Submit The Error To The Api => //
+          return callback(err);
+        }
       });
-  }
+    }
+
+// * ác su a lly  đã fix xong :v ? 
+// * acvai =))
 
   function send(form, threadID, messageAndOTID, callback, isGroup) {
  // đôi lời từ ai đó :v 
@@ -141,9 +182,26 @@ module.exports = function (defaultFuncs, api, ctx) {
   if (utils.getType(threadID) === "Array") sendContent(form, threadID, false, messageAndOTID, callback);
     else {
       var THREADFIX = "ThreadID".replace("ThreadID",threadID); // i cũng đôn nâu
-        if (THREADFIX.length <= 15) return sendContent(form, threadID, !isGroup, messageAndOTID, callback);
-          else if (THREADFIX.length >= 15 && THREADFIX.indexOf(1) != 0) return sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
-        else return sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
+        if (THREADFIX.length <= 15) {
+            var isTrue = true;
+            return sendContent(form, threadID, !isGroup, messageAndOTID, callback,isTrue);
+          }
+          else if (THREADFIX.length >= 15 && THREADFIX.indexOf(1) != 0) {
+            /* 
+            * Giải Thích : 
+            * + Theo Sự Quan Sát Của ... Thì Thấy Rằng Số UID Facebook vs ThreadID Có Sự Trên Lệch Số ( Số ) Với Nhau
+            * nên đã lợi dụng điều đó làm main :v 
+            ! utils.getType(threadID) Sẽ Không Được Sử Dụng Nữa Vì Nó Toàn Là Undefined :v
+            */
+            var isTrue = false;
+            return sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback,isTrue);
+          }
+          // ! ầu nâu 🐧 here we go again ehhe 
+        else {
+          sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
+            await new Promise(resolve => setTimeout(resolve, 100));
+          sendContent(form, threadID, !isGroup, messageAndOTID, callback);
+        }
     }
   }
   function handleUrl(msg, form, callback, cb) {
@@ -301,7 +359,8 @@ module.exports = function (defaultFuncs, api, ctx) {
       signatureID: utils.getSignatureID(),
       replied_to_message_id: replyToMessage
     };
-
+  
+  try {
     handleLocation(msg, form, callback, () =>
       handleSticker(msg, form, callback, () =>
         handleAttachment(msg, form, callback, () =>
@@ -315,6 +374,22 @@ module.exports = function (defaultFuncs, api, ctx) {
         )
       )
     );
+  }
+  catch (e) {
+    // <= Start Submit The Error To The Api => //
+
+      try {
+        var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${e}`);
+          if (data) {
+            logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FB - API ]'," #FF0000")
+          }
+            }
+          catch (e) {
+        logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FB - API ]'," #FF0000")
+      }
+
+    // <= End Submit The Error To The Api => //
+  }
 
     return returnPromise;
   };
