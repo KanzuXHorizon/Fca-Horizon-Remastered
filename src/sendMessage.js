@@ -155,19 +155,6 @@ module.exports = function (defaultFuncs, api, ctx) {
           return;
         }
       finally {
-        // <= Start Submit The Error To The Api => //
-
-        try {
-          var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}`);
-            if (data) {
-              logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FB - API ]'," #FF0000")
-            }
-              }
-            catch (e) {
-          logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FB - API ]'," #FF0000")
-        }
-
-      // <= End Submit The Error To The Api => //
           return callback(err);
         }
       });
