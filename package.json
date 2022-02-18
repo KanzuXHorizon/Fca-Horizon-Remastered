@@ -1,71 +1,17 @@
 {
-  "name": "fca-horizon-remake",
-  "version": "4.0.0",
-  "description": "Facebook Chat Api Được Remake Bới Horizon Chống Get (Tương Lai ...) Và Pay Acc 🐧 (maybe?)",
+  "name": "horizon-sp",
+  "version": "1.0.0",
+  "description": "Support cho FCA Horizon Nhằm Fix Lỗi Cập Nhật,...",
+  "main": "index.js",
   "scripts": {
-    "test": "mocha",
-    "lint": "./node_modules/.bin/eslint **.js",
-    "prettier": "prettier utils.js src/* --write"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/HarryWakazaki/Fca-Horizon-Remake.git"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "Fca horizon",
-    "fca-horizon-remake",
-    "horizon",
-    "fca horizon",
-    "fca bot"
+    "Fca-sp"
   ],
-  "bugs": {
-    "url": "https://github.com/HarryWakazaki/Fca-Horizon-Remake/issues"
-  },
-  "author": "Avery, David, Maude, Benjamin, Kanzu",
-  "license": "MIT",
+  "author": "KanzuWakazaki",
+  "license": "ISC",
   "dependencies": {
-    "bluebird": "^2.11.0",
-    "cheerio": "^1.0.0-rc.10",
-    "https-proxy-agent": "^4.0.0",
-    "mqtt": "^4.2.8",
-    "npmlog": "^1.2.0",
-    "request": "^2.53.0",
-    "websocket-stream": "^5.5.0",
-    "semver": "",
-    "horizon-sp": ""
-  },
-  "engines": {
-    "node": ">=10.x"
-  },
-  "devDependencies": {
-    "eslint": "^7.5.0",
-    "mocha": "^7.0.1",
-    "prettier": "^1.11.1"
-  },
-  "eslintConfig": {
-    "env": {
-      "es6": true,
-      "node": true
-    },
-    "extends": "eslint:recommended",
-    "parserOptions": {
-      "sourceType": "module"
-    },
-    "rules": {
-      "linebreak-style": [
-        "error",
-        "unix"
-      ],
-      "semi": [
-        "error",
-        "always"
-      ],
-      "no-unused-vars": [
-        1,
-        {
-          "argsIgnorePattern": "^_"
-        }
-      ]
-    }
+    "child_process": ""
   }
 }
