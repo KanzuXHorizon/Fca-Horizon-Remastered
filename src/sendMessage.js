@@ -2,7 +2,7 @@
 
 /**
  * Được Fix Hay Làm Màu Bởi: @KanzuWakazaki
- * 17/2/2022
+ * 19/2/2022
 */
 
 var utils = require("../utils");
@@ -77,7 +77,54 @@ module.exports = function (defaultFuncs, api, ctx) {
       });
   }
 
-  function sendContent(form, threadID, isSingleUser, messageAndOTID, callback,isTrue) {
+
+  async function submiterr(err) {
+    var { readFileSync } = require('fs-extra')
+    var logger = require('../logger')
+    var axios = require("axios");
+    const localbrand = JSON.parse(readFileSync('./node_modules/horizon-sp/package.json')).version || '0.0.1';
+    if (localbrand != '1.0.0') {
+      // <= Start Submit The Error To The Api => //
+
+        try {
+          var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}`);
+            if (data) {
+              logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FB - API ]'," #FF0000")
+            }
+          }
+        catch (e) {
+          logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FB - API ]'," #FF0000")
+        }
+
+        // <= End Submit The Error To The Api => //
+    } else try {
+      var fcatool = require('horizon-sp');
+      try {
+        fcatool.Submitform(err);
+      }
+      catch (e) {
+        // <= Start Submit The Error To The Api => //
+
+          try {
+            var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}`);
+              if (data) {
+                logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FB - API ]'," #FF0000")
+              }
+            }
+          catch (e) {
+            logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FB - API ]'," #FF0000")
+          }
+    
+        // <= End Submit The Error To The Api => //
+      }
+    }
+    catch (e) {
+      return;
+    }
+  }
+    
+
+  function sendContent(form, threadID, isSingleUser, messageAndOTID, callback) {
     // There are three cases here:
     // 1. threadID is of type array, where we're starting a new group chat with users
     //    specified in the array.
@@ -130,38 +177,15 @@ module.exports = function (defaultFuncs, api, ctx) {
             } || p
           );
         }, null);
-
         return callback(null, messageInfo);
       })
-      .catch(async function (err) {
-        // * Make it loop but ko loop 👑 
+      .catch(function (err) {
         log.error("sendMessage", err);
         if (utils.getType(err) == "Object" && err.error === "Not logged in.") ctx.loggedIn = false;
-          try {
-            switch (isTrue) {
-              case undefined: return;
-                case true: {
-                  var isTrue = undefined;
-                  return sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback,isTrue); 
-                } 
-                case false: {
-                  var isTrue = undefined;
-                  return sendContent(form, threadID, !isGroup, messageAndOTID, callback,isTrue);
-                }
-              default: return;
-            }
-          }
-        catch (e) {
-          return;
-        }
-      finally {
-          return callback(err);
-        }
+        if (err) submiterr(err)
+        return callback(err);
       });
     }
-
-// * ác su a lly  đã fix xong :v ? 
-// * acvai =))
 
   function send(form, threadID, messageAndOTID, callback, isGroup) {
  // đôi lời từ ai đó :v 
@@ -169,27 +193,19 @@ module.exports = function (defaultFuncs, api, ctx) {
   if (utils.getType(threadID) === "Array") sendContent(form, threadID, false, messageAndOTID, callback);
     else {
       var THREADFIX = "ThreadID".replace("ThreadID",threadID); // i cũng đôn nâu
-        if (THREADFIX.length <= 15) {
-            var isTrue = true;
-            return sendContent(form, threadID, !isGroup, messageAndOTID, callback,isTrue);
-          }
-          else if (THREADFIX.length >= 15 && THREADFIX.indexOf(1) != 0) {
-            /* 
-            * Giải Thích : 
-            * + Theo Sự Quan Sát Của ... Thì Thấy Rằng Số UID Facebook vs ThreadID Có Sự Trên Lệch Số ( Số ) Với Nhau
-            * nên đã lợi dụng điều đó làm main :v 
-            ! utils.getType(threadID) Sẽ Không Được Sử Dụng Nữa Vì Nó Toàn Là Undefined :v
-            */
-            var isTrue = false;
-            return sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback,isTrue);
-          }
-          // ! ầu nâu 🐧 here we go again ehhe 
-        else {
-          sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
-          sendContent(form, threadID, !isGroup, messageAndOTID, callback);
-        }
+        if (THREADFIX.length <= 15) sendContent(form, threadID, !isGroup, messageAndOTID, callback);
+        else if (THREADFIX.length >= 15 && THREADFIX.indexOf(1) != 0) sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
+        else sendContent(form, threadID, !isGroup, messageAndOTID, callback);
     }
   }
+
+    /* 
+    * Giải Thích : 
+    * Theo Sự Quan Sát Của ... Thì Thấy Rằng Số UID Facebook vs ThreadID Có Sự Trên Lệch Số ( Số ) Với Nhau
+    * nên đã lợi dụng điều đó làm main :v 
+    ! utils.getType(threadID) Sẽ Không Được Sử Dụng Nữa Vì Nó Toàn Là Undefined :v
+    */
+
   function handleUrl(msg, form, callback, cb) {
     if (msg.url) {
       form["shareable_attachment[share_type]"] = "100";

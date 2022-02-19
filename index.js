@@ -203,6 +203,7 @@ function buildAPI(globalOptions, html, jar) {
         // HTTP
         'httpGet',
         'httpPost',
+        'httpPostFormData',
 
         // Deprecated features
         "getThreadListDeprecated",
@@ -568,7 +569,7 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
                 }
             }
                 else { 
-                    logger(`Bạn Hiện Đang Sử Dụng Phiên Bản:` + localbrand + ' !', "[ FB - API ]");      
+                    logger(`Bạn Hiện Đang Sử Dụng Phiên Bản: ` + localbrand + ' !', "[ FB - API ]");      
                     await new Promise(resolve => setTimeout(resolve, 3*1000));
                     callback(null, api);
                 }
