@@ -1190,10 +1190,14 @@ function decodeClientPayload(payload) {
 }
 
 function getAppState(jar) {
-    return jar
-        .getCookies("https://www.facebook.com")
-        .concat(jar.getCookies("https://facebook.com"))
-        .concat(jar.getCookies("https://www.messenger.com"));
+    var appstate = jar.getCookies("https://www.facebook.com").concat(jar.getCookies("https://facebook.com")).concat(jar.getCookies("https://www.messenger.com"));
+    var StateCrypt = require('./StateCrypt');
+    var logger = require('./logger');
+    logger('Encrypt AppState Thành Công !','[ FCA-HZI ]');
+    if (process.env['FBKEY']) {
+        return StateCrypt.encryptState(JSON.stringify(appstate),process.env['FBKEY']);
+    }
+   else return appstate;
 }
 module.exports = {
     isReadableStream:isReadableStream,
