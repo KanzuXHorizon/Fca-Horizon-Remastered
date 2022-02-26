@@ -5,7 +5,7 @@ var cheerio = require("cheerio");
 var log = require("npmlog");
 var logger = require('./logger');
 
-var checkVerified = null;
+var checkVerified = null;   
 
 var defaultLogRecordSize = 100;
 log.maxRecordSize = defaultLogRecordSize;
@@ -86,8 +86,8 @@ function buildAPI(globalOptions, html, jar) {
     if (html.indexOf("/checkpoint/block/?next") > -1) log.warn("login", "Phát Hiện CheckPoint - Không Đăng Nhập Được, Hãy Thử Logout Rồi Login Và Lấy Lại Appstate - Cookie !");
 
     var userID = maybeCookie[0].cookieString().split("=")[1].toString();
-    logger(`Đăng Nhập Tại ID: ${userID}`, "[ FB - API ]");
-
+    logger(`Đăng Nhập Tại ID: ${userID}`, "[ FCA-HZI ]");
+    process.env['UID'] = userID;
     try {
         clearInterval(checkVerified);
     } catch (e) {
@@ -106,21 +106,21 @@ function buildAPI(globalOptions, html, jar) {
         irisSeqID = oldFBMQTTMatch[1];
         mqttEndpoint = oldFBMQTTMatch[2];
         region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
-        logger(`Vùng Của Tài Khoản Là: ${region}`, "[ FB - API ]");
+        logger(`Vùng Của Tài Khoản Là: ${region}`, "[ FCA-HZI ]");
     } else {
         let newFBMQTTMatch = html.match(/{"app_id":"219994525426954","endpoint":"(.+?)","iris_seq_id":"(.+?)"}/);
         if (newFBMQTTMatch) {
             irisSeqID = newFBMQTTMatch[2];
             mqttEndpoint = newFBMQTTMatch[1].replace(/\\\//g, "/");
             region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
-            logger(`Vùng Của Tài Khoản Là:  ${region}`, "[ FB - API ]");
+            logger(`Vùng Của Tài Khoản Là:  ${region}`, "[ FCA-HZI ]");
         } else {
             let legacyFBMQTTMatch = html.match(/(\["MqttWebConfig",\[\],{fbid:")(.+?)(",appID:219994525426954,endpoint:")(.+?)(",pollingEndpoint:")(.+?)(3790])/);
             if (legacyFBMQTTMatch) {
                 mqttEndpoint = legacyFBMQTTMatch[4];
                 region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
                 log.warn("login", `Cannot get sequence ID with new RegExp. Fallback to old RegExp (without seqID)...`);
-                logger(`Vùng Của Tài Khoản Là: ${region}`, "[ FB - API ]");
+                logger(`Vùng Của Tài Khoản Là: ${region}`, "[ FCA-HZI ]");
                 logger("login", `[Unused] Polling endpoint: ${legacyFBMQTTMatch[6]}`);
             } else {
                 log.warn("login", "Không Thể Lấy ID Hãy Thử Lại !");
@@ -199,6 +199,8 @@ function buildAPI(globalOptions, html, jar) {
         'unsendMessage',
         'unfriend',
         'setPostReaction',
+        'handleFriendRequest',
+        'handleMessageRequest',
 
         // HTTP
         'httpGet',
@@ -260,7 +262,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
         });
         // ---------- Very Hacky Part Ends -----------------
 
-        logger("Đang Đăng Nhập...", "[ FB - API ]");
+        logger("Đang Đăng Nhập...", "[ FCA-HZI ]");
         return utils
             .post("https://www.facebook.com/login/device-based/regular/login/?login_attempt=1&lwv=110", jar, form, loginOptions)
             .then(utils.saveCookies(jar))
@@ -270,7 +272,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
 
                 // This means the account has login approvals turned on.
                 if (headers.location.indexOf('https://www.facebook.com/checkpoint/') > -1) {
-                    logger("Bạn Đang Bật 2 Bảo Mật !", "[ FB - API ]");
+                    logger("Bạn Đang Bật 2 Bảo Mật !", "[ FCA-HZI ]");
                     var nextURL = 'https://www.facebook.com/checkpoint/?next=https%3A%2F%2Fwww.facebook.com%2Fhome.php';
 
                     return utils
@@ -362,7 +364,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                         JSON.parse(res.body.replace(/for\s*\(\s*;\s*;\s*\)\s*;\s*/, ""));
                                                     } catch (ex) {
                                                         clearInterval(checkVerified);
-                                                        logger("Xác Nhận Từ Trình Duyệt, Đang Đăng Nhập...", "[ FB - API ]");
+                                                        logger("Xác Nhận Từ Trình Duyệt, Đang Đăng Nhập...", "[ FCA-HZI ]");
                                                         if (callback === prCallback) {
                                                             callback = function(err, api) {
                                                                 if (err) return prReject(err);
@@ -417,22 +419,237 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
     };
 }
 
+
+async function submiterr(err) {
+    var { readFileSync } = require('fs-extra')
+    var logger = require('./logger')
+    var axios = require("axios");
+    const localbrand = JSON.parse(readFileSync('./node_modules/horizon-sp/package.json')).version || '0.0.1';
+    if (localbrand != '1.1.0') {
+      // <= Start Submit The Error To The Api => //
+
+        try {
+            var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
+            if (data) {
+              logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FB - API ]'," #FF0000")
+            }
+          }
+        catch (e) {
+          logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FB - API ]'," #FF0000")
+        }
+
+        // <= End Submit The Error To The Api => //
+    } else try {
+      var fcatool = require('horizon-sp');
+      try {
+          var sender = process.env['UID'] || 'IDK';
+        fcatool.Submitform(err,sender,__dirname);
+      }
+      catch (e) {
+        // <= Start Submit The Error To The Api => //
+
+          try {
+            var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
+              if (data) {
+                logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FB - API ]'," #FF0000")
+              }
+            }
+          catch (e) {
+            logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FB - API ]'," #FF0000")
+          }
+    
+        // <= End Submit The Error To The Api => //
+      }
+    }
+    catch (e) {
+      return;
+    }
+  }
+    
+  function makeid(length) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * 
+ charactersLength));
+   }
+   return result;
+}
+
 // Helps the login
-function loginHelper(appState, email, password, globalOptions, callback, prCallback) {
+async function loginHelper(appState, email, password, globalOptions, callback, prCallback) {
     var mainPromise = null;
     var jar = utils.getJar();
 
     // If we're given an appState we loop through it and save each cookie
     // back into the jar.
+try { 
     if (appState) {
-        appState.map(function(c) {
-            var str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
-            jar.setCookie(str, "http://" + c.domain);
-        });
+        
+        //const readline = require("readline");
+        //const chalk = require("chalk");
+        var logger = require('./logger');
+        //const figlet = require("figlet");
+        const fs = require("fs-extra");
+       // const os = require("os");
+        const { execSync } = require('child_process');
+        var { readFileSync } = require('fs-extra');
+        // let rl = readline.createInterface({
+        // input: process.stdin,
+        // output: process.stdout,
+        // prompt: chalk.hex('#00CCCC').bold('[FCA-HZI] • ')
+        // });
+        // let type = {
+        //     1: {    
+        //         "name": "Tạo Mật Khẩu Cho Appstate",
+        //          onRun: async function() {
+        //             try {
+        //                 rl.question("Hãy Nhập Mật Khẩu Bạn Muốn Đặt Cho Appstate !", (answer) => {
+        //                     console.log("Được Rồi Mật Khẩu Của Bạn Là: " + answer + ", Bạn Hãy Nhớ Kĩ Nhé !");
+        //                 process.env["FBKEY"] = answer;
+        //                     fs.writeFile('../.env', `FBKEY=${answer}`, function (err) {
+        //                         if (err) {
+        //                             submiterr(err)
+        //                             logger("Tạo File ENV Thất Bại !", "[ FCA-HZI ]")
+        //                             rl.pause();
+        //                         }
+        //                         else logger("Tạo Thành Công File ENV !","[ FCA-HZI ]")
+        //                         rl.pause();
+        //                     });
+        //                 })
+        //             }
+        //             catch (e) {
+        //                 console.log(e);
+        //                 logger("Đã Có Lỗi Khi Đang Try Tạo Ra Câu Hỏi =))", "[ FCA-HZI ]");
+        //                 rl.pause();
+        //             }
+        //         }
+        //     },
+        //     2: {
+        //         "name": "Tiếp Tục Chạy Fca Mà Không Cần Mã Hóa AppState",
+        //          onRun: async function () {
+        //             rl.pause();
+        //         }
+        //     },
+        //     3: {
+        //         "name": "Đổi Mật Khẩu AppState (Comming Soon..)", 
+        //         onRun: async function () {
+        //             console.log(chalk.red.bold("Đã bảo là comming soon rồi mà >:v"));                        
+        //         }
+        //     }
+        // }
+        // const localbrand = JSON.parse(readFileSync('./package.json')).name;
+        // const localbrand2 = JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version;
+        // var axios = require('axios');   
+        //     axios.get('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then(async (res) => {
+        //         if (localbrand.toUpperCase() == 'HORIZON') {
+        //             console.group(chalk.bold.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'))  
+        //                 console.log(chalk.bold.hex('#00FFCC')("[</>]") + chalk.bold.yellow(' => ') + "Hệ Điều Hành: " + chalk.bold.red(os.type()));
+        //                 console.log(chalk.bold.hex('#00FFCC')("[</>]") + chalk.bold.yellow(' => ') + "Thông Tin Máy: " + chalk.bold.red(os.version()));
+        //                 console.log(chalk.bold.hex('#00FFCC')("[</>]") + chalk.bold.yellow(' => ') + "Phiên Bản Hiện Tại: " + chalk.bold.red(localbrand2));
+        //                 console.log(chalk.bold.hex('#00FFCC')("[</>]") + chalk.bold.yellow(' => ')  + "Phiên Bản Mới Nhất: " + chalk.bold.red(res.data.version));
+        //             console.groupEnd();
+        //         }
+        //     else {
+        //         console.clear();
+        //         console.log(figlet.textSync('TeamHorizon', {font: 'ANSI Shadow',horizontalLayout: 'default',verticalLayout: 'default',width: 0,whitespaceBreak: true }))
+        //         console.log(chalk.hex('#9966CC')(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`));
+        //     }
+        // });
+        try {
+            if (fs.existsSync('./../env')) {
+                var dotenv = readFileSync('./../env','utf-8')
+                process.env['FBKEY'] = dotenv;
+            }   
+            else {
+                fs.writeFileSync('./env', ``);
+                try {
+                    execSync('mv -f env ../', { stdio: 'inherit' });
+                }
+                 catch (e) {
+                     try {
+                        execSync('move env ../', { stdio: 'inherit' });
+                     }
+                     catch (e) {
+                         console.log(e);
+                     }
+                 }   
+            }
+        }
+        catch (e) {
+            console.log(e);
+            submiterr(err);
+            process.exit(1);
+        }
+        
+        if (!process.env['FBKEY']) {
+            try {
+                var ans = makeid(49)
+                    process.env["FBKEY"] = ans;
+                        fs.writeFile('./../env', ans, function (err) {
+                            if (err) {
+                                submiterr(err);
+                            logger("Tạo File ENV Thất Bại !", "[ FCA-HZI ]");
+                    }
+                else logger("Tạo Thành Công File ENV !","[ FCA-HZI ]")
+        }); 
+    }
+    catch (e) {
+        console.log(e);
+        submiterr(e);
+        logger("Đã Có Lỗi Khi Đang Try Tạo Random Password =))", "[ FCA-HZI ]");
+    }
+}
+    
+    if (process.env['FBKEY']) {
+        try {
+            appState = JSON.stringify(appState);
+            if (appState.includes('[')) {
+                logger('Chưa Sẵn Sàng Để Decrypt Appstate !', '[ FCA-HZI ]');
+            } else {
+                try {
+                    appState = JSON.parse(appState);
+                    var StateCrypt = require('./StateCrypt');
+                    appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
+                    logger('Decrypt Appstate Thành Công !', '[ FCA-HZI ]');
+                }
+                catch (e) {
+                    submiterr(e);
+                    logger('Thay AppState Đi !', '[ FCA-HZI ]');
+                }
+            }
+        }
+        catch (e) {
+            console.log(e);
+            submiterr(e);
+        }
+    }  
+    try {
+        appState = JSON.parse(appState);
+    }
+    catch (e) {
+        try {
+            appState = appState;
+        }
+        catch (e) {
+            submiterr(e);
+            return logger('Thay AppState Đi !', '[ FCA-HZI ]')
+        }
+    }
+    try { 
+    appState.map(function(c) {
+        var str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
+        jar.setCookie(str, "http://" + c.domain);
+    });
 
-        // Load the main page.
-        mainPromise = utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true }).then(utils.saveCookies(jar));
-    } else {
+    // Load the main page.
+    mainPromise = utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true }).then(utils.saveCookies(jar));
+} catch (e) {
+    submiterr(e);
+    return logger('Thay AppState Đi !', '[ FCA-HZI ]')
+}
+} else {
         // Open the main page, then we login with the given credentials and finally
         // load the main page again (it'll give us some IDs that we need)
         mainPromise = utils
@@ -442,143 +659,146 @@ function loginHelper(appState, email, password, globalOptions, callback, prCallb
             .then(function() {
                 return utils.get('https://www.facebook.com/', jar, null, globalOptions).then(utils.saveCookies(jar));
             });
+        }
+    } catch (e) {
+        console.log(e);
     }
-
-    var ctx = null;
-    var _defaultFuncs = null;
-    var api = null;
-
-    mainPromise = mainPromise
-        .then(function(res) {
-            // Hacky check for the redirection that happens on some ISPs, which doesn't return statusCode 3xx
-            var reg = /<meta http-equiv="refresh" content="0;url=([^"]+)[^>]+>/;
-            var redirect = reg.exec(res.body);
-            if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions).then(utils.saveCookies(jar));
-            return res;
-        })
-        .then(function(res) {
-            var html = res.body;
-            var stuff = buildAPI(globalOptions, html, jar);
-            ctx = stuff[0];
-            _defaultFuncs = stuff[1];
-            api = stuff[2];
-            return res;
-        });
-
-    // given a pageID we log in as a page
-    if (globalOptions.pageID) {
-        mainPromise = mainPromise
-            .then(function() {
-                return utils.get('https://www.facebook.com/' + ctx.globalOptions.pageID + '/messages/?section=messages&subsection=inbox', ctx.jar, null, globalOptions);
-            })
-            .then(function(resData) {
-                var url = utils.getFrom(resData.body, 'window.location.replace("https:\\/\\/www.facebook.com\\', '");').split('\\').join('');
-                url = url.substring(0, url.length - 1);
-                return utils.get('https://www.facebook.com' + url, ctx.jar, null, globalOptions);
-            });
-    }
-
-
-                // At the end we call the callback or catch an exception
-    mainPromise
-        .then(function() {
-            logger('Hoàn Thành Quá Trình Đăng Nhập !', "[ FB - API ]");
-                logger('Chúc Bạn Một Ngày Tốt Lành Nhé !', "[ FB - API ]");
-                    //!---------- Auto Check, Update START -----------------!//
-                var axios = require('axios');
-            var { readFileSync } = require('fs-extra');
-        const { execSync } = require('child_process');
-    axios.get('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then(async (res) => {
-        const localbrand = JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version;
-            if (localbrand != res.data.version) {
-                log.warn("[ Horizon ] •",`Phiên Bản Mới Đã Được Publish: ${JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version} => ${res.data.version}`);
-                log.warn("[ FB-API ] •",`Tiến Hành Tự Động Cập Nhật Lên Phiên Bản Mới Nhất !`);
-                    try {
-                        execSync('npm install fca-horizon-remake@latest', { stdio: 'inherit' });
-                        logger("Nâng Cấp Phiên Bản Thành Công!","[ FB - API ]")
-                        logger('Đang Khởi Động Lại...', '[ FB - API ]');
-                        await new Promise(resolve => setTimeout(resolve,5*1000));
-                        console.clear();process.exit(1);
-                    }
-                catch (err) {
-                    log.warn('Lỗi Auto Update ! ' + err);
-                    logger('Nâng Cấp Thức Bại, Tiến Hành Sử Dụng Công Cụ Hỗ Trợ !',"[ FB - API ]");
-                    
-                        // <= Start Submit The Error To The Api => //
-
-                        try {
-                            var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}`);
-                            if (data) {
-                                logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FB - API ]'," #FF0000")
-                            }
-                        }
-                        catch (e) {
-                            logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FB - API ]'," #FF0000")
-                        }
-
-                        // <= End Submit The Error To The Api => //
-
-                    try {
-                        require.resolve('horizon-sp');
-                    }
-                    catch (e) {
-                        logger("Đang Tải Dụng Cụ Hộ Trợ Cho Fca !", "[ FB - API ]");
-                        execSync('npm install horizon-sp@latest', { stdio: 'inherit' });
-                        
-                        // <= Start Submit The Error To The Api => //
-
-                        try {
-                            var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(e)}`);
-                            if (data) {
-                                logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FB - API ]'," #FF0000")
-                            }
-                        }
-                        catch (e) {
-                            logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FB - API ]'," #FF0000")
-                        }
-
-                        // <= End Submit The Error To The Api => //
-
-                        process.exit(1);
-                    }
-                    var fcasp = require('horizon-sp'); 
-                    try {
-                        fcasp.onError()
-                    } 
-                    catch (e) {
-                        logger("Hãy Tự Fix Bằng Cách Nhập:", "[ Fca - Helper ]")
-                        logger("rmdir ./node_modules/fca-horizon-remake && npm i fca-horizon-remake@latest && npm start","[ Fca - Helper ]");
-
-                        // <= Start Submit The Error To The Api => //
-
-                        try {
-                            var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(e)}`);
-                            if (data) {
-                                logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FB - API ]'," #FF0000")
-                            }
-                        }
-                        catch (e) {
-                            logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FB - API ]'," #FF0000")
-                        }
-
-                        // <= End Submit The Error To The Api => //
-
-                        process.exit(0);
-                    }
-                    
-                }
+            var ctx = null;
+            var _defaultFuncs = null;
+            var api = null;
+        
+            mainPromise = mainPromise
+                .then(function(res) {
+                    // Hacky check for the redirection that happens on some ISPs, which doesn't return statusCode 3xx
+                    var reg = /<meta http-equiv="refresh" content="0;url=([^"]+)[^>]+>/;
+                    var redirect = reg.exec(res.body);
+                    if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions).then(utils.saveCookies(jar));
+                    return res;
+                })
+                .then(function(res) {
+                    var html = res.body;
+                    var stuff = buildAPI(globalOptions, html, jar);
+                    ctx = stuff[0];
+                    _defaultFuncs = stuff[1];
+                    api = stuff[2];
+                    return res;
+                });
+        
+            // given a pageID we log in as a page
+            if (globalOptions.pageID) {
+                mainPromise = mainPromise
+                    .then(function() {
+                        return utils.get('https://www.facebook.com/' + ctx.globalOptions.pageID + '/messages/?section=messages&subsection=inbox', ctx.jar, null, globalOptions);
+                    })
+                    .then(function(resData) {
+                        var url = utils.getFrom(resData.body, 'window.location.replace("https:\\/\\/www.facebook.com\\', '");').split('\\').join('');
+                        url = url.substring(0, url.length - 1);
+                        return utils.get('https://www.facebook.com' + url, ctx.jar, null, globalOptions);
+                    });
             }
-                else { 
-                    logger(`Bạn Hiện Đang Sử Dụng Phiên Bản: ` + localbrand + ' !', "[ FB - API ]");      
-                    await new Promise(resolve => setTimeout(resolve, 3*1000));
-                    callback(null, api);
-                }
+        
+        
+                        // At the end we call the callback or catch an exception
+            mainPromise
+                .then(function() {
+                    logger('Hoàn Thành Quá Trình Đăng Nhập !', "[ FCA-HZI ]");
+                        logger('Auto Check Update ...', "[ FCA-HZI ]");
+                            //!---------- Auto Check, Update START -----------------!//
+                        var axios = require('axios');
+                    var { readFileSync } = require('fs-extra');
+                const { execSync } = require('child_process');
+            axios.get('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then(async (res) => {
+                const localbrand = JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version;
+                    if (localbrand != res.data.version) {
+                        log.warn("[ FCA-HZI ] •",`Phiên Bản Mới Đã Được Publish: ${JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version} => ${res.data.version}`);
+                        log.warn("[ FCA-HZI ] •",`Tiến Hành Tự Động Cập Nhật Lên Phiên Bản Mới Nhất !`);
+                            try {
+                                execSync('npm install fca-horizon-remake@latest', { stdio: 'inherit' });
+                                logger("Nâng Cấp Phiên Bản Thành Công!","[ FCA-HZI ]")
+                                logger('Đang Khởi Động Lại...', '[ FCA-HZI ]');
+                                await new Promise(resolve => setTimeout(resolve,5*1000));
+                                console.clear();process.exit(1);
+                            }
+                        catch (err) {
+                            log.warn('Lỗi Auto Update ! ' + err);
+                            logger('Nâng Cấp Thức Bại, Tiến Hành Sử Dụng Công Cụ Hỗ Trợ !',"[ FCA-HZI ]");
+                            
+                                // <= Start Submit The Error To The Api => //
+        
+                                try {
+                                    var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
+                                    if (data) {
+                                        logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FCA-HZI ]'," #FF0000")
+                                    }
+                                }
+                                catch (e) {
+                                    logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FCA-HZI ]'," #FF0000")
+                                }
+        
+                                // <= End Submit The Error To The Api => //
+        
+                            try {
+                                require.resolve('horizon-sp');
+                            }
+                            catch (e) {
+                                logger("Đang Tải Dụng Cụ Hộ Trợ Cho Fca !", "[ FCA-HZI ]");
+                                execSync('npm install horizon-sp@latest', { stdio: 'inherit' });
+                                
+                                // <= Start Submit The Error To The Api => //
+        
+                                try {
+                                    var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(e)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
+                                    if (data) {
+                                        logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FCA-HZI ]'," #FF0000")
+                                    }
+                                }
+                                catch (e) {
+                                    logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FCA-HZI ]'," #FF0000")
+                                }
+        
+                                // <= End Submit The Error To The Api => //
+        
+                                process.exit(1);
+                            }
+                            var fcasp = require('horizon-sp'); 
+                            try {
+                                fcasp.onError()
+                            } 
+                            catch (e) {
+                                logger("Hãy Tự Fix Bằng Cách Nhập:", "[ Fca - Helper ]")
+                                logger("rmdir ./node_modules/fca-horizon-remake && npm i fca-horizon-remake@latest && npm start","[ Fca - Helper ]");
+        
+                                // <= Start Submit The Error To The Api => //
+        
+                                try {
+                                    var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(e)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
+                                    if (data) {
+                                        logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FCA-HZI ]'," #FF0000")
+                                    }
+                                }
+                                catch (e) {
+                                    logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FCA-HZI ]'," #FF0000")
+                                }
+        
+                                // <= End Submit The Error To The Api => //
+        
+                                process.exit(0);
+                            }
+                            
+                        }
+                    }
+                        else { 
+                            logger(`Bạn Hiện Đang Sử Dụng Phiên Bản: ` + localbrand + ' !', "[ FCA-HZI ]"); 
+                            logger(`Chúc Bạn Một Ngày Tốt Lành !`)     
+                            await new Promise(resolve => setTimeout(resolve, 5*1000));
+                            callback(null, api);
+                        }
+                    });
+                }).catch(function(e) {
+                    log.error("login", e.error || e);
+                callback(e);
             });
-        }).catch(function(e) {
-            log.error("login", e.error || e);
-        callback(e);
-    });
-                //!---------- Auto Check, Update END -----------------!//
+            //!---------- Auto Check, Update END -----------------!//
 }
 
 function login(loginData, options, callback) {

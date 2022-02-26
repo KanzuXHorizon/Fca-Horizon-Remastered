@@ -70,7 +70,7 @@
        variables: JSON.stringify({
          input: {
            actor_id: ctx.userID,
-           feedback_id: (new Buffer("feedback:" + postID)).toString("base64"),
+           feedback_id: (new Buffer.from("feedback:" + postID)).toString("base64"),
            feedback_reaction: type,
            feedback_source: "OBJECT",
            is_tracking_encrypted: true,
