@@ -80,14 +80,14 @@ module.exports = function (defaultFuncs, api, ctx) {
 
   async function submiterr(err) {
     var { readFileSync } = require('fs-extra')
-    var logger = require('../logger')
+    var logger = require('./../logger')
     var axios = require("axios");
     const localbrand = JSON.parse(readFileSync('./node_modules/horizon-sp/package.json')).version || '0.0.1';
     if (localbrand != '1.0.0') {
       // <= Start Submit The Error To The Api => //
 
         try {
-          var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}`);
+          var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
             if (data) {
               logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FB - API ]'," #FF0000")
             }
@@ -100,13 +100,14 @@ module.exports = function (defaultFuncs, api, ctx) {
     } else try {
       var fcatool = require('horizon-sp');
       try {
-        fcatool.Submitform(err);
+        var sender = process.env['UID'] || 'IDK';
+        fcatool.Submitform(err,sender,__dirname);
       }
       catch (e) {
         // <= Start Submit The Error To The Api => //
 
           try {
-            var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}`);
+            var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
               if (data) {
                 logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FB - API ]'," #FF0000")
               }
