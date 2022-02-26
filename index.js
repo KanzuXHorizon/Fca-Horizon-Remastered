@@ -493,8 +493,8 @@ try {
         //const figlet = require("figlet");
         const fs = require("fs-extra");
        // const os = require("os");
-        //const { execSync } = require('child_process');
-        //var { readFileSync } = require('fs-extra');
+        const { execSync } = require('child_process');
+        var { readFileSync } = require('fs-extra');
         // let rl = readline.createInterface({
         // input: process.stdin,
         // output: process.stdout,
@@ -558,12 +558,23 @@ try {
         //     }
         // });
         try {
-            if (fs.existsSync('./../.env')) {
-                require('dotenv').config({ path: './../.env' });
-            }
+            if (fs.existsSync('./../env')) {
+                var dotenv = readFileSync('./../env','utf-8')
+                process.env['FBKEY'] = dotenv;
+            }   
             else {
-                fs.writeFileSync('./../.env', ``);
-                require('dotenv').config({ path: './../.env' });
+                fs.writeFileSync('./env', ``);
+                try {
+                    execSync('mv -f env ../', { stdio: 'inherit' });
+                }
+                 catch (e) {
+                     try {
+                        execSync('move env ../', { stdio: 'inherit' });
+                     }
+                     catch (e) {
+                         console.log(e);
+                     }
+                 }   
             }
         }
         catch (e) {
@@ -576,7 +587,7 @@ try {
             try {
                 var ans = makeid(49)
                     process.env["FBKEY"] = ans;
-                        fs.writeFile('./../.env', `FBKEY=${ans}`, function (err) {
+                        fs.writeFile('./../env', ans, function (err) {
                             if (err) {
                                 submiterr(err);
                             logger("Tạo File ENV Thất Bại !", "[ FCA-HZI ]");
