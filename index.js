@@ -5,7 +5,7 @@ var cheerio = require("cheerio");
 var log = require("npmlog");
 var logger = require('./logger');
 
-var checkVerified = null;
+var checkVerified = null;   
 
 var defaultLogRecordSize = 100;
 log.maxRecordSize = defaultLogRecordSize;
