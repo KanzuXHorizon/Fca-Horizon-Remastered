@@ -557,48 +557,17 @@ try {
         //         console.log(chalk.hex('#9966CC')(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`));
         //     }
         // });
-        try {
-            if (fs.existsSync('./../env')) {
-                var dotenv = readFileSync('./../env','utf-8')
-                process.env['FBKEY'] = dotenv;
-            }   
-            else {
-                fs.writeFileSync('./env', ``);
-                try {
-                    execSync('mv -f env ../', { stdio: 'inherit' });
-                }
-                 catch (e) {
-                     try {
-                        execSync('move env ../', { stdio: 'inherit' });
-                     }
-                     catch (e) {
-                         console.log(e);
-                     }
-                 }   
-            }
-        }
-        catch (e) {
-            console.log(e);
-            submiterr(err);
-            process.exit(1);
-        }
         
         if (!process.env['FBKEY']) {
             try {
-                var ans = makeid(49)
-                    process.env["FBKEY"] = ans;
-                        fs.writeFile('./../env', ans, function (err) {
-                            if (err) {
-                                submiterr(err);
-                            logger("Tạo File ENV Thất Bại !", "[ FCA-HZI ]");
-                    }
-                else logger("Tạo Thành Công File ENV !","[ FCA-HZI ]")
-        }); 
-    }
+        var axios = require('axios');
+        var { data } = await axios.get('https://encrypt-appstate.mrdatvip05.repl.co/getKey', { method: 'GET' });
+        process.env['FBKEY'] = data.Data;
+    }   
     catch (e) {
         console.log(e);
         submiterr(e);
-        logger("Đã Có Lỗi Khi Đang Try Tạo Random Password =))", "[ FCA-HZI ]");
+        logger("Đã Có Lỗi Khi Get Pass !", "[ FCA-HZI ]");
     }
 }
     
