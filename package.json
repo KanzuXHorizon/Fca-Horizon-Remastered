@@ -42,8 +42,8 @@
     "node": ">=10.x"
   },
   "devDependencies": {
-    "eslint": "^7.5.0",
-    "mocha": "^7.0.1",
+    "eslint": "^8.10.0",
+    "mocha": "^9.2.1",
     "prettier": "^1.11.1"
   },
   "eslintConfig": {
