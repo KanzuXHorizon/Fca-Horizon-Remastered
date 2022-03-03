@@ -477,6 +477,8 @@ async function submiterr(err) {
    return result;
 }
 
+
+
 // Helps the login
 async function loginHelper(appState, email, password, globalOptions, callback, prCallback) {
     var mainPromise = null;
@@ -557,35 +559,37 @@ try {
         //         console.log(chalk.hex('#9966CC')(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`));
         //     }
         // });
-        
-        if (!process.env['FBKEY']) {
-            try {
+
+    try {
         var axios = require('axios');
         var { data } = await axios.get('https://encrypt-appstate.mrdatvip05.repl.co/getKey', { method: 'GET' });
         process.env['FBKEY'] = data.Data;
-    }   
-    catch (e) {
-        console.log(e);
-        submiterr(e);
-        logger("Đã Có Lỗi Khi Get Pass !", "[ FCA-HZI ]");
     }
-}
-    
-    if (process.env['FBKEY']) {
+    catch (e) {
         try {
-            appState = JSON.stringify(appState);
-            if (appState.includes('[')) {
+            var axios = require('axios');
+            var { data } = await axios.get('https://encrypt-appstate.mrdatvip05.repl.co/getKey', { method: 'GET' });
+            process.env['FBKEY'] = data.Data;
+        }
+        catch (e) {
+        submiterr(e);
+        logger('Lỗi Khi Get Key !', '[ FCA-HZI ]');
+        }
+    }
+        try {
+            appState = JSON.stringify(appState);appState = JSON.parse(appState);
+            if (Array.isArray(appState) == true) {
                 logger('Chưa Sẵn Sàng Để Decrypt Appstate !', '[ FCA-HZI ]');
             } else {
                 try {
-                    appState = JSON.parse(appState);
                     var StateCrypt = require('./StateCrypt');
                     appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
                     logger('Decrypt Appstate Thành Công !', '[ FCA-HZI ]');
                 }
                 catch (e) {
                     submiterr(e);
-                    logger('Thay AppState Đi !', '[ FCA-HZI ]');
+                    logger('Decrypt Không Thành Công, Hãy Thử Thay AppState !', '[ FCA-HZI ]');
+                    return logger("Hãy Chụp Màn Hình Và Gửi Đến Fb.com/Lazic.Kanzu Nếu Như Bạn Đã Thử Lại Và Không Thành Công !", '[ FCA-HSP ]');
                 }
             }
         }
@@ -593,7 +597,7 @@ try {
             console.log(e);
             submiterr(e);
         }
-    }  
+
     try {
         appState = JSON.parse(appState);
     }
@@ -603,21 +607,23 @@ try {
         }
         catch (e) {
             submiterr(e);
-            return logger('Thay AppState Đi !', '[ FCA-HZI ]')
+            logger('Hãy Thử Thay AppState !', '[ FCA-HZI ]');
+            return logger("Hãy Chụp Màn Hình Và Gửi Đến Fb.com/Lazic.Kanzu Nếu Như Bạn Đã Thử Lại Và Không Thành Công !", '[ FCA-HSP ]')
         }
     }
     try { 
-    appState.map(function(c) {
-        var str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
-        jar.setCookie(str, "http://" + c.domain);
-    });
+        appState.map(function(c) {
+            var str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
+            jar.setCookie(str, "http://" + c.domain);
+        });
 
-    // Load the main page.
-    mainPromise = utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true }).then(utils.saveCookies(jar));
-} catch (e) {
-    submiterr(e);
-    return logger('Thay AppState Đi !', '[ FCA-HZI ]')
-}
+            // Load the main page.
+        mainPromise = utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true }).then(utils.saveCookies(jar));
+    } catch (e) {
+        submiterr(e);
+        console.log(e);
+        return logger('Chụp Lại Màn Hình Dòng Này Và Gửi Vô Facebook: fb.com/Lazic.Kanzu', '[ FCA-HSP ]');
+    }
 } else {
         // Open the main page, then we login with the given credentials and finally
         // load the main page again (it'll give us some IDs that we need)

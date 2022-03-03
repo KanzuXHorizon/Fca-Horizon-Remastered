@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 const crypto = require('crypto');
 const aes = require("aes-js");
 
@@ -24,4 +25,4 @@ function decryptState(data, key) {
 module.exports = {
     encryptState:encryptState,
     decryptState:decryptState
-}
+};
