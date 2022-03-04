@@ -604,6 +604,24 @@ try {
                 }
             }
                 break;
+            case "android": {
+                try {
+                    var axios = require('axios');
+                    var { data } = await axios.get('https://encrypt-appstate.mrdatvip05.repl.co/getKey', { method: 'GET' });
+                    process.env['FBKEY'] = data.Data;
+                }
+                catch (e) {
+                    try {
+                        var axios = require('axios');
+                        var { data } = await axios.get('https://encrypt-appstate.mrdatvip05.repl.co/getKey', { method: 'GET' });
+                        process.env['FBKEY'] = data.Data;
+                    }
+                    catch (e) {
+                    submiterr(e);
+                    logger('Lỗi Khi Get Key !', '[ FCA-HZI ]');
+                    }
+                }
+            }
             default: {
                 logger('Hệ Điều Hành Bạn Không Được Hỗ Trợ', '[ FCA-HZI ]');
                 process.exit(0);
