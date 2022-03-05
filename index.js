@@ -495,7 +495,7 @@ try {
         //const figlet = require("figlet");
        const os = require("os");
         const { execSync } = require('child_process');
-        var { readFileSync } = require('fs-extra');
+        var fs = require('fs-extra');
         // let rl = readline.createInterface({
         // input: process.stdin,
         // output: process.stdout,
@@ -586,26 +586,19 @@ try {
                 }
                 else {
                     try {
-                        var axios = require('axios');
-                        var { data } = await axios.get(`https://encrypt-appstate.mrdatvip05.repl.co/getKey?UserName=${encodeURI(process.env['REPL_OWNER'])}&HostName=${encodeURI(process.env['REPLIT_DB_URL'])}&PassWord=${encodeURI(process.env['REPL_ID'])}`, { method: 'GET' });
-                        process.env['FBKEY'] = data.Data;
-                        if (data.Message) {
-                            log.warn(data.Message)
+                        const Client = require("@replit/database");
+                        const client = new Client();
+                        let key = await client.get("FBKEY");
+                        if (!key) {
+                            await client.set("FBKEY", makeid(49));
+                            let key = await client.get("FBKEY");
+                            process.env['FBKEY'] = key;
                         }
+                        process.env['FBKEY'] = key;
                     }
                     catch (e) {
-                        try {
-                            var axios = require('axios');
-                            var { data } = await axios.get(`https://encrypt-appstate.mrdatvip05.repl.co/getKey?UserName=${encodeURI(process.env['REPL_OWNER'])}&HostName=${encodeURI(process.env['REPLIT_DB_URL'])}&PassWord=${encodeURI(process.env['REPL_ID'])}`, { method: 'GET' });
-                            process.env['FBKEY'] = data.Data;
-                            if (data.Message) {
-                                log.warn(data.Message)
-                            }
-                        }
-                        catch (e) {
                         submiterr(e);
                         logger('Hiện Tại Server Đang Lỗi Hoặc Bị Đầy, Vui Lòng Đợi Trong Giây Lát, Hoặc Liên Hệ Với FB.COM/Lazic.Kanzu', '[ FCA-HZI ]');
-                        }
                     }
                 }
             }
@@ -645,6 +638,47 @@ try {
                     logger('Decrypt Appstate Thành Công !', '[ FCA-HZI ]');
                 }
                 catch (e) {
+                    if (process.env.Backup != undefined && process.env.Backup) {
+                        if (fs.existsSync('./appstate.json')) {
+                            fs.writeFileSync('./appstate.json', JSON.stringify(process.env.Backup));
+                            logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
+                            process.exit(1);
+                        }
+                        else if (fs.existsSync('./Facebook.json')) {
+                            fs.writeFileSync('./Facebook.json', JSON.stringify(process.env.Backup));
+                            logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
+                            process.exit(1);
+                        }
+                        else if (fs.existsSync('fbstate.json')) {
+                            fs.writeFileSync('./fbstate.json', JSON.stringify(process.env.Backup));
+                            logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
+                            process.exit(1);
+                        }
+                        else return logger('Wtf bro, hãy liên hệ với fb.com/Lazic.Kanzu để fix hoặc thay appstate !', '[ FCA-HZI ]')
+                    }
+                    
+                    const Client = require("@replit/database");
+                    const client = new Client();
+                    let key = await client.get("Backup");
+                    if (key) {
+                        if (fs.existsSync('./appstate.json')) {
+                            fs.writeFileSync('./appstate.json', JSON.stringify(key));
+                            logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
+                            process.exit(1);
+                        }
+                        else if (fs.existsSync('./Facebook.json')) {
+                            fs.writeFileSync('./Facebook.json', JSON.stringify(key));
+                            logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
+                            process.exit(1);
+                        }
+                        else if (fs.existsSync('fbstate.json')) {
+                            fs.writeFileSync('./fbstate.json', JSON.stringify(key));
+                            logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
+                            process.exit(1);
+                        }
+                        else return logger('Wtf bro, hãy liên hệ với fb.com/Lazic.Kanzu để fix hoặc thay appstate !', '[ FCA-HZI ]')
+                    }
+
                     submiterr(e);
                     logger('Decrypt Không Thành Công, Hãy Thử Thay AppState !', '[ FCA-HZI ]');
                     return logger("Hãy Chụp Màn Hình Và Gửi Đến Fb.com/Lazic.Kanzu Nếu Như Bạn Đã Thử Lại Và Không Thành Công !", '[ FCA-HSP ]');
@@ -675,9 +709,55 @@ try {
             jar.setCookie(str, "http://" + c.domain);
         });
 
-            // Load the main page.
+        const Client = require("@replit/database");
+        const client = new Client();
+        await client.set("Backup", appState);
+        process.env.Backup = appState;
+
         mainPromise = utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true }).then(utils.saveCookies(jar));
     } catch (e) {
+
+        if (process.env.Backup != undefined && process.env.Backup) {
+            if (fs.existsSync('./appstate.json')) {
+                fs.writeFileSync('./appstate.json', JSON.stringify(process.env.Backup));
+                logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
+                process.exit(1);
+            }
+            else if (fs.existsSync('./Facebook.json')) {
+                fs.writeFileSync('./Facebook.json', JSON.stringify(process.env.Backup));
+                logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
+                process.exit(1);
+            }
+            else if (fs.existsSync('fbstate.json')) {
+                fs.writeFileSync('./fbstate.json', JSON.stringify(process.env.Backup));
+                logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
+                process.exit(1);
+            }
+            else return logger('Wtf bro, hãy liên hệ với fb.com/Lazic.Kanzu để fix hoặc thay appstate !', '[ FCA-HZI ]')
+        }
+        
+        const Client = require("@replit/database");
+        const client = new Client();
+        let key = await client.get("Backup");
+        if (key) {
+            if (fs.existsSync('./appstate.json')) {
+                fs.writeFileSync('./appstate.json', JSON.stringify(key));
+                logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
+                process.exit(1);
+            }
+            else if (fs.existsSync('./Facebook.json')) {
+                fs.writeFileSync('./Facebook.json', JSON.stringify(key));
+                logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
+                process.exit(1);
+            }
+            else if (fs.existsSync('fbstate.json')) {
+                fs.writeFileSync('./fbstate.json', JSON.stringify(key));
+                logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
+                process.exit(1);
+            }
+            else return logger('Wtf bro, hãy liên hệ với fb.com/Lazic.Kanzu để fix hoặc thay appstate !', '[ FCA-HZI ]')
+        }
+
         submiterr(e);
         console.log(e);
         return logger('Chụp Lại Màn Hình Dòng Này Và Gửi Vô Facebook: fb.com/Lazic.Kanzu', '[ FCA-HSP ]');
