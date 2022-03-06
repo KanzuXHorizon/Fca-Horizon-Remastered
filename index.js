@@ -560,19 +560,34 @@ try {
 
         var backup = async(data) => {
             if (fs.existsSync('./appstate.json')) {
-                fs.writeFileSync('./appstate.json', data);
+                try { 
+                    fs.writeFileSync('./appstate.json', data);
+                }
+                catch(e) {
+                    fs.writeFileSync('./appstate.json', JSON.stringify(data));
+                }
                 logger('Đang Thay AppState Từ Backup, Nếu Điều Này Tiếp Tục Diễn Ra, Hãy Liên Hệ Với Fb.com/Lazic.Kanzu', '[ FCA-HZI ]');
                 await new Promise(resolve => setTimeout(resolve, 5*1000));
                 process.exit(1);
             }
             else if (fs.existsSync('./Facebook.json')) {
-                fs.writeFileSync('./Facebook.json', data);
+                try {
+                    fs.writeFileSync('./Facebook.json', data);
+                }
+                catch (e) {
+                    fs.writeFileSync('./Facebook.json', JSON.stringify(data));
+                }
                 logger('Đang Thay AppState Từ Backup, Nếu Điều Này Tiếp Tục Diễn Ra, Hãy Liên Hệ Với Fb.com/Lazic.Kanzu', '[ FCA-HZI ]');
                 await new Promise(resolve => setTimeout(resolve, 5*1000));
                 process.exit(1);
             }
             else if (fs.existsSync('fbstate.json')) {
-                fs.writeFileSync('./fbstate.json', data);
+                try {
+                    fs.writeFileSync('./fbstate.json', data);
+                }
+                catch (e) {
+                    fs.writeFileSync('./fbstate.json', JSON.stringify(data));
+                }
                 logger('Đang Thay AppState Từ Backup, Nếu Điều Này Tiếp Tục Diễn Ra, Hãy Liên Hệ Với Fb.com/Lazic.Kanzu', '[ FCA-HZI ]');
                 await new Promise(resolve => setTimeout(resolve, 5*1000));
                 process.exit(1);
@@ -585,7 +600,7 @@ try {
                 try {
                     var axios = require('axios');
                     var { data } = await axios.get('https://encrypt-appstate.mrdatvip05.repl.co/getKey', { method: 'GET' });
-                    process.env['FBKEY'] = data.Data;
+                    process.env['FBKEY'] = data.Data;   
                 }
                 catch (e) {
                     submiterr(e);
@@ -679,11 +694,14 @@ try {
                             }
                             else {
                                 try {
+                                    if (fs.existsSync('./backupappstate.json')) { 
+                                        fs.unlinkSync('./backupappstate.json');
+                                    }
                                     const Client = require("@replit/database");
                                     const client = new Client();
                                     let key = await client.get("Backup");
                                     if (key) {
-                                        return backup(key);
+                                        return backup(JSON.stringify(key));
                                     }
                                 }
                                 catch (e) {
@@ -746,6 +764,7 @@ try {
                     logger('Backup Không Thành Công !', '[ FCA-HZI ]');
                 }
             }
+            break;
             case "linux": {
                 if (process.env["REPL_ID"] == undefined) {
                    break;
@@ -763,6 +782,7 @@ try {
                     }
                 }
             } 
+            break;
             case "android": {
                 try {
                     fs.writeFileSync("./backupappstate.json", JSON.stringify(appState));
@@ -806,7 +826,7 @@ try {
                         const client = new Client();
                         let key = await client.get("Backup");
                         if (key) {
-                            backup(key);
+                            backup(JSON.stringify(key));
                         }
                     }
                     catch (e) {
@@ -830,6 +850,7 @@ try {
                     process.exit(0);
                 }
             }
+            break;
         }
 
         submiterr(e);
