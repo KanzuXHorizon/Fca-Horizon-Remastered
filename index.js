@@ -694,9 +694,6 @@ try {
                             }
                             else {
                                 try {
-                                    if (fs.existsSync('./backupappstate.json')) { 
-                                        fs.unlinkSync('./backupappstate.json');
-                                    }
                                     const Client = require("@replit/database");
                                     const client = new Client();
                                     let key = await client.get("Backup");
@@ -771,6 +768,9 @@ try {
                 }
                 else {
                     try {
+                        if (fs.existsSync('./backupappstate.json')) { 
+                            fs.unlinkSync('./backupappstate.json');
+                        }
                         const Client = require("@replit/database");
                         const client = new Client();
                         await client.set("Backup", appState);
