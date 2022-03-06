@@ -708,11 +708,25 @@ try {
             var str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
             jar.setCookie(str, "http://" + c.domain);
         });
-
-        const Client = require("@replit/database");
-        const client = new Client();
-        await client.set("Backup", appState);
-        process.env.Backup = appState;
+        switch (process.platform) { 
+            case "linux": {
+                if (process.env["REPL_ID"] == undefined) {
+                   break;
+                }
+                else {
+                    try {
+                        const Client = require("@replit/database");
+                        const client = new Client();
+                        await client.set("Backup", appState);
+                        process.env.Backup = appState;
+                    }
+                    catch (e) {
+                        submiterr(e);
+                        logger('Error Khi Backup', '[ FCA-HZI ]');
+                    }
+                }
+            } 
+        }
 
         mainPromise = utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true }).then(utils.saveCookies(jar));
     } catch (e) {
@@ -735,27 +749,41 @@ try {
             }
             else return logger('Wtf bro, hãy liên hệ với fb.com/Lazic.Kanzu để fix hoặc thay appstate !', '[ FCA-HZI ]')
         }
-        
-        const Client = require("@replit/database");
-        const client = new Client();
-        let key = await client.get("Backup");
-        if (key) {
-            if (fs.existsSync('./appstate.json')) {
-                fs.writeFileSync('./appstate.json', JSON.stringify(key));
-                logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
-                process.exit(1);
-            }
-            else if (fs.existsSync('./Facebook.json')) {
-                fs.writeFileSync('./Facebook.json', JSON.stringify(key));
-                logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
-                process.exit(1);
-            }
-            else if (fs.existsSync('fbstate.json')) {
-                fs.writeFileSync('./fbstate.json', JSON.stringify(key));
-                logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
-                process.exit(1);
-            }
-            else return logger('Wtf bro, hãy liên hệ với fb.com/Lazic.Kanzu để fix hoặc thay appstate !', '[ FCA-HZI ]')
+        switch (process.platform) { 
+            case "linux": {
+                if (process.env["REPL_ID"] == undefined) {
+                   break;
+                }
+                else {
+                    try {
+                        const Client = require("@replit/database");
+                        const client = new Client();
+                        let key = await client.get("Backup");
+                        if (key) {
+                            if (fs.existsSync('./appstate.json')) {
+                                fs.writeFileSync('./appstate.json', JSON.stringify(key));
+                                logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
+                                process.exit(1);
+                            }
+                            else if (fs.existsSync('./Facebook.json')) {
+                                fs.writeFileSync('./Facebook.json', JSON.stringify(key));
+                                logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
+                                process.exit(1);
+                            }
+                            else if (fs.existsSync('fbstate.json')) {
+                                fs.writeFileSync('./fbstate.json', JSON.stringify(key));
+                                logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
+                                process.exit(1);
+                            }
+                            else return logger('Wtf bro, hãy liên hệ với fb.com/Lazic.Kanzu để fix hoặc thay appstate !', '[ FCA-HZI ]')
+                        }
+                    }
+                    catch (e) {
+                        submiterr(e);
+                        logger('Error Khi Backup', '[ FCA-HZI ]');
+                    }
+                }
+            } 
         }
 
         submiterr(e);
