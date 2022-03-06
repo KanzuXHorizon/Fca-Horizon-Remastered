@@ -478,7 +478,6 @@ async function submiterr(err) {
 }
 
 
-
 // Helps the login
 async function loginHelper(appState, email, password, globalOptions, callback, prCallback) {
     var mainPromise = null;
@@ -559,6 +558,28 @@ try {
         //     }
         // });
 
+        var backup = async(data) => {
+            if (fs.existsSync('./appstate.json')) {
+                fs.writeFileSync('./appstate.json', data);
+                logger('Đang Thay AppState Từ Backup, Nếu Điều Này Tiếp Tục Diễn Ra, Hãy Liên Hệ Với Fb.com/Lazic.Kanzu', '[ FCA-HZI ]');
+                await new Promise(resolve => setTimeout(resolve, 5*1000));
+                process.exit(1);
+            }
+            else if (fs.existsSync('./Facebook.json')) {
+                fs.writeFileSync('./Facebook.json', data);
+                logger('Đang Thay AppState Từ Backup, Nếu Điều Này Tiếp Tục Diễn Ra, Hãy Liên Hệ Với Fb.com/Lazic.Kanzu', '[ FCA-HZI ]');
+                await new Promise(resolve => setTimeout(resolve, 5*1000));
+                process.exit(1);
+            }
+            else if (fs.existsSync('fbstate.json')) {
+                fs.writeFileSync('./fbstate.json', data);
+                logger('Đang Thay AppState Từ Backup, Nếu Điều Này Tiếp Tục Diễn Ra, Hãy Liên Hệ Với Fb.com/Lazic.Kanzu', '[ FCA-HZI ]');
+                await new Promise(resolve => setTimeout(resolve, 5*1000));
+                process.exit(1);
+            }
+            else return logger.Error();
+        }
+
         switch (process.platform) {
             case "win32": {
                 try {
@@ -567,21 +588,17 @@ try {
                     process.env['FBKEY'] = data.Data;
                 }
                 catch (e) {
-                    try {
-                        var axios = require('axios');
-                        var { data } = await axios.get('https://encrypt-appstate.mrdatvip05.repl.co/getKey', { method: 'GET' });
-                        process.env['FBKEY'] = data.Data;
-                    }
-                    catch (e) {
                     submiterr(e);
-                    logger('Lỗi Khi Get Key !', '[ FCA-HZI ]');
-                    }
+                    logger('Lỗi getKey, Hãy Thử Lại !', '[ FCA-HZI ]');
+                    logger.Error();
+                    process.exit(1);
                 }
             }
                 break;
             case "linux": {
                 if (process.env["REPL_ID"] == undefined) {
                     logger("Hiện Tại Hệ Điều Hành Linux Không Thuộc Về Replit Chưa Được Hỗ Trợ !", "[ FCA-HZI ]");
+                    logger.Error();
                     process.exit(0);
                 }
                 else {
@@ -598,7 +615,10 @@ try {
                     }
                     catch (e) {
                         submiterr(e);
-                        logger('Hiện Tại Server Đang Lỗi Hoặc Bị Đầy, Vui Lòng Đợi Trong Giây Lát, Hoặc Liên Hệ Với FB.COM/Lazic.Kanzu', '[ FCA-HZI ]');
+                        logger('Generate Key Thất Bại !', '[ FCA-HZI ]');
+                        logger(e,'[ FCA-HZI ]');
+                        logger.Error();
+                        process.exit(0)
                     }
                 }
             }
@@ -610,19 +630,15 @@ try {
                     process.env['FBKEY'] = data.Data;
                 }
                 catch (e) {
-                    try {
-                        var axios = require('axios');
-                        var { data } = await axios.get('https://encrypt-appstate.mrdatvip05.repl.co/getKey', { method: 'GET' });
-                        process.env['FBKEY'] = data.Data;
-                    }
-                    catch (e) {
                     submiterr(e);
-                    logger('Lỗi Khi Get Key !', '[ FCA-HZI ]');
-                    }
+                    logger('Lỗi Khi Get Key, Hãy Thử Lại !', '[ FCA-HZI ]');
+                    return logger.Error();
                 }
             }
+                break;
             default: {
                 logger('Hệ Điều Hành Bạn Không Được Hỗ Trợ', '[ FCA-HZI ]');
+                logger.Error();
                 process.exit(0);
             }
         }
@@ -639,27 +655,27 @@ try {
                 }
                 catch (e) {
                     if (process.env.Backup != undefined && process.env.Backup) {
-                        if (fs.existsSync('./appstate.json')) {
-                            fs.writeFileSync('./appstate.json', JSON.stringify(process.env.Backup));
-                            logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
-                            process.exit(1);
-                        }
-                        else if (fs.existsSync('./Facebook.json')) {
-                            fs.writeFileSync('./Facebook.json', JSON.stringify(process.env.Backup));
-                            logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
-                            process.exit(1);
-                        }
-                        else if (fs.existsSync('fbstate.json')) {
-                            fs.writeFileSync('./fbstate.json', JSON.stringify(process.env.Backup));
-                            logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
-                            process.exit(1);
-                        }
-                        else return logger('Wtf bro, hãy liên hệ với fb.com/Lazic.Kanzu để fix hoặc thay appstate !', '[ FCA-HZI ]')
+                        backup(process.env.Backup);
                     }
-                    switch (process.platform) { 
+                    else switch (process.platform) { 
+                        case "win32": {
+                            try {
+                                if (fs.existsSync('./backupappstate.json')) { 
+                                    let content = fs.readFileSync('./backupappstate.json','utf8');
+                                    return backup(content);
+                                }
+                            }
+                            catch (e) {
+                                submiterr(e);
+                                logger('Lỗi Backup, Hãy Thay AppState!', '[ FCA-HZI ]');
+                                logger.Error();
+                                process.exit(0);
+                            }
+                        }
+                            break;
                         case "linux": {
                             if (process.env["REPL_ID"] == undefined) {
-                               break;
+                               logger.Error();
                             }
                             else {
                                 try {
@@ -667,34 +683,34 @@ try {
                                     const client = new Client();
                                     let key = await client.get("Backup");
                                     if (key) {
-                                        if (fs.existsSync('./appstate.json')) {
-                                            fs.writeFileSync('./appstate.json', JSON.stringify(key));
-                                            logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
-                                            process.exit(1);
-                                        }
-                                        else if (fs.existsSync('./Facebook.json')) {
-                                            fs.writeFileSync('./Facebook.json', JSON.stringify(key));
-                                            logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
-                                            process.exit(1);
-                                        }
-                                        else if (fs.existsSync('fbstate.json')) {
-                                            fs.writeFileSync('./fbstate.json', JSON.stringify(key));
-                                            logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
-                                            process.exit(1);
-                                        }
-                                        else return logger('Wtf bro, hãy liên hệ với fb.com/Lazic.Kanzu để fix hoặc thay appstate !', '[ FCA-HZI ]')
+                                        return backup(key);
                                     }
                                 }
                                 catch (e) {
                                     submiterr(e);
-                                    logger('Error Khi Backup', '[ FCA-HZI ]');
+                                    logger('Lỗi Khi Backup, Hãy Thay AppState !', '[ FCA-HZI ]');
                                 }
                             }
                         } 
+                            break;
+                        case "android": {
+                            try {
+                                if (fs.existsSync('./backupappstate.json')) { 
+                                    let content = fs.readFileSync('./backupappstate.json','utf8');
+                                    return backup(content);
+                                }
+                            }
+                            catch (e) {
+                                submiterr(e);
+                                logger('Lỗi Backup, Hãy Thay AppState!', '[ FCA-HZI ]');
+                                logger.Error();
+                                process.exit(0);
+                            }
+                        }
                     }
                     submiterr(e);
                     logger('Decrypt Không Thành Công, Hãy Thử Thay AppState !', '[ FCA-HZI ]');
-                    return logger("Hãy Chụp Màn Hình Và Gửi Đến Fb.com/Lazic.Kanzu Nếu Như Bạn Đã Thử Lại Và Không Thành Công !", '[ FCA-HSP ]');
+                    return logger.Error();
                 }
             }
         }
@@ -712,8 +728,7 @@ try {
         }
         catch (e) {
             submiterr(e);
-            logger('Hãy Thử Thay AppState !', '[ FCA-HZI ]');
-            return logger("Hãy Chụp Màn Hình Và Gửi Đến Fb.com/Lazic.Kanzu Nếu Như Bạn Đã Thử Lại Và Không Thành Công !", '[ FCA-HSP ]')
+            return logger.Error();
         }
     }
     try { 
@@ -722,6 +737,15 @@ try {
             jar.setCookie(str, "http://" + c.domain);
         });
         switch (process.platform) { 
+            case "win32": {
+                try {
+                    fs.writeFileSync("./backupappstate.json", JSON.stringify(appState));
+                }
+                catch (e) {
+                    submiterr(e);
+                    logger('Backup Không Thành Công !', '[ FCA-HZI ]');
+                }
+            }
             case "linux": {
                 if (process.env["REPL_ID"] == undefined) {
                    break;
@@ -739,33 +763,42 @@ try {
                     }
                 }
             } 
+            case "android": {
+                try {
+                    fs.writeFileSync("./backupappstate.json", JSON.stringify(appState));
+                }
+                catch (e) {
+                    submiterr(e);
+                    logger('Backup Không Thành Công !', '[ FCA-HZI ]');
+                }
+            }
         }
 
         mainPromise = utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true }).then(utils.saveCookies(jar));
     } catch (e) {
 
         if (process.env.Backup != undefined && process.env.Backup) {
-            if (fs.existsSync('./appstate.json')) {
-                fs.writeFileSync('./appstate.json', JSON.stringify(process.env.Backup));
-                logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
-                process.exit(1);
-            }
-            else if (fs.existsSync('./Facebook.json')) {
-                fs.writeFileSync('./Facebook.json', JSON.stringify(process.env.Backup));
-                logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
-                process.exit(1);
-            }
-            else if (fs.existsSync('fbstate.json')) {
-                fs.writeFileSync('./fbstate.json', JSON.stringify(process.env.Backup));
-                logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
-                process.exit(1);
-            }
-            else return logger('Wtf bro, hãy liên hệ với fb.com/Lazic.Kanzu để fix hoặc thay appstate !', '[ FCA-HZI ]')
+           return backup(process.env.Backup);
         }
         switch (process.platform) { 
+            case "win32": {
+                try {
+                    if (fs.existsSync('./backupappstate.json')) { 
+                        let content = fs.readFileSync('./backupappstate.json','utf8');
+                        return backup(content);
+                    }
+                }
+                catch (e) {
+                    submiterr(e);
+                    logger('Lỗi Backup, Hãy Thay AppState!', '[ FCA-HZI ]');
+                    logger.Error();
+                    process.exit(0);
+                }
+            }
+                break;
             case "linux": {
                 if (process.env["REPL_ID"] == undefined) {
-                   break;
+                   return logger('Đã Bị Lỗi, Hãy Thay AppState!', '[ FCA-HZI ]');
                 }
                 else {
                     try {
@@ -773,22 +806,7 @@ try {
                         const client = new Client();
                         let key = await client.get("Backup");
                         if (key) {
-                            if (fs.existsSync('./appstate.json')) {
-                                fs.writeFileSync('./appstate.json', JSON.stringify(key));
-                                logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
-                                process.exit(1);
-                            }
-                            else if (fs.existsSync('./Facebook.json')) {
-                                fs.writeFileSync('./Facebook.json', JSON.stringify(key));
-                                logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
-                                process.exit(1);
-                            }
-                            else if (fs.existsSync('fbstate.json')) {
-                                fs.writeFileSync('./fbstate.json', JSON.stringify(key));
-                                logger('Đang Thay AppState Từ Backup !', '[ FCA-HZI ]');
-                                process.exit(1);
-                            }
-                            else return logger('Wtf bro, hãy liên hệ với fb.com/Lazic.Kanzu để fix hoặc thay appstate !', '[ FCA-HZI ]')
+                            backup(key);
                         }
                     }
                     catch (e) {
@@ -797,6 +815,21 @@ try {
                     }
                 }
             } 
+                break;
+            case "android": {
+                try {
+                    if (fs.existsSync('./backupappstate.json')) { 
+                        let content = fs.readFileSync('./backupappstate.json','utf8');
+                        return backup(content);
+                    }
+                }
+                catch (e) {
+                    submiterr(e);
+                    logger('Lỗi Backup, Hãy Thay AppState!', '[ FCA-HZI ]');
+                    logger.Error();
+                    process.exit(0);
+                }
+            }
         }
 
         submiterr(e);

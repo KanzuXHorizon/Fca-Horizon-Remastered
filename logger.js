@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 const chalk = require('chalk');
 //const notifier = require('node-notifier');
 
@@ -13,4 +14,7 @@ module.exports.onLogger = (str,end,ctscolor) => {
 		console.log(chalk.hex(ctscolor).bold(`${end || '[ FCA-HZI ]'} > `) + str);
 	} 
 	else console.log(chalk.hex('#00CCCC').bold(`${end || '[ FCA-HZI ]'} > `) + str);
-}
+};
+module.exports.Error = () =>  {
+	console.log(chalk.bold.red('Đã Có Lỗi, Xin Vui Lòng Liên Hệ Với: Facebook.com/Lazic.Kanzu'));
+};
