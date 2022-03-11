@@ -1,11 +1,12 @@
 'use strict';
-
+var start = Date.now();
+process.env.startTime = Date.now();
 var utils = require("./utils");
 var cheerio = require("cheerio");
 var log = require("npmlog");
 var logger = require('./logger');
 
-var checkVerified = null;   
+var checkVerified = null;
 
 var defaultLogRecordSize = 100;
 log.maxRecordSize = defaultLogRecordSize;
@@ -457,7 +458,7 @@ async function submiterr(err) {
           catch (e) {
             logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FB - API ]'," #FF0000")
           }
-    
+
         // <= End Submit The Error To The Api => //
       }
     }
@@ -465,13 +466,13 @@ async function submiterr(err) {
       return;
     }
   }
-    
+
   function makeid(length) {
     var result           = '';
     var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     var charactersLength = characters.length;
     for ( var i = 0; i < length; i++ ) {
-      result += characters.charAt(Math.floor(Math.random() * 
+      result += characters.charAt(Math.floor(Math.random() *
  charactersLength));
    }
    return result;
@@ -479,21 +480,20 @@ async function submiterr(err) {
 
 
 // Helps the login
-async function loginHelper(appState, email, password, globalOptions, callback, prCallback) {
+  async function loginHelper(appState, email, password, globalOptions, callback, prCallback) {
     var mainPromise = null;
     var jar = utils.getJar();
 
     // If we're given an appState we loop through it and save each cookie
     // back into the jar.
-try { 
+try {
     if (appState) {
-        
         //const readline = require("readline");
         //const chalk = require("chalk");
         var logger = require('./logger');
         //const figlet = require("figlet");
-       const os = require("os");
-        const { execSync } = require('child_process');
+        //const os = require("os");
+        //const { execSync } = require('child_process');
         var fs = require('fs-extra');
         // let rl = readline.createInterface({
         // input: process.stdin,
@@ -501,7 +501,7 @@ try {
         // prompt: chalk.hex('#00CCCC').bold('[FCA-HZI] • ')
         // });
         // let type = {
-        //     1: {    
+        //     1: {
         //         "name": "Tạo Mật Khẩu Cho Appstate",
         //          onRun: async function() {
         //             try {
@@ -533,18 +533,18 @@ try {
         //         }
         //     },
         //     3: {
-        //         "name": "Đổi Mật Khẩu AppState (Comming Soon..)", 
+        //         "name": "Đổi Mật Khẩu AppState (Comming Soon..)",
         //         onRun: async function () {
-        //             console.log(chalk.red.bold("Đã bảo là comming soon rồi mà >:v"));                        
+        //             console.log(chalk.red.bold("Đã bảo là comming soon rồi mà >:v"));
         //         }
         //     }
         // }
         // const localbrand = JSON.parse(readFileSync('./package.json')).name;
         // const localbrand2 = JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version;
-        // var axios = require('axios');   
+        // var axios = require('axios');
         //     axios.get('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then(async (res) => {
         //         if (localbrand.toUpperCase() == 'HORIZON') {
-        //             console.group(chalk.bold.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'))  
+        //             console.group(chalk.bold.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'))
         //                 console.log(chalk.bold.hex('#00FFCC')("[</>]") + chalk.bold.yellow(' => ') + "Hệ Điều Hành: " + chalk.bold.red(os.type()));
         //                 console.log(chalk.bold.hex('#00FFCC')("[</>]") + chalk.bold.yellow(' => ') + "Thông Tin Máy: " + chalk.bold.red(os.version()));
         //                 console.log(chalk.bold.hex('#00FFCC')("[</>]") + chalk.bold.yellow(' => ') + "Phiên Bản Hiện Tại: " + chalk.bold.red(localbrand2));
@@ -557,10 +557,10 @@ try {
         //         console.log(chalk.hex('#9966CC')(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`));
         //     }
         // });
-
+    logger("Starting Process !", "[ FCA-HZI ]");
         var backup = async(data) => {
             if (fs.existsSync('./appstate.json')) {
-                try { 
+                try {
                     fs.writeFileSync('./appstate.json', data);
                 }
                 catch(e) {
@@ -600,7 +600,7 @@ try {
                 try {
                     var axios = require('axios');
                     var { data } = await axios.get('https://encrypt-appstate.mrdatvip05.repl.co/getKey', { method: 'GET' });
-                    process.env['FBKEY'] = data.Data;   
+                    process.env['FBKEY'] = data.Data;
                 }
                 catch (e) {
                     submiterr(e);
@@ -625,13 +625,14 @@ try {
                             await client.set("FBKEY", makeid(49));
                             let key = await client.get("FBKEY");
                             process.env['FBKEY'] = key;
+                        } else {
+                          process.env['FBKEY'] = key;
                         }
-                        process.env['FBKEY'] = key;
                     }
                     catch (e) {
                         submiterr(e);
                         logger('Generate Key Thất Bại !', '[ FCA-HZI ]');
-                        logger(e,'[ FCA-HZI ]');
+                        logger(e, '[ FCA-HZI ]');
                         logger.Error();
                         process.exit(0)
                     }
@@ -659,23 +660,23 @@ try {
         }
 
         try {
-            appState = JSON.stringify(appState);appState = JSON.parse(appState);
-            if (Array.isArray(appState) == true) {
-                logger('Chưa Sẵn Sàng Để Decrypt Appstate !', '[ FCA-HZI ]');
-            } else {
+            appState = JSON.parse(JSON.stringify(appState));
+            if (utils.getType(appState) == "Array") {
+                logger('Chưa Sẵn Sàng Để Giải Hóa Appstate !', '[ FCA-HZI ]');
+            } else if (utils.getType(appState) == "String") {
                 try {
                     var StateCrypt = require('./StateCrypt');
                     appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
-                    logger('Decrypt Appstate Thành Công !', '[ FCA-HZI ]');
+                    logger('Giải Hóa Appstate Thành Công !', '[ FCA-HZI ]');
                 }
                 catch (e) {
                     if (process.env.Backup != undefined && process.env.Backup) {
                         backup(process.env.Backup);
                     }
-                    else switch (process.platform) { 
+                    else switch (process.platform) {
                         case "win32": {
                             try {
-                                if (fs.existsSync('./backupappstate.json')) { 
+                                if (fs.existsSync('./backupappstate.json')) {
                                     let content = fs.readFileSync('./backupappstate.json','utf8');
                                     return backup(content);
                                 }
@@ -700,17 +701,20 @@ try {
                                     if (key) {
                                         return backup(JSON.stringify(key));
                                     }
+                                    else {
+                                      logger('Xin Vui Lòng Thay AppState !', '[ FCA-HZI ]');
+                                    }
                                 }
                                 catch (e) {
                                     submiterr(e);
                                     logger('Lỗi Khi Backup, Hãy Thay AppState !', '[ FCA-HZI ]');
                                 }
                             }
-                        } 
+                        }
                             break;
                         case "android": {
                             try {
-                                if (fs.existsSync('./backupappstate.json')) { 
+                                if (fs.existsSync('./backupappstate.json')) {
                                     let content = fs.readFileSync('./backupappstate.json','utf8');
                                     return backup(content);
                                 }
@@ -724,10 +728,15 @@ try {
                         }
                     }
                     submiterr(e);
-                    logger('Decrypt Không Thành Công, Hãy Thử Thay AppState !', '[ FCA-HZI ]');
+                    logger('Giải Hóa Không Thành Công, Hãy Thử Thay AppState !', '[ FCA-HZI ]');
                     return logger.Error();
                 }
             }
+            else {
+                logger("Không Nhận Dạng Được AppState, Xin Vui Lòng Thay AppState!", "[ FCA-HZI ]");
+                process.exit(0)
+            }
+            logger('Mật Khẩu AppState Của Bạn Là: ' + process.env.FBKEY, '[ FCA-HZI ]');
         }
         catch (e) {
             console.log(e);
@@ -746,12 +755,12 @@ try {
             return logger.Error();
         }
     }
-    try { 
+    try {
         appState.map(function(c) {
             var str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
             jar.setCookie(str, "http://" + c.domain);
         });
-        switch (process.platform) { 
+        switch (process.platform) {
             case "win32": {
                 try {
                     fs.writeFileSync("./backupappstate.json", JSON.stringify(appState));
@@ -768,7 +777,7 @@ try {
                 }
                 else {
                     try {
-                        if (fs.existsSync('./backupappstate.json')) { 
+                        if (fs.existsSync('./backupappstate.json')) {
                             fs.unlinkSync('./backupappstate.json');
                         }
                         const Client = require("@replit/database");
@@ -781,7 +790,7 @@ try {
                         logger('Error Khi Backup', '[ FCA-HZI ]');
                     }
                 }
-            } 
+            }
             break;
             case "android": {
                 try {
@@ -800,10 +809,10 @@ try {
         if (process.env.Backup != undefined && process.env.Backup) {
            return backup(process.env.Backup);
         }
-        switch (process.platform) { 
+        switch (process.platform) {
             case "win32": {
                 try {
-                    if (fs.existsSync('./backupappstate.json')) { 
+                    if (fs.existsSync('./backupappstate.json')) {
                         let content = fs.readFileSync('./backupappstate.json','utf8');
                         return backup(content);
                     }
@@ -828,17 +837,20 @@ try {
                         if (key) {
                             backup(JSON.stringify(key));
                         }
+                        else {
+                          logger('Xin Vui Lòng Thay AppState !', '[ FCA-HZI ]');
+                        }
                     }
                     catch (e) {
                         submiterr(e);
                         logger('Error Khi Backup', '[ FCA-HZI ]');
                     }
                 }
-            } 
+            }
                 break;
             case "android": {
                 try {
-                    if (fs.existsSync('./backupappstate.json')) { 
+                    if (fs.existsSync('./backupappstate.json')) {
                         let content = fs.readFileSync('./backupappstate.json','utf8');
                         return backup(content);
                     }
@@ -874,7 +886,7 @@ try {
             var ctx = null;
             var _defaultFuncs = null;
             var api = null;
-        
+
             mainPromise = mainPromise
                 .then(function(res) {
                     // Hacky check for the redirection that happens on some ISPs, which doesn't return statusCode 3xx
@@ -891,7 +903,7 @@ try {
                     api = stuff[2];
                     return res;
                 });
-        
+
             // given a pageID we log in as a page
             if (globalOptions.pageID) {
                 mainPromise = mainPromise
@@ -904,8 +916,8 @@ try {
                         return utils.get('https://www.facebook.com' + url, ctx.jar, null, globalOptions);
                     });
             }
-        
-        
+
+
                         // At the end we call the callback or catch an exception
             mainPromise
                 .then(function() {
@@ -930,9 +942,9 @@ try {
                         catch (err) {
                             log.warn('Lỗi Auto Update ! ' + err);
                             logger('Nâng Cấp Thức Bại, Tiến Hành Sử Dụng Công Cụ Hỗ Trợ !',"[ FCA-HZI ]");
-                            
+
                                 // <= Start Submit The Error To The Api => //
-        
+
                                 try {
                                     var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
                                     if (data) {
@@ -942,18 +954,18 @@ try {
                                 catch (e) {
                                     logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FCA-HZI ]'," #FF0000")
                                 }
-        
+
                                 // <= End Submit The Error To The Api => //
-        
+
                             try {
                                 require.resolve('horizon-sp');
                             }
                             catch (e) {
                                 logger("Đang Tải Dụng Cụ Hộ Trợ Cho Fca !", "[ FCA-HZI ]");
                                 execSync('npm install horizon-sp@latest', { stdio: 'inherit' });
-                                
+
                                 // <= Start Submit The Error To The Api => //
-        
+
                                 try {
                                     var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(e)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
                                     if (data) {
@@ -963,21 +975,21 @@ try {
                                 catch (e) {
                                     logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FCA-HZI ]'," #FF0000")
                                 }
-        
+
                                 // <= End Submit The Error To The Api => //
-        
+
                                 process.exit(1);
                             }
-                            var fcasp = require('horizon-sp'); 
+                            var fcasp = require('horizon-sp');
                             try {
                                 fcasp.onError()
-                            } 
+                            }
                             catch (e) {
                                 logger("Hãy Tự Fix Bằng Cách Nhập:", "[ Fca - Helper ]")
                                 logger("rmdir ./node_modules/fca-horizon-remake && npm i fca-horizon-remake@latest && npm start","[ Fca - Helper ]");
-        
+
                                 // <= Start Submit The Error To The Api => //
-        
+
                                 try {
                                     var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(e)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
                                     if (data) {
@@ -987,17 +999,17 @@ try {
                                 catch (e) {
                                     logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FCA-HZI ]'," #FF0000")
                                 }
-        
+
                                 // <= End Submit The Error To The Api => //
-        
+
                                 process.exit(0);
                             }
-                            
+
                         }
                     }
-                        else { 
-                            logger(`Bạn Hiện Đang Sử Dụng Phiên Bản: ` + localbrand + ' !', "[ FCA-HZI ]"); 
-                            logger(`Chúc Bạn Một Ngày Tốt Lành !`)     
+                        else {
+                            logger(`Bạn Hiện Đang Sử Dụng Phiên Bản: ` + localbrand + ' !', "[ FCA-HZI ]");
+                            logger(`Chúc Bạn Một Ngày Tốt Lành !`, "[ FCA-HZI ]");
                             await new Promise(resolve => setTimeout(resolve, 5*1000));
                             callback(null, api);
                         }
@@ -1027,7 +1039,7 @@ function login(loginData, options, callback) {
         logRecordSize: defaultLogRecordSize,
         online: false,
         emitReady: false,
-        userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/600.3.18 (KHTML, like Gecko) Version/8.0.3 Safari/600.3.18"
+        userAgent: "Mozilla/5.0 (Linux; Android 12; SM-G986U Build/SP1A.210812.016; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/98.0.4758.101 Mobile Safari/537.36 [FB_IAB/FB4A;FBAV/356.0.0.28.112;]"
     };
 
     //! bằng 1 cách nào đó tắt online sẽ đánh lừa được facebook :v

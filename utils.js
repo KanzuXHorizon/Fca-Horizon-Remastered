@@ -1190,10 +1190,12 @@ function decodeClientPayload(payload) {
 }
 
 function getAppState(jar) {
+    const prettyMilliseconds = require('pretty-ms');
     var appstate = jar.getCookies("https://www.facebook.com").concat(jar.getCookies("https://facebook.com")).concat(jar.getCookies("https://www.messenger.com"));
     var StateCrypt = require('./StateCrypt');
     var logger = require('./logger');
-    logger('Encrypt AppState Thành Công !','[ FCA-HZI ]');
+    logger('Mã Hóa AppState Thành Công !','[ FCA-HZI ]');
+    logger(`Process Done: ${prettyMilliseconds(Date.now() - process.env.startTime)}`, "[ FCA-HZI ]");
     if (process.env['FBKEY']) {
         return StateCrypt.encryptState(JSON.stringify(appstate),process.env['FBKEY']);
     }
