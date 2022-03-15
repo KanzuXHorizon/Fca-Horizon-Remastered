@@ -7,10 +7,21 @@ var log = require("npmlog");
 var logger = require('./logger');
 var fs = require('fs-extra');
 var checkVerified = null;
-var axios = require("axios")
+var getText = require('gettext.js')();
 const languageFile = require('./Language/index.json');
 
-var getText = require('gettext.js')();
+
+    if (!fs.existsSync('./FastConfigFca.json')) {
+        fs.writeFileSync("./FastConfigFca.json", '{"Language": "vi","MainColor": "CommingSoon"}');
+        process.exit(1);
+    }
+    else if (fs.existsSync('./FastConfigFca.json')) {
+        var datav2 = require("../../FastConfigFca.json");
+        if (!languageFile.some(i => i.Language == datav2.Language)) { logger("Not Support Language: " + datav2.Language + " Only 'en' and 'vi'","[ FCA-HZI ]");process.exit(0); }
+        var Language = languageFile.find(i => i.Language == datav2.Language).Folder.Index;
+    }
+    else return process.exit(1);
+
 
 var defaultLogRecordSize = 100;
 log.maxRecordSize = defaultLogRecordSize;
@@ -82,19 +93,6 @@ function setOptions(globalOptions, options) {
 }
 
 function buildAPI(globalOptions, html, jar) {
-    if (!fs.existsSync('./FastConfigFca.json')) {
-        async function installFastConfig() {
-         var { data } = await axios.get("https://raw.githubusercontent.com/HarryWakazaki/Global-Horizon/main/FastConfigFca.json", { method: 'GET'});
-             console.log(data)    
-             fs.writeFileSync("./FastConfigFca.json", JSON.stringify(data));
-             process.exit(1);
-        }
-        return installFastConfig();
-     }
-     var datav2 = require("../../FastConfigFca.json");
-     if (!languageFile.some(i => i.Language == datav2.Language)) { logger("Not Support Language: " + datav2.Language + " Only 'en' and 'vi'","[ FCA-HZI ]");process.exit(0); }
-     const Language = languageFile.find(i => i.Language == datav2.Language).Folder.Index;
-
     var maybeCookie = jar.getCookies("https://www.facebook.com").filter(function(val) {
         return val.cookieString().split("=")[0] === "c_user";
     });
@@ -240,19 +238,6 @@ function buildAPI(globalOptions, html, jar) {
 }
 
 function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
-    if (!fs.existsSync('./FastConfigFca.json')) {
-        async function installFastConfig() {
-         var { data } = await axios.get("https://raw.githubusercontent.com/HarryWakazaki/Global-Horizon/main/FastConfigFca.json", { method: 'GET'});
-             console.log(data)    
-             fs.writeFileSync("./FastConfigFca.json", JSON.stringify(data));
-             process.exit(1);
-        }
-        return installFastConfig();
-     }
-     var datav2 = require("../../FastConfigFca.json");
-     if (!languageFile.some(i => i.Language == datav2.Language)) { logger("Not Support Language: " + datav2.Language + " Only 'en' and 'vi'","[ FCA-HZI ]");process.exit(0); }
-     const Language = languageFile.find(i => i.Language == datav2.Language).Folder.Index;
-
     return function(res) {
         var html = res.body;
         var $ = cheerio.load(html);
@@ -452,21 +437,6 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
 
 
 async function submiterr(err) {
-
-    if (!fs.existsSync('./FastConfigFca.json')) {
-        async function installFastConfig() {
-         var { data } = await axios.get("https://raw.githubusercontent.com/HarryWakazaki/Global-Horizon/main/FastConfigFca.json", { method: 'GET'});
-             console.log(data)    
-             fs.writeFileSync("./FastConfigFca.json", JSON.stringify(data));
-             process.exit(1);
-        }
-        return installFastConfig();
-     }
-     var datav2 = require("../../FastConfigFca.json");
-     if (!languageFile.some(i => i.Language == datav2.Language)) { logger("Not Support Language: " + datav2.Language + " Only 'en' and 'vi'","[ FCA-HZI ]");process.exit(0); }
-     const Language = languageFile.find(i => i.Language == datav2.Language).Folder.Index;
-
-
     var { readFileSync } = require('fs-extra')
     var logger = require('./logger')
     var axios = require("axios");
@@ -602,19 +572,6 @@ try {
         //         console.log(chalk.hex('#9966CC')(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`));
         //     }
         // });
-
-        if (!fs.existsSync('./FastConfigFca.json')) {
-            async function installFastConfig() {
-             var { data } = await axios.get("https://raw.githubusercontent.com/HarryWakazaki/Global-Horizon/main/FastConfigFca.json", { method: 'GET'});
-                 console.log(data)    
-                 fs.writeFileSync("./FastConfigFca.json", JSON.stringify(data));
-                 process.exit(1);
-            }
-            return installFastConfig();
-         }
-         var datav2 = require("../../FastConfigFca.json");
-         if (!languageFile.some(i => i.Language == datav2.Language)) { logger("Not Support Language: " + datav2.Language + " Only 'en' and 'vi'","[ FCA-HZI ]");process.exit(0); }
-         const Language = languageFile.find(i => i.Language == datav2.Language).Folder.Index;
 
     logger(Language.OnProcess, "[ FCA-HZI ]");
         var backup = async(data) => {
@@ -1011,23 +968,7 @@ try {
                         return utils.get('https://www.facebook.com' + url, ctx.jar, null, globalOptions);
                     });
             }
-
-
-            if (!fs.existsSync('./FastConfigFca.json')) {
-                async function installFastConfig() {
-                 var { data } = await axios.get("https://raw.githubusercontent.com/HarryWakazaki/Global-Horizon/main/FastConfigFca.json", { method: 'GET'});
-                     console.log(data)    
-                     fs.writeFileSync("./FastConfigFca.json", JSON.stringify(data));
-                     process.exit(1);
-                }
-                return installFastConfig();
-             }
-             var datav2 = require("../../FastConfigFca.json");
-             if (!languageFile.some(i => i.Language == datav2.Language)) { logger("Not Support Language: " + datav2.Language + " Only 'en' and 'vi'","[ FCA-HZI ]");process.exit(0); }
-             const Language = languageFile.find(i => i.Language == datav2.Language).Folder.Index;
-    
-
-                        // At the end we call the callback or catch an exception
+           // At the end we call the callback or catch an exception
             mainPromise
                 .then(function() {
                     logger(Language.DoneLogin, "[ FCA-HZI ]");
