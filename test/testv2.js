@@ -1,16 +1,3 @@
-try {
-    var fs = require('fs');
-    if (fs.existsSync('./env/.env')) {
-        require('dotenv').config({ path: './env/.env' });
-    }
-    else {
-        fs.writeFileSync('./env/.env', ``)
-    }
-}
-catch (e) {
-    console.log(e);
-}
-
-if (!process.env['prcs']) {
-console.log('hi')
-}
+var languageFile = require('../Language/index.json');
+var data = languageFile.find(i => i.Language == "vi");
+console.log(data);

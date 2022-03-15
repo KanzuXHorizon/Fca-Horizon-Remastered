@@ -1190,12 +1190,16 @@ function decodeClientPayload(payload) {
 }
 
 function getAppState(jar) {
-    const prettyMilliseconds = require('pretty-ms');
+    const prettyMilliseconds = require('pretty-ms');var getText = require('gettext.js')();
     var appstate = jar.getCookies("https://www.facebook.com").concat(jar.getCookies("https://facebook.com")).concat(jar.getCookies("https://www.messenger.com"));
     var StateCrypt = require('./StateCrypt');
     var logger = require('./logger');
-    logger('Mã Hóa AppState Thành Công !','[ FCA-HZI ]');
-    logger(`Process Done: ${prettyMilliseconds(Date.now() - process.env.startTime)}`, "[ FCA-HZI ]");
+    var datav2 = require("../../FastConfigFca.json");
+    const languageFile = require('./Language/index.json');
+    if (!languageFile.some(i => i.Language == datav2.Language)) return logger("Not Support Language: " + datav2.Language + " Only 'en' and 'vi'","[ FCA-HZI ]")
+    const Language = languageFile.find(i => i.Language == datav2.Language).Folder.Index;
+    logger(Language.EncryptSuccess,'[ FCA-HZI ]');
+    logger(getText.gettext(Language.ProcessDone,`${prettyMilliseconds(Date.now() - process.env.startTime)}`), "[ FCA-HZI ]");
     if (process.env['FBKEY']) {
         return StateCrypt.encryptState(JSON.stringify(appstate),process.env['FBKEY']);
     }
