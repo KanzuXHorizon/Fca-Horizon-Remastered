@@ -27,6 +27,7 @@ var getText = require('gettext.js')();
             if (data && data.MainColor == "CommingSoon") {
                 ObjFastConfig.Language = data.Language
                 fs.writeFileSync("./FastConfigFca.json", JSON.stringify(ObjFastConfig, null, "\t"));
+                process.exit(1);
             }
         }
         catch (e) {
