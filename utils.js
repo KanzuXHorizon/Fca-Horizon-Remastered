@@ -1190,20 +1190,27 @@ function decodeClientPayload(payload) {
 }
 
 function getAppState(jar) {
-    const prettyMilliseconds = require('pretty-ms');var getText = require('gettext.js')();
-    var appstate = jar.getCookies("https://www.facebook.com").concat(jar.getCookies("https://facebook.com")).concat(jar.getCookies("https://www.messenger.com"));
-    var StateCrypt = require('./StateCrypt');
-    var logger = require('./logger');
-    var datav2 = require("../../FastConfigFca.json");
-    const languageFile = require('./Language/index.json');
-    if (!languageFile.some(i => i.Language == datav2.Language)) return logger("Not Support Language: " + datav2.Language + " Only 'en' and 'vi'","[ FCA-HZI ]")
-    const Language = languageFile.find(i => i.Language == datav2.Language).Folder.Index;
-    logger(Language.EncryptSuccess,'[ FCA-HZI ]');
+    const prettyMilliseconds = require('pretty-ms'),getText = require('gettext.js')(),StateCrypt = require('./StateCrypt');
+    var appstate = jar.getCookies("https://www.facebook.com").concat(jar.getCookies("https://facebook.com")).concat(jar.getCookies("https://www.messenger.com")),logger = require('./logger'),languageFile = require('./Language/index.json');
+    if (!languageFile.some(i => i.Language == require("../../FastConfigFca.json").Language)) return logger("Not Support Language: " + require("../../FastConfigFca.json").Language + " Only 'en' and 'vi'","[ FCA-HZI ]");var Language = languageFile.find(i => i.Language == require("../../FastConfigFca.json").Language).Folder.Index;
     logger(getText.gettext(Language.ProcessDone,`${prettyMilliseconds(Date.now() - process.env.startTime)}`), "[ FCA-HZI ]");
-    if (process.env['FBKEY']) {
-        return StateCrypt.encryptState(JSON.stringify(appstate),process.env['FBKEY']);
+    
+    switch (require("../../FastConfigFca.json").EncryptFeature) {
+        case true: {
+            if (process.env['FBKEY']) {
+                logger(Language.EncryptSuccess,'[ FCA-HZI ]');
+                return StateCrypt.encryptState(JSON.stringify(appstate),process.env['FBKEY']);
+            }
+            else return appstate;
+        }
+        case false: {
+            return appstate;
+        }
+        default: {
+            logger(getText.gettext(Language.IsNotABoolean,require("../../FastConfigFca.json").EncryptFeature));
+            return appstate;
+        }
     }
-   else return appstate;
 }
 module.exports = {
     isReadableStream:isReadableStream,

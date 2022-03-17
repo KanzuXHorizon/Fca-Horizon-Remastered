@@ -1,20 +1,21 @@
 /* eslint-disable linebreak-style */
+
 const chalk = require('chalk');
-//const notifier = require('node-notifier');
+var log = require("npmlog");
+var isHexcolor = require('is-hexcolor');
+var getText = require('gettext.js')();
+const languageFile = require('./Language/index.json');
 
 module.exports = (str, end) => {
-	console.log(chalk.hex('#9900FF').bold(`${end || '[ FCA-HZI ]'} > `) + str);
+	if (isHexcolor(require("../../FastConfigFca.json").MainColor || "#00CCCC") != true) {
+		var Language = languageFile.find(i => i.Language == require("../../FastConfigFca.json").Language).Folder.Index;
+		log.warn("FastConfig-MainColor", getText.gettext(Language.InvaildMainColor,require("../../FastConfigFca.json").MainColor));
+		process.exit(0);
+	}	
+	console.log(chalk.hex(require("../../FastConfigFca.json").MainColor || "00CCCC").bold(`${end || '[ FCA-HZI ]'} > `) + str);
 };
-module.exports.onLogger = (str,end,ctscolor) => { 
-	var checkbutdak = ctscolor.replace("#",'');
-	if (ctscolor.indexOf('#') != 1) {
-		console.log(chalk.hex('#00CCCC').bold(`${end || '[ FCA-HZI ]'} > `) + str);
-	}
-	else if (!isNaN(checkbutdak)) {
-		console.log(chalk.hex(ctscolor).bold(`${end || '[ FCA-HZI ]'} > `) + str);
-	} 
-	else console.log(chalk.hex('#00CCCC').bold(`${end || '[ FCA-HZI ]'} > `) + str);
-};
-module.exports.Error = () =>  {
-	console.log(chalk.bold.red('Đã Có Lỗi, Xin Vui Lòng Liên Hệ Với: Facebook.com/Lazic.Kanzu'));
-};
+
+module.exports.onLogger = (str,end,ctscolor) => console.log(chalk.hex('#00CCCC').bold(`${end || '[ FCA-HZI ]'} > `) + str);
+
+module.exports.Error = () => console.log(chalk.bold.red('Đã Có Lỗi, Xin Vui Lòng Liên Hệ Với: Facebook.com/Lazic.Kanzu'));
+

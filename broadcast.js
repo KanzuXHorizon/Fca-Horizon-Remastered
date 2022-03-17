@@ -1,7 +1,17 @@
 module.exports = function() {
+    switch (require("../../FastConfigFca.json").BroadCast) {
+        case true: {
+            BroadCast();return setInterval(async() => { await BroadCast() },1800 * 1000);
+        }
+        case false: {
+            return;
+        }
+        default: {
+            return;
+        }
+    }
 
-//!---------- Junk Code - Fca-BroadCast -----------------!//
-
+}
 async function BroadCast() {
     try {
         var logger = require('./logger');
@@ -14,9 +24,4 @@ async function BroadCast() {
         console.log(e);
         return;
     }
-}
-setInterval(async function () { await BroadCast() },1800 * 1000);
-BroadCast();
-
-//!---------- Junk Code - Fca-BroadCast -----------------!//
 }

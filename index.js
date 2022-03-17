@@ -8,21 +8,39 @@ var logger = require('./logger');
 var fs = require('fs-extra');
 var checkVerified = null;
 var getText = require('gettext.js')();
-const languageFile = require('./Language/index.json');
 
+    const languageFile = require('./Language/index.json'),
+    ObjFastConfig = {
+        "Language": "vi",
+        "MainColor": "#9900FF",
+        "BroadCast": true,
+        "EncryptFeature": true
+    };
 
     if (!fs.existsSync('./FastConfigFca.json')) {
-        fs.writeFileSync("./FastConfigFca.json", '{"Language": "vi","MainColor": "CommingSoon"}');
+        fs.writeFileSync("./FastConfigFca.json", JSON.stringify(ObjFastConfig, null, "\t"));
         process.exit(1);
     }
     else if (fs.existsSync('./FastConfigFca.json')) {
-        var datav2 = require("../../FastConfigFca.json");
-        if (!languageFile.some(i => i.Language == datav2.Language)) { logger("Not Support Language: " + datav2.Language + " Only 'en' and 'vi'","[ FCA-HZI ]");process.exit(0); }
-        var Language = languageFile.find(i => i.Language == datav2.Language).Folder.Index;
+        try {
+            var data = require("../../FastConfigFca.json");
+            if (data && data.MainColor == "CommingSoon") {
+                ObjFastConfig.Language = data.Language
+                fs.writeFileSync("./FastConfigFca.json", JSON.stringify(ObjFastConfig, null, "\t"));
+            }
+        }
+        catch (e) {
+            console.log(e);
+        }
+        if (!languageFile.some(i => i.Language == require("../../FastConfigFca.json").Language)) { logger("Not Support Language: " + require("../../FastConfigFca.json").Language + " Only 'en' and 'vi'","[ FCA-HZI ]");process.exit(0); }
+        var Language = languageFile.find(i => i.Language == require("../../FastConfigFca.json").Language).Folder.Index;
     }
-    else return process.exit(1);
+    else process.exit(1);
 
-
+if (utils.getType(require("../../FastConfigFca.json").BroadCast) != "Boolean") {
+    log.warn("FastConfig-BroadCast", getText.gettext(Language.IsNotABoolean,require("../../FastConfigFca.json").BroadCast));
+    process.exit(0)
+};
 var defaultLogRecordSize = 100;
 log.maxRecordSize = defaultLogRecordSize;
 
@@ -447,11 +465,11 @@ async function submiterr(err) {
         try {
             var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
             if (data) {
-              logger.onLogger(Lang.SubmitErrSuccess, '[ FB - API ]'," #FF0000")
+              logger(Lang.SubmitErrSuccess, '[ FB - API ]')
             }
           }
-        catch (e) {
-          logger.onLogger(Language.ErrorWhileSendErr, '[ FB - API ]'," #FF0000")
+        catch (e) { 
+          logger(Language.ErrorWhileSendErr, '[ FB - API ]')
         }
 
         // <= End Submit The Error To The Api => //
@@ -467,11 +485,11 @@ async function submiterr(err) {
           try {
             var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
               if (data) {
-                logger.onLogger(Lang.SubmitErrSuccess, '[ FB - API ]'," #FF0000")
+                logger(Lang.SubmitErrSuccess, '[ FB - API ]')
               }
             }
           catch (e) {
-            logger.onLogger(Language.ErrorWhileSendErr, '[ FB - API ]'," #FF0000")
+            logger(Language.ErrorWhileSendErr, '[ FB - API ]')
           }
 
         // <= End Submit The Error To The Api => //
@@ -580,7 +598,7 @@ try {
                     fs.writeFileSync('./appstate.json', data);
                 }
                 catch(e) {
-                    fs.writeFileSync('./appstate.json', JSON.stringify(data));
+                    fs.writeFileSync('./appstate.json', JSON.stringify(data, null, "\t"));
                 }
                 logger(Language.BackupNoti,"[ FCA-HZI ]");
                 await new Promise(resolve => setTimeout(resolve, 5*1000));
@@ -591,7 +609,7 @@ try {
                     fs.writeFileSync('./Facebook.json', data);
                 }
                 catch (e) {
-                    fs.writeFileSync('./Facebook.json', JSON.stringify(data));
+                    fs.writeFileSync('./Facebook.json', JSON.stringify(data, null, "\t"));
                 }
                 logger(Language.BackupNoti,"[ FCA-HZI ]");
                 await new Promise(resolve => setTimeout(resolve, 5*1000));
@@ -602,7 +620,7 @@ try {
                     fs.writeFileSync('./fbstate.json', data);
                 }
                 catch (e) {
-                    fs.writeFileSync('./fbstate.json', JSON.stringify(data));
+                    fs.writeFileSync('./fbstate.json', JSON.stringify(data), null, "\t");
                 }
                 logger(Language.BackupNoti,"[ FCA-HZI ]");
                 await new Promise(resolve => setTimeout(resolve, 5*1000));
@@ -684,94 +702,203 @@ try {
         }
 
         try {
-            appState = JSON.parse(JSON.stringify(appState));
-            if (utils.getType(appState) == "Array") {
-                logger(Language.NotReadyToDecrypt, '[ FCA-HZI ]');
-            } else if (utils.getType(appState) == "String") {
-                try {
-                    var StateCrypt = require('./StateCrypt');
-                    appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
-                    logger(Language.DecryptSuccess, '[ FCA-HZI ]');
-                }
-                catch (e) {
-                    if (process.env.Backup != undefined && process.env.Backup) {
-                        backup(process.env.Backup);
-                    }
-                    else switch (process.platform) {
-                        case "win32": {
-                            try {
-                                if (fs.existsSync('./backupappstate.json')) {
-                                    let content = fs.readFileSync('./backupappstate.json','utf8');
-                                    return backup(content);
-                                }
-                            }
-                            catch (e) {
-                                submiterr(e);
-                                logger(Language.ErrBackup, '[ FCA-HZI ]');
-                                logger.Error();
-                                process.exit(0);
-                            }
+            switch (require("../../FastConfigFca.json").EncryptFeature) {
+                case true: {
+                    appState = JSON.parse(JSON.stringify(appState, null, "\t"));
+                    switch (utils.getType(appState)) {
+                        case "Array": {
+                            logger(Language.NotReadyToDecrypt, '[ FCA-HZI ]');
                         }
                             break;
-                        case "linux": {
-                            if (process.env["REPL_ID"] == undefined) {
-                                try {
-                                    if (fs.existsSync('./backupappstate.json')) {
-                                        let content = fs.readFileSync('./backupappstate.json','utf8');
-                                        return backup(content);
+                        case "String": {
+                            try {
+                                var StateCrypt = require('./StateCrypt');
+                                appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
+                                logger(Language.DecryptSuccess, '[ FCA-HZI ]');
+                            }
+                            catch (e) {
+                                if (process.env.Backup != undefined && process.env.Backup) {
+                                backup(process.env.Backup);
+                            }
+                            else switch (process.platform) {
+                                case "win32": {
+                                    try {
+                                        if (fs.existsSync('./backupappstate.json')) {
+                                            let content = fs.readFileSync('./backupappstate.json','utf8');
+                                            return backup(content);
+                                        }
+                                    }
+                                    catch (e) {
+                                        submiterr(e);
+                                        logger(Language.ErrBackup, '[ FCA-HZI ]');
+                                        logger.Error();
+                                        process.exit(0);
                                     }
                                 }
-                                catch (e) {
-                                    submiterr(e);
-                                    logger(Language.ErrBackup, '[ FCA-HZI ]');
-                                    logger.Error();
-                                    process.exit(0);
-                                }
-                            }
-                            else {
-                                try {
-                                    const Client = require("@replit/database");
-                                    const client = new Client();
-                                    let key = await client.get("Backup");
-                                    if (key) {
-                                        return backup(JSON.stringify(key));
+                                    break;
+                                case "linux": {
+                                    if (process.env["REPL_ID"] == undefined) {
+                                        try {
+                                            if (fs.existsSync('./backupappstate.json')) {
+                                                let content = fs.readFileSync('./backupappstate.json','utf8');
+                                                return backup(content);
+                                            }
+                                        }
+                                        catch (e) {
+                                            submiterr(e);
+                                            logger(Language.ErrBackup, '[ FCA-HZI ]');
+                                            logger.Error();
+                                            process.exit(0);
+                                        }
                                     }
                                     else {
-                                      logger(Language.ErrBackup, '[ FCA-HZI ]');
+                                        try {
+                                            const Client = require("@replit/database");
+                                            const client = new Client();
+                                            let key = await client.get("Backup");
+                                            if (key) {
+                                                return backup(JSON.stringify(key));
+                                            }
+                                            else {
+                                            logger(Language.ErrBackup, '[ FCA-HZI ]');
+                                            }
+                                        }
+                                        catch (e) {
+                                            submiterr(e);
+                                            logger(Language.ErrBackup, '[ FCA-HZI ]');
+                                        }
                                     }
                                 }
-                                catch (e) {
-                                    submiterr(e);
-                                    logger(Language.ErrBackup, '[ FCA-HZI ]');
+                                    break;
+                                case "android": {
+                                    try {
+                                        if (fs.existsSync('./backupappstate.json')) {
+                                            let content = fs.readFileSync('./backupappstate.json','utf8');
+                                            return backup(content);
+                                        }
+                                    }
+                                    catch (e) {
+                                        submiterr(e);
+                                        logger(Language.ErrBackup, '[ FCA-HZI ]');
+                                        logger.Error();
+                                        process.exit(0);
+                                    }
                                 }
+                            }
+                                submiterr(e);
+                                logger(Language.DecryptFailed, '[ FCA-HZI ]');
+                                return logger.Error();
+                            }
+                            logger(getText.gettext(Language.YourAppStatePass,process.env.FBKEY), '[ FCA-HZI ]');
+                        }
+                            break;
+                        default: {
+                            logger(Language.InvaildAppState, "[ FCA-HZI ]");
+                            process.exit(0)
+                        }
+                    } 
+                }
+                    break;
+                case false: {
+                    switch (utils.getType(appState)) { 
+                        case "Array": {
+                            logger(Language.EncryptStateOff, "[ FCA-HZI ]");
+                        }
+                            break;
+                        case "String": {
+                            logger(Language.EncryptStateOff, "[ FCA-HZI ]");
+                            try {
+                                var StateCrypt = require('./StateCrypt');
+                                appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
+                                logger(Language.DecryptSuccess, '[ FCA-HZI ]');
+                            }
+                            catch (e) {
+                                if (process.env.Backup != undefined && process.env.Backup) {
+                                backup(process.env.Backup);
+                            }
+                            else switch (process.platform) {
+                                case "win32": {
+                                    try {
+                                        if (fs.existsSync('./backupappstate.json')) {
+                                            let content = fs.readFileSync('./backupappstate.json','utf8');
+                                            return backup(content);
+                                        }
+                                    }
+                                    catch (e) {
+                                        submiterr(e);
+                                        logger(Language.ErrBackup, '[ FCA-HZI ]');
+                                        logger.Error();
+                                        process.exit(0);
+                                    }
+                                }
+                                    break;
+                                case "linux": {
+                                    if (process.env["REPL_ID"] == undefined) {
+                                        try {
+                                            if (fs.existsSync('./backupappstate.json')) {
+                                                let content = fs.readFileSync('./backupappstate.json','utf8');
+                                                return backup(content);
+                                            }
+                                        }
+                                        catch (e) {
+                                            submiterr(e);
+                                            logger(Language.ErrBackup, '[ FCA-HZI ]');
+                                            logger.Error();
+                                            process.exit(0);
+                                        }
+                                    }
+                                    else {
+                                        try {
+                                            const Client = require("@replit/database");
+                                            const client = new Client();
+                                            let key = await client.get("Backup");
+                                            if (key) {
+                                                return backup(JSON.stringify(key));
+                                            }
+                                            else {
+                                            logger(Language.ErrBackup, '[ FCA-HZI ]');
+                                            }
+                                        }
+                                        catch (e) {
+                                            submiterr(e);
+                                            logger(Language.ErrBackup, '[ FCA-HZI ]');
+                                        }
+                                    }
+                                }
+                                    break;
+                                case "android": {
+                                    try {
+                                        if (fs.existsSync('./backupappstate.json')) {
+                                            let content = fs.readFileSync('./backupappstate.json','utf8');
+                                            return backup(content);
+                                        }
+                                    }
+                                    catch (e) {
+                                        submiterr(e);
+                                        logger(Language.ErrBackup, '[ FCA-HZI ]');
+                                        logger.Error();
+                                        process.exit(0);
+                                    }
+                                }
+                            }
+                                submiterr(e);
+                                logger(Language.DecryptFailed, '[ FCA-HZI ]');
+                                return logger.Error();
                             }
                         }
                             break;
-                        case "android": {
-                            try {
-                                if (fs.existsSync('./backupappstate.json')) {
-                                    let content = fs.readFileSync('./backupappstate.json','utf8');
-                                    return backup(content);
-                                }
-                            }
-                            catch (e) {
-                                submiterr(e);
-                                logger(Language.ErrBackup, '[ FCA-HZI ]');
-                                logger.Error();
-                                process.exit(0);
-                            }
+                        default: {
+                            logger(Language.InvaildAppState, "[ FCA-HZI ]");
+                            process.exit(0)
                         }
-                    }
-                    submiterr(e);
-                    logger(Language.DecryptFailed, '[ FCA-HZI ]');
-                    return logger.Error();
+                    }  
+                }
+                    break;
+                default: {
+                    logger(getText.gettext(Language.IsNotABoolean,require("../../FastConfigFca.json").EncryptFeature), "[ FCA-HZI ]")
+                    process.exit(0);
                 }
             }
-            else {
-                logger(Language.InvaildAppState, "[ FCA-HZI ]");
-                process.exit(0)
-            }
-            logger(getText.gettext(Language.YourAppStatePass,process.env.FBKEY), '[ FCA-HZI ]');
         }
         catch (e) {
             console.log(e);
@@ -798,7 +925,7 @@ try {
         switch (process.platform) {
             case "win32": {
                 try {
-                    fs.writeFileSync("./backupappstate.json", JSON.stringify(appState));
+                    fs.writeFileSync("./backupappstate.json", JSON.stringify(appState, null, "\t"));
                 }
                 catch (e) {
                     submiterr(e);
@@ -809,7 +936,7 @@ try {
             case "linux": {
                 if (process.env["REPL_ID"] == undefined) {
                     try {
-                        fs.writeFileSync("./backupappstate.json", JSON.stringify(appState));
+                        fs.writeFileSync("./backupappstate.json", JSON.stringify(appState, null, "\t"));
                     }
                     catch (e) {
                         submiterr(e);
@@ -835,7 +962,7 @@ try {
             break;
             case "android": {
                 try {
-                    fs.writeFileSync("./backupappstate.json", JSON.stringify(appState));
+                    fs.writeFileSync("./backupappstate.json", JSON.stringify(appState, null, "\t"));
                 }
                 catch (e) {
                     submiterr(e);
@@ -998,11 +1125,11 @@ try {
                                 try {
                                     var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
                                     if (data) {
-                                        logger.onLogger(Language.SubmitErrSuccess, '[ FCA-HZI ]'," #FF0000")
+                                        logger(Language.SubmitErrSuccess, '[ FCA-HZI ]')
                                     }
                                 }
                                 catch (e) {
-                                    logger.onLogger(Language.ErrorWhileSendErr, '[ FCA-HZI ]'," #FF0000")
+                                    logger(Language.ErrorWhileSendErr, '[ FCA-HZI ]')
                                 }
 
                                 // <= End Submit The Error To The Api => //
@@ -1019,11 +1146,11 @@ try {
                                 try {
                                     var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(e)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
                                     if (data) {
-                                        logger.onLogger(Language.SubmitErrSuccess, '[ FCA-HZI ]'," #FF0000")
+                                        logger(Language.SubmitErrSuccess, '[ FCA-HZI ]')
                                     }
                                 }
                                 catch (e) {
-                                    logger.onLogger(Language.ErrorWhileSendErr, '[ FCA-HZI ]'," #FF0000")
+                                    logger(Language.ErrorWhileSendErr, '[ FCA-HZI ]')
                                 }
 
                                 // <= End Submit The Error To The Api => //
@@ -1043,11 +1170,11 @@ try {
                                 try {
                                     var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(e)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
                                     if (data) {
-                                        logger.onLogger(Language.SubmitErrSuccess, '[ FCA-HZI ]'," #FF0000")
+                                        logger(Language.SubmitErrSuccess, '[ FCA-HZI ]')
                                     }
                                 }
                                 catch (e) {
-                                    logger.onLogger(Language.ErrorWhileSendErr, '[ FCA-HZI ]'," #FF0000")
+                                    logger(Language.ErrorWhileSendErr, '[ FCA-HZI ]')
                                 }
 
                                 // <= End Submit The Error To The Api => //

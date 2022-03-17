@@ -43,6 +43,10 @@
                 "LocalVersion": "Bạn Hiện Đang Sử Dụng Phiên Bản: %1 !",
                 "EncryptSuccess": "Mã Hoá AppState Thành Công !",
                 "ProcessDone": "Kết Thúc Với: %1 !",
+                "InvaildMainColor": "%1 Không Phải Là Một Màu Hex !",
+                "IsNotABoolean": "%1 Không Phải Là Một Boolean, Cần Là true Hoặc false !",
+                "InvaildOption": "%1 Không Phải Là Một Lựa Chọn !",
+                "EncryptStateOff": "Tính Năng EncryptState Đã Bị Tắt !",
                 "WishMessage": [
                     "Chúc Bạn Một Ngày Tốt Lành Nhé !",
                     "Hãy Báo Cáo Với Admin Khi Có Lỗi Fca Nhé !",
@@ -96,6 +100,10 @@
                 "LocalVersion": "You Are Currently Using Version: %1 !",
                 "EncryptSuccess": "Encrypt Appstate Success !",
                 "ProcessDone": "Process Done: %1 !",
+                "InvaildMainColor": "%1 Is Not A Hex Color Code !",
+                "IsNotABoolean": "%1 Is Not A Boolean, Need To Be true Or false !",
+                "EncryptStateOff": "Encryption Has Been Turned Off !",
+                "InvaildOption": "Invail Option: %1",
                 "WishMessage": [
                     "Have a Nice Day !",
                     "Please Report To Admin When There Is Error in FCA !",
