@@ -6,7 +6,7 @@ var log = require("npmlog");
 
 
 module.exports = function (defaultFuncs, api, ctx) {
-    return function getUserInfoV2(id, callback) {
+    return function getAccessToken(callback) {
       var resolveFunc = function () { };
       var rejectFunc = function () { };
       var returnPromise = new Promise(function (resolve, reject) {
@@ -21,11 +21,11 @@ module.exports = function (defaultFuncs, api, ctx) {
         };
       }
     try {
-      var { getInfo } = require('../Extra/ExtraAddons');
-      getInfo(id)
-        .then(data => {
-        return callback(null, data);
-      });
+      var { getAccessToken } = require('../Extra/ExtraAddons');
+        getAccessToken()
+            .then(data => {
+                return callback(null, data);
+        });
     }
     catch (e) {
       return callback(null, e);

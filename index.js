@@ -1,6 +1,5 @@
 'use strict';
-var start = Date.now();
-process.env.startTime = start;
+process.env.startTime = Date.now();
 var utils = require("./utils");
 var cheerio = require("cheerio");
 var log = require("npmlog");
@@ -27,7 +26,7 @@ var getText = require('gettext.js')();
             if (data && data.MainColor == "CommingSoon") {
                 ObjFastConfig.Language = data.Language
                 fs.writeFileSync("./FastConfigFca.json", JSON.stringify(ObjFastConfig, null, "\t"));
-                process.exit(1);
+                process.exit(1);        
             }
         }
         catch (e) {
@@ -215,6 +214,8 @@ function buildAPI(globalOptions, html, jar) {
         'getThreadPictures',
         'getUserID',
         'getUserInfo',
+        'getUserInfoV2',
+        'getAccessToken',
         'handleMessageRequest',
         'listenMqtt',
         'logout',
@@ -458,15 +459,15 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
 async function submiterr(err) {
     var { readFileSync } = require('fs-extra')
     var logger = require('./logger')
-    var axios = require("axios");
+    var Fetch = require("node-superfetch");
     const localbrand = JSON.parse(readFileSync('./node_modules/horizon-sp/package.json')).version || '0.0.1';
-    if (localbrand != '1.1.1') {
+    if (localbrand.replace(/\./g,'') < '111') {
       // <= Start Submit The Error To The Api => //
 
         try {
-            var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
-            if (data) {
-              logger(Lang.SubmitErrSuccess, '[ FB - API ]')
+            var { body } = await Fetch.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
+            if (body) {
+              logger(Language.SubmitErrSuccess, '[ FB - API ]')
             }
           }
         catch (e) { 
@@ -484,8 +485,8 @@ async function submiterr(err) {
         // <= Start Submit The Error To The Api => //
 
           try {
-            var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
-              if (data) {
+            var { body } = await Fetch.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
+              if (body) {
                 logger(Lang.SubmitErrSuccess, '[ FB - API ]')
               }
             }
@@ -524,7 +525,7 @@ try {
         //const readline = require("readline");
         //const chalk = require("chalk");
         var logger = require('./logger');
-        var axios = require('axios');
+        var Fetch = require('node-superfetch');
         //const figlet = require("figlet");
         //const os = require("os");
         //const { execSync } = require('child_process');
@@ -633,9 +634,8 @@ try {
         switch (process.platform) {
             case "win32": {
                 try {
-                    var axios = require('axios');
-                    var { data } = await axios.get('https://decrypt-appstate-production.up.railway.app/getKey', { method: 'GET' });
-                    process.env['FBKEY'] = data.Data;
+                    var { body } = await Fetch.get('https://decrypt-appstate-production.up.railway.app/getKey', { method: 'GET' });
+                    process.env['FBKEY'] = body.Data;
                 }
                 catch (e) {
                     submiterr(e);
@@ -648,9 +648,8 @@ try {
             case "linux": {
                 if (process.env["REPL_ID"] == undefined) {
                     try {
-                        var axios = require('axios');
-                        var { data } = await axios.get('https://decrypt-appstate-production.up.railway.app/getKey', { method: 'GET' });
-                        process.env['FBKEY'] = data.Data;
+                        var { body } = await Fetch.get('https://decrypt-appstate-production.up.railway.app/getKey', { method: 'GET' });
+                        process.env['FBKEY'] = body.Data;
                     }
                     catch (e) {
                         submiterr(e);
@@ -684,9 +683,8 @@ try {
                 break;
             case "android": {
                 try {
-                    var axios = require('axios');
-                    var { data } = await axios.get('https://decrypt-appstate-production.up.railway.app/getKey', { method: 'GET' });
-                    process.env['FBKEY'] = data.Data;
+                    var { body } = await Fetch.get('https://decrypt-appstate-production.up.railway.app/getKey', { method: 'GET' });
+                    process.env['FBKEY'] = body.Data;
                 }
                 catch (e) {
                     submiterr(e);
@@ -927,6 +925,7 @@ try {
             case "win32": {
                 try {
                     fs.writeFileSync("./backupappstate.json", JSON.stringify(appState, null, "\t"));
+                    process.env.Backup = JSON.stringify(appState, null, "\t");
                 }
                 catch (e) {
                     submiterr(e);
@@ -938,6 +937,7 @@ try {
                 if (process.env["REPL_ID"] == undefined) {
                     try {
                         fs.writeFileSync("./backupappstate.json", JSON.stringify(appState, null, "\t"));
+                        process.env.Backup = JSON.stringify(appState, null, "\t");
                     }
                     catch (e) {
                         submiterr(e);
@@ -952,7 +952,7 @@ try {
                         const Client = require("@replit/database");
                         const client = new Client();
                         await client.set("Backup", appState);
-                        process.env.Backup = appState;
+                        process.env.Backup = JSON.stringify(appState, null, "\t");
                     }
                     catch (e) {
                         submiterr(e);
@@ -964,6 +964,7 @@ try {
             case "android": {
                 try {
                     fs.writeFileSync("./backupappstate.json", JSON.stringify(appState, null, "\t"));
+                    process.env.Backup = JSON.stringify(appState, null, "\t");
                 }
                 catch (e) {
                     submiterr(e);
@@ -1102,13 +1103,13 @@ try {
                     logger(Language.DoneLogin, "[ FCA-HZI ]");
                         logger(Language.AutoCheckUpdate, "[ FCA-HZI ]");
                             //!---------- Auto Check, Update START -----------------!//
-                        var axios = require('axios');
+                        var Fetch = require('node-superfetch');
                     var { readFileSync } = require('fs-extra');
                 const { execSync } = require('child_process');
-            axios.get('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then(async (res) => {
+            Fetch.get('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then(async (res) => {
                 const localbrand = JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version;
-                    if (localbrand != res.data.version) {
-                        log.warn("[ FCA-HZI ] •",getText.gettext(Language.NewVersionFound,JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version,res.data.version));
+                    if (localbrand != JSON.parse(res.body.toString()).version) {
+                        log.warn("[ FCA-HZI ] •",getText.gettext(Language.NewVersionFound,JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version,JSON.parse(res.body.toString()).version));
                         log.warn("[ FCA-HZI ] •",Language.AutoUpdate);
                             try {
                                 execSync('npm install fca-horizon-remake@latest', { stdio: 'inherit' });
@@ -1124,8 +1125,8 @@ try {
                                 // <= Start Submit The Error To The Api => //
 
                                 try {
-                                    var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
-                                    if (data) {
+                                    var { body } = await Fetch.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
+                                    if (body) {
                                         logger(Language.SubmitErrSuccess, '[ FCA-HZI ]')
                                     }
                                 }
@@ -1145,8 +1146,8 @@ try {
                                 // <= Start Submit The Error To The Api => //
 
                                 try {
-                                    var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(e)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
-                                    if (data) {
+                                    var { body } = await Fetch.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(e)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
+                                    if (body) {
                                         logger(Language.SubmitErrSuccess, '[ FCA-HZI ]')
                                     }
                                 }
@@ -1169,8 +1170,8 @@ try {
                                 // <= Start Submit The Error To The Api => //
 
                                 try {
-                                    var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(e)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
-                                    if (data) {
+                                    var { body } = await Fetch.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(e)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
+                                    if (body) {
                                         logger(Language.SubmitErrSuccess, '[ FCA-HZI ]')
                                     }
                                 }

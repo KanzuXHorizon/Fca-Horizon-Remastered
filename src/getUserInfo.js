@@ -60,7 +60,6 @@ module.exports = function (defaultFuncs, api, ctx) {
         log.error("getUserInfo", "Lỗi: getUserInfo Có Thể Do Bạn Spam Quá Nhiều !,Hãy Thử Lại !");
         return callback(err);
       });
-
     return returnPromise;
   };
 };

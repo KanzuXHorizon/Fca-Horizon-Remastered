@@ -1193,24 +1193,27 @@ function getAppState(jar) {
     const prettyMilliseconds = require('pretty-ms'),getText = require('gettext.js')(),StateCrypt = require('./StateCrypt');
     var appstate = jar.getCookies("https://www.facebook.com").concat(jar.getCookies("https://facebook.com")).concat(jar.getCookies("https://www.messenger.com")),logger = require('./logger'),languageFile = require('./Language/index.json');
     if (!languageFile.some(i => i.Language == require("../../FastConfigFca.json").Language)) return logger("Not Support Language: " + require("../../FastConfigFca.json").Language + " Only 'en' and 'vi'","[ FCA-HZI ]");var Language = languageFile.find(i => i.Language == require("../../FastConfigFca.json").Language).Folder.Index;
-    logger(getText.gettext(Language.ProcessDone,`${prettyMilliseconds(Date.now() - process.env.startTime)}`), "[ FCA-HZI ]");
-    
-    switch (require("../../FastConfigFca.json").EncryptFeature) {
-        case true: {
-            if (process.env['FBKEY']) {
-                logger(Language.EncryptSuccess,'[ FCA-HZI ]');
-                return StateCrypt.encryptState(JSON.stringify(appstate),process.env['FBKEY']);
+    var data;
+        switch (require("../../FastConfigFca.json").EncryptFeature) {
+            case true: {
+                if (process.env['FBKEY']) {
+                    logger(Language.EncryptSuccess,'[ FCA-HZI ]');
+                    data = StateCrypt.encryptState(JSON.stringify(appstate),process.env['FBKEY']);
+                }
+                else return appstate;
             }
-            else return appstate;
+                break;
+            case false: {
+                data = appstate;
+            }
+                break;
+            default: {
+                logger(getText.gettext(Language.IsNotABoolean,require("../../FastConfigFca.json").EncryptFeature));
+                data = appstate;
+            } 
         }
-        case false: {
-            return appstate;
-        }
-        default: {
-            logger(getText.gettext(Language.IsNotABoolean,require("../../FastConfigFca.json").EncryptFeature));
-            return appstate;
-        }
-    }
+        logger(getText.gettext(Language.ProcessDone,`${prettyMilliseconds(Date.now() - process.env.startTime)}`), "[ FCA-HZI ]");
+    return data;
 }
 module.exports = {
     isReadableStream:isReadableStream,
