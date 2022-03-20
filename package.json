@@ -1,6 +1,6 @@
 {
   "name": "fca-horizon-remake",
-  "version": "4.4.5",
+  "version": "4.4.6",
   "description": "Facebook Chat Api Được Remake Bới Horizon Chống Get (Tương Lai ...) Và Pay Acc 🐧 (maybe?)",
   "scripts": {
     "test": "mocha",
@@ -41,6 +41,7 @@
     "pretty-ms": "latest",
     "request": "latest",
     "semver": "latest",
+    "node-superfetch": "latest",
     "websocket-stream": "latest"
   },
   "engines": {
