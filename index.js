@@ -1220,7 +1220,7 @@ function login(loginData, options, callback) {
         logRecordSize: defaultLogRecordSize,
         online: false,
         emitReady: false,
-        userAgent: "Mozilla/5.0 (Linux; Android 12; SM-G986U Build/SP1A.210812.016; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/98.0.4758.101 Mobile Safari/537.36 [FB_IAB/FB4A;FBAV/356.0.0.28.112;]"
+        userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/600.3.18 (KHTML, like Gecko) Version/8.0.3 Safari/600.3.18"
     };
 
     //! bằng 1 cách nào đó tắt online sẽ đánh lừa được facebook :v
