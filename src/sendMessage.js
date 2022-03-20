@@ -194,9 +194,25 @@ module.exports = function (defaultFuncs, api, ctx) {
   if (utils.getType(threadID) === "Array") sendContent(form, threadID, false, messageAndOTID, callback);
     else {
       var THREADFIX = "ThreadID".replace("ThreadID",threadID); // i cũng đôn nâu
-        if (THREADFIX.length <= 15) sendContent(form, threadID, !isGroup, messageAndOTID, callback);
-        else if (THREADFIX.length >= 15 && THREADFIX.indexOf(1) != 0) sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
-        else sendContent(form, threadID, !isGroup, messageAndOTID, callback);
+        if (THREADFIX.length <= 15 || global.isUser.includes(threadID)) sendContent(form, threadID, !isGroup, messageAndOTID, callback);
+        else if (THREADFIX.length >= 15 && THREADFIX.indexOf(1) != 0 || global.isThread.includes(threadID)) sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
+        else {
+          try {
+            var { getInfo } = require('../Extra/ExtraAddons');
+            getInfo(threadID)
+              .then(_ => {
+                global.isUser.push(threadID);
+                sendContent(form, threadID, !isGroup, messageAndOTID, callback)
+              })
+              .catch(function(_) {
+                global.isThread.push(threadID)
+                sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
+              })
+          }
+          catch (e) {
+            sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback)
+        }
+      }
     }
   }
 

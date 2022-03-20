@@ -1,5 +1,7 @@
 'use strict';
 process.env.startTime = Date.now();
+global.isThread = new Array();
+global.isUser = new Array();
 var utils = require("./utils");
 var cheerio = require("cheerio");
 var log = require("npmlog");
