@@ -36,7 +36,6 @@ var getText = require('gettext.js')();
         }
         if (!languageFile.some(i => i.Language == require("../../FastConfigFca.json").Language)) { logger("Not Support Language: " + require("../../FastConfigFca.json").Language + " Only 'en' and 'vi'","[ FCA-HZI ]");process.exit(0); }
         var Language = languageFile.find(i => i.Language == require("../../FastConfigFca.json").Language).Folder.Index;
-        global.language = languageFile.find(i => i.Language == require("../../FastConfigFca.json").Language).Folder;
     }
     else process.exit(1);
 
