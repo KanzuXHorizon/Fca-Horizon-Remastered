@@ -4,7 +4,7 @@ var utils = require("../utils");
 var log = require("npmlog");
 
 module.exports = function (defaultFuncs, api, ctx) {
-  return function markAsRead(seen_timestamp, callback) {
+  return function markAsSeen(seen_timestamp, callback) {
     if (utils.getType(seen_timestamp) == "Function" ||
       utils.getType(seen_timestamp) == "AsyncFunction") {
       callback = seen_timestamp;

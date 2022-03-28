@@ -15,7 +15,8 @@ var getText = require('gettext.js')();
         "Language": "vi",
         "MainColor": "#9900FF",
         "BroadCast": true,
-        "EncryptFeature": true
+        "EncryptFeature": true,
+        "PreKey": ""
     };
 
     if (!fs.existsSync('./FastConfigFca.json')) {
@@ -25,10 +26,9 @@ var getText = require('gettext.js')();
     else if (fs.existsSync('./FastConfigFca.json')) {
         try {
             var data = require("../../FastConfigFca.json");
-            if (data && data.MainColor == "CommingSoon") {
-                ObjFastConfig.Language = data.Language
-                fs.writeFileSync("./FastConfigFca.json", JSON.stringify(ObjFastConfig, null, "\t"));
-                process.exit(1);        
+            if (data && !data.PreKey) {
+                data.PreKey="";
+                fs.writeFileSync("./FastConfigFca.json", JSON.stringify(data, null, "\t"));        
             }
         }
         catch (e) {
@@ -36,6 +36,7 @@ var getText = require('gettext.js')();
         }
         if (!languageFile.some(i => i.Language == require("../../FastConfigFca.json").Language)) { logger("Not Support Language: " + require("../../FastConfigFca.json").Language + " Only 'en' and 'vi'","[ FCA-HZI ]");process.exit(0); }
         var Language = languageFile.find(i => i.Language == require("../../FastConfigFca.json").Language).Folder.Index;
+        global.language = languageFile.find(i => i.Language == require("../../FastConfigFca.json").Language).Folder;
     }
     else process.exit(1);
 
@@ -458,50 +459,8 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
 }
 
 
-async function submiterr(err) {
-    var { readFileSync } = require('fs-extra')
-    var logger = require('./logger')
-    var Fetch = require("node-superfetch");
-    const localbrand = JSON.parse(readFileSync('./node_modules/horizon-sp/package.json')).version || '0.0.1';
-    if (localbrand.replace(/\./g,'') < '111') {
-      // <= Start Submit The Error To The Api => //
-
-        try {
-            var { body } = await Fetch.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
-            if (body) {
-              logger(Language.SubmitErrSuccess, '[ FB - API ]')
-            }
-          }
-        catch (e) { 
-          logger(Language.ErrorWhileSendErr, '[ FB - API ]')
-        }
-
-        // <= End Submit The Error To The Api => //
-    } else try {
-      var fcatool = require('horizon-sp');
-      try {
-          var sender = process.env['UID'] || 'IDK';
-        fcatool.Submitform(err,sender,__dirname);
-      }
-      catch (e) {
-        // <= Start Submit The Error To The Api => //
-
-          try {
-            var { body } = await Fetch.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
-              if (body) {
-                logger(Lang.SubmitErrSuccess, '[ FB - API ]')
-              }
-            }
-          catch (e) {
-            logger(Language.ErrorWhileSendErr, '[ FB - API ]')
-          }
-
-        // <= End Submit The Error To The Api => //
-      }
-    }
-    catch (e) {
-      return;
-    }
+function submiterr(err) {
+  return;
   }
 
   function makeid(length) {

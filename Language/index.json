@@ -51,8 +51,15 @@
                     "Chúc Bạn Một Ngày Tốt Lành Nhé !",
                     "Hãy Báo Cáo Với Admin Khi Có Lỗi Fca Nhé !",
                     "Cảm Ơn Đã Sử Dụng Fca Của Horizon !",
-                    "Donate Tại: Momo: 0396301843"
+                    "Donate Tại: Momo: 0396301843, MBank: 0396301843"
                 ]
+            },
+            "ExtraGetThread": {
+                "CreateDatabaseSuccess": "Khởi Tạo Thành Công Database Cho Nhóm: %1",
+                "CreateDatabaseFailure": "Khởi Tạo Thất Bại Database Của Nhóm: %1",
+                "alreadyUpdate": "%1 Đã Sẵn Sàng Để Update Database",
+                "updateDataSuccess": "Cập Nhật Dữ Liệu Cho Nhóm %1 Thành Công !",
+                "updateDataFailure": "Cập Nhật Dữ Liệu Cho Nhóm %1 Thất Bại !"
             }
         }
     },
@@ -109,6 +116,13 @@
                     "Please Report To Admin When There Is Error in FCA !",
                     "Thank You For Using Horizon's FCA !"
                 ]
+            },
+            "ExtraGetThread": {
+                "CreateDatabaseSuccess": "Successfully Initiate Database for Group: %1",
+                "CreateDatabaseFailure": "Initialization of Group Database Failure: %1",
+                "alreadyUpdate": "%1 Ready to Update Database",
+                "updateDataSuccess": "Data Update for Group %1 Success!",
+                "updateDataFailure": "Data Update for Group %1 Failed!"
             }
         }
     }
