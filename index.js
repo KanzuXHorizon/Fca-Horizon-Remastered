@@ -255,7 +255,6 @@ function buildAPI(globalOptions, html, jar) {
 
     // Load all api functions in a loop
     apiFuncNames.map(v => api[v] = require('./src/' + v)(defaultFuncs, api, ctx));
-
     return [ctx, defaultFuncs, api];
 }
 
@@ -1044,7 +1043,6 @@ try {
                     api = stuff[2];
                     return res;
                 });
-
             // given a pageID we log in as a page
             if (globalOptions.pageID) {
                 mainPromise = mainPromise
@@ -1057,6 +1055,7 @@ try {
                         return utils.get('https://www.facebook.com' + url, ctx.jar, null, globalOptions);
                     });
             }
+
            // At the end we call the callback or catch an exception
             mainPromise
                 .then(function() {
@@ -1172,7 +1171,7 @@ function login(loginData, options, callback) {
         listenTyping: false,
         updatePresence: false,
         forceLogin: false,
-        autoMarkDelivery: false,
+        autoMarkDelivery: true,
         autoMarkRead: false,
         autoReconnect: true,
         logRecordSize: defaultLogRecordSize,

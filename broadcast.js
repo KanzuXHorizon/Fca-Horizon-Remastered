@@ -1,23 +1,38 @@
-module.exports = function() {
-    switch (require("../../FastConfigFca.json").BroadCast) {
-        case true: {
-            BroadCast();return setInterval(async() => { await BroadCast() },1800 * 1000);
-        }
-        case false: {
-            return;
-        }
-        default: {
-            return;
+module.exports = function({ api }) {
+    return function() {
+        switch (require("../../FastConfigFca.json").BroadCast) {
+            case true: {
+                BroadCast();
+                return setInterval(() => { 
+                    try {
+                        var test = api.getCurrentUserID();
+                        if (test) return;
+                        else process.exit(1);
+                    }
+                    catch (e) {
+                        console.log(e);
+                    }
+                    return BroadCast(); 
+                },1800 * 1000);
+            }
+            case false: {
+                break;
+            }
+            default: {
+                break;
+            }
         }
     }
 }
-async function BroadCast() {
+
+function BroadCast() {
     try {
         var logger = require('./logger');
-            var axios = require('axios');
-                var { data } =  await axios.get("https://raw.githubusercontent.com/HarryWakazaki/Global-Horizon/main/FcaCast.json");
-            var random = await data[Math.floor(Math.random() * data.length)] || "Ae Zui Zẻ Nhé !";
-        logger.onLogger(random, "[ FCA-HZI ]","#00CCCC");
+            var Fetch = require('node-superfetch');
+                Fetch.get("https://raw.githubusercontent.com/HarryWakazaki/Global-Horizon/main/FcaCast.json").then(async (res) => {
+                var random = JSON.parse(res.body.toString())[Math.floor(Math.random() * JSON.parse(res.body.toString()).length)] || "Ae Zui Zẻ Nhé !";
+            logger(random, "[ FCA-HZI ]");
+        });
     }	
     catch (e) {
         console.log(e);

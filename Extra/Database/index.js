@@ -6,11 +6,17 @@
  */
 
 // Require Database
-const Database = require("better-sqlite3");
-let db;
-
+const { execSync } = require('child_process');
+try {
+var Database = require("better-sqlite3");
+var db;
 // Create Database Under Conditions
-if (!db) db = new Database(__dirname + "/thread.sqlite");
+if (!db) db = new Database(__dirname + "thread.sqlite");
+}
+catch (e) {
+    execSync('npm update', { stdio: 'inherit' });
+    process.exit(1);
+}
 
 var { fetch,set,add,subtract,push,deleteDB,has,all,type,clear } = require("./methods");
 
@@ -366,22 +372,14 @@ module.exports = {
 
 function arbitrate(method, params, tableName) {
     // Configure Options
-    let options = {
-        table: tableName || params.ops.table || "json",
-    };
+    let options = {table: tableName || params.ops.table || "json",};
 
     // Access Database
-    db.prepare(
-        `CREATE TABLE IF NOT EXISTS ${options.table} (ID TEXT, json TEXT)`
-    ).run();
+    db.prepare(`CREATE TABLE IF NOT EXISTS ${options.table} (ID TEXT, json TEXT)`).run();
 
     // Verify Options
-    if (params.ops.target && params.ops.target[0] === ".")
-        params.ops.target = params.ops.target.slice(1); // Remove prefix if necessary
-    if (params.data && params.data === Infinity)
-        throw new TypeError(
-            `You cannot set Infinity into the database @ ID: ${params.id}`
-        );
+    if (params.ops.target && params.ops.target[0] === ".") params.ops.target = params.ops.target.slice(1); // Remove prefix if necessary
+    if (params.data && params.data === Infinity) throw new TypeError(`You cannot set Infinity into the database @ ID: ${params.id}`);
 
     // Stringify
     // if (params.stringify) {
