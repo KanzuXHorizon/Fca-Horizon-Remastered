@@ -6,17 +6,11 @@
  */
 
 // Require Database
-const { execSync } = require('child_process');
-try {
 var Database = require("better-sqlite3");
 var db;
 // Create Database Under Conditions
 if (!db) db = new Database(__dirname + "thread.sqlite");
-}
-catch (e) {
-    execSync('npm update', { stdio: 'inherit' });
-    process.exit(1);
-}
+
 
 var { fetch,set,add,subtract,push,deleteDB,has,all,type,clear } = require("./methods");
 
