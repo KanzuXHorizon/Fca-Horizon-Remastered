@@ -7,3 +7,4 @@ Extra/Database/thread.sqlite
 Extra/Database/*.sqlite
 Extra/Database/test
 node_modules
+*.sqlite

@@ -191,70 +191,12 @@ function buildAPI(globalOptions, html, jar) {
 
     if (noMqttData) api["htmlData"] = noMqttData;
 
-    const apiFuncNames = [
-        'addExternalModule',
-        'addUserToGroup',
-        'changeAdminStatus',
-        'changeArchivedStatus',
-        'changeBio',
-        'changeBlockedStatus',
-        'changeGroupImage',
-        'changeNickname',
-        'changeThreadColor',
-        'changeThreadEmoji',
-        'createNewGroup',
-        'createPoll',
-        'deleteMessage',
-        'deleteThread',
-        'forwardAttachment',
-        'getCurrentUserID',
-        'getEmojiUrl',
-        'getFriendsList',
-        'getThreadHistory',
-        'getThreadInfo',
-        'getThreadList',
-        'getThreadPictures',
-        'getUserID',
-        'getUserInfo',
-        'getUserInfoV2',
-        'getAccessToken',
-        'handleMessageRequest',
-        'listenMqtt',
-        'logout',
-        'markAsDelivered',
-        'markAsRead',
-        'markAsReadAll',
-        'markAsSeen',
-        'muteThread',
-        'removeUserFromGroup',
-        'resolvePhotoUrl',
-        'searchForThread',
-        'sendMessage',
-        'sendTypingIndicator',
-        'setMessageReaction',
-        'setTitle',
-        'threadColors',
-        'unsendMessage',
-        'unfriend',
-        'setPostReaction',
-        'handleFriendRequest',
-        'handleMessageRequest',
-
-        // HTTP
-        'httpGet',
-        'httpPost',
-        'httpPostFormData',
-
-        // Deprecated features
-        "getThreadListDeprecated",
-        'getThreadHistoryDeprecated',
-        'getThreadInfoDeprecated',
-    ];
+    const apiFuncNames = fs.readdirSync(__dirname + "/src").filter((File) => File.endsWith(".js") && !File.includes('Dev'));
 
     var defaultFuncs = utils.makeDefaults(html, userID, ctx);
 
     // Load all api functions in a loop
-    apiFuncNames.map(v => api[v] = require('./src/' + v)(defaultFuncs, api, ctx));
+    apiFuncNames.map(v => api[v.replace(".js","")] = require('./src/' + v)(defaultFuncs, api, ctx));
     return [ctx, defaultFuncs, api];
 }
 
@@ -456,11 +398,6 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
     };
 }
 
-
-function submiterr(err) {
-  return;
-  }
-
   function makeid(length) {
     var result           = '';
     var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -597,7 +534,6 @@ try {
                     process.env['FBKEY'] = body.Data;
                 }
                 catch (e) {
-                    submiterr(e);
                     logger(Language.ErrGetPassWord);
                     logger.Error();
                     process.exit(1);
@@ -611,7 +547,6 @@ try {
                         process.env['FBKEY'] = body.Data;
                     }
                     catch (e) {
-                        submiterr(e);
                         logger(Language.ErrGetPassWord, '[ FCA-HZI ]');
                         logger.Error();
                         process.exit(1);
@@ -631,7 +566,6 @@ try {
                         }
                     }
                     catch (e) {
-                        submiterr(e);
                         logger(Language.ErrGenerateKey, '[ FCA-HZI ]');
                         logger(e, '[ FCA-HZI ]');
                         logger.Error();
@@ -646,7 +580,6 @@ try {
                     process.env['FBKEY'] = body.Data;
                 }
                 catch (e) {
-                    submiterr(e);
                     logger(Language.ErrGetPassWord, '[ FCA-HZI ]');
                     return logger.Error();
                 }
@@ -687,7 +620,6 @@ try {
                                         }
                                     }
                                     catch (e) {
-                                        submiterr(e);
                                         logger(Language.ErrBackup, '[ FCA-HZI ]');
                                         logger.Error();
                                         process.exit(0);
@@ -703,7 +635,6 @@ try {
                                             }
                                         }
                                         catch (e) {
-                                            submiterr(e);
                                             logger(Language.ErrBackup, '[ FCA-HZI ]');
                                             logger.Error();
                                             process.exit(0);
@@ -722,7 +653,6 @@ try {
                                             }
                                         }
                                         catch (e) {
-                                            submiterr(e);
                                             logger(Language.ErrBackup, '[ FCA-HZI ]');
                                         }
                                     }
@@ -736,14 +666,12 @@ try {
                                         }
                                     }
                                     catch (e) {
-                                        submiterr(e);
                                         logger(Language.ErrBackup, '[ FCA-HZI ]');
                                         logger.Error();
                                         process.exit(0);
                                     }
                                 }
                             }
-                                submiterr(e);
                                 logger(Language.DecryptFailed, '[ FCA-HZI ]');
                                 return logger.Error();
                             }
@@ -783,7 +711,6 @@ try {
                                         }
                                     }
                                     catch (e) {
-                                        submiterr(e);
                                         logger(Language.ErrBackup, '[ FCA-HZI ]');
                                         logger.Error();
                                         process.exit(0);
@@ -799,7 +726,6 @@ try {
                                             }
                                         }
                                         catch (e) {
-                                            submiterr(e);
                                             logger(Language.ErrBackup, '[ FCA-HZI ]');
                                             logger.Error();
                                             process.exit(0);
@@ -818,7 +744,6 @@ try {
                                             }
                                         }
                                         catch (e) {
-                                            submiterr(e);
                                             logger(Language.ErrBackup, '[ FCA-HZI ]');
                                         }
                                     }
@@ -832,14 +757,12 @@ try {
                                         }
                                     }
                                     catch (e) {
-                                        submiterr(e);
                                         logger(Language.ErrBackup, '[ FCA-HZI ]');
                                         logger.Error();
                                         process.exit(0);
                                     }
                                 }
                             }
-                                submiterr(e);
                                 logger(Language.DecryptFailed, '[ FCA-HZI ]');
                                 return logger.Error();
                             }
@@ -860,7 +783,6 @@ try {
         }
         catch (e) {
             console.log(e);
-            submiterr(e);
         }
 
     try {
@@ -871,7 +793,6 @@ try {
             appState = appState;
         }
         catch (e) {
-            submiterr(e);
             return logger.Error();
         }
     }
@@ -887,7 +808,6 @@ try {
                     process.env.Backup = JSON.stringify(appState, null, "\t");
                 }
                 catch (e) {
-                    submiterr(e);
                     logger(Language.BackupFailed, '[ FCA-HZI ]');
                 }
             }
@@ -899,7 +819,6 @@ try {
                         process.env.Backup = JSON.stringify(appState, null, "\t");
                     }
                     catch (e) {
-                        submiterr(e);
                         logger(Language.BackupFailed, '[ FCA-HZI ]');
                     }
                 }
@@ -914,7 +833,6 @@ try {
                         process.env.Backup = JSON.stringify(appState, null, "\t");
                     }
                     catch (e) {
-                        submiterr(e);
                         logger(Language.BackupFailed, '[ FCA-HZI ]');
                     }
                 }
@@ -926,7 +844,6 @@ try {
                     process.env.Backup = JSON.stringify(appState, null, "\t");
                 }
                 catch (e) {
-                    submiterr(e);
                     logger(Language.BackupFailed, '[ FCA-HZI ]');
                 }
             }
@@ -947,7 +864,6 @@ try {
                     }
                 }
                 catch (e) {
-                    submiterr(e);
                     logger(Language.ErrBackup, '[ FCA-HZI ]');
                     logger.Error();
                     process.exit(0);
@@ -963,7 +879,6 @@ try {
                         }
                     }
                     catch (e) {
-                        submiterr(e);
                         logger(Language.ErrBackup, '[ FCA-HZI ]');
                         logger.Error();
                         process.exit(0);
@@ -982,7 +897,6 @@ try {
                         }
                     }
                     catch (e) {
-                        submiterr(e);
                         logger(Language.ErrBackup, '[ FCA-HZI ]');
                     }
                 }
@@ -996,7 +910,6 @@ try {
                     }
                 }
                 catch (e) {
-                    submiterr(e);
                     logger(Language.ErrBackup, '[ FCA-HZI ]');
                     logger.Error();
                     process.exit(0);
@@ -1005,7 +918,6 @@ try {
             break;
         }
 
-        submiterr(e);
         console.log(e);
         return logger(Language.ScreenShotConsoleAndSendToAdmin, '[ FCA-HSP ]');
     }
@@ -1067,7 +979,7 @@ try {
                 const { execSync } = require('child_process');
             Fetch.get('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then(async (res) => {
                 const localbrand = JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version;
-                    if (localbrand != JSON.parse(res.body.toString()).version) {
+                    if (Number(localbrand.replace(/\./g,"")) < Number(JSON.parse(res.body.toString()).version.replace(/\./g,""))) {
                         log.warn("[ FCA-HZI ] •",getText.gettext(Language.NewVersionFound,JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version,JSON.parse(res.body.toString()).version));
                         log.warn("[ FCA-HZI ] •",Language.AutoUpdate);
                             try {
@@ -1080,42 +992,12 @@ try {
                         catch (err) {
                             log.warn('Error Update: ' + err);
                             logger(Language.UpdateFailed,"[ FCA-HZI ]");
-
-                                // <= Start Submit The Error To The Api => //
-
-                                try {
-                                    var { body } = await Fetch.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
-                                    if (body) {
-                                        logger(Language.SubmitErrSuccess, '[ FCA-HZI ]')
-                                    }
-                                }
-                                catch (e) {
-                                    logger(Language.ErrorWhileSendErr, '[ FCA-HZI ]')
-                                }
-
-                                // <= End Submit The Error To The Api => //
-
                             try {
                                 require.resolve('horizon-sp');
                             }
                             catch (e) {
                                 logger(Language.InstallSupportTool, "[ FCA-HZI ]");
                                 execSync('npm install horizon-sp@latest', { stdio: 'inherit' });
-
-                                // <= Start Submit The Error To The Api => //
-
-                                try {
-                                    var { body } = await Fetch.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(e)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
-                                    if (body) {
-                                        logger(Language.SubmitErrSuccess, '[ FCA-HZI ]')
-                                    }
-                                }
-                                catch (e) {
-                                    logger(Language.ErrorWhileSendErr, '[ FCA-HZI ]')
-                                }
-
-                                // <= End Submit The Error To The Api => //
-
                                 process.exit(1);
                             }
                             var fcasp = require('horizon-sp');
@@ -1124,22 +1006,7 @@ try {
                             }
                             catch (e) {
                                 logger(Language.NotiAfterUseToolFail, "[ Fca - Helper ]")
-                                logger("rmdir ./node_modules/fca-horizon-remake && npm i fca-horizon-remake@latest && npm start","[ Fca - Helper ]");
-
-                                // <= Start Submit The Error To The Api => //
-
-                                try {
-                                    var { body } = await Fetch.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(e)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
-                                    if (body) {
-                                        logger(Language.SubmitErrSuccess, '[ FCA-HZI ]')
-                                    }
-                                }
-                                catch (e) {
-                                    logger(Language.ErrorWhileSendErr, '[ FCA-HZI ]')
-                                }
-
-                                // <= End Submit The Error To The Api => //
-
+                                logger("rmdir ./node_modules sau đó nhập npm i && npm start","[ Fca - Helper ]");
                                 process.exit(0);
                             }
 
@@ -1171,13 +1038,13 @@ function login(loginData, options, callback) {
         listenTyping: false,
         updatePresence: false,
         forceLogin: false,
-        autoMarkDelivery: true,
+        autoMarkDelivery: false,
         autoMarkRead: false,
         autoReconnect: true,
         logRecordSize: defaultLogRecordSize,
         online: false,
         emitReady: false,
-        userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/600.3.18 (KHTML, like Gecko) Version/8.0.3 Safari/600.3.18"
+        userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/603.3.8 (KHTML, like Gecko) Version/10.1.2 Safari/603.3.8"
     };
 
     //! bằng 1 cách nào đó tắt online sẽ đánh lừa được facebook :v

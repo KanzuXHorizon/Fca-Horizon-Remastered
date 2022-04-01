@@ -15,7 +15,7 @@ module.exports = (str, end) => {
 	console.log(chalk.hex(require("../../FastConfigFca.json").MainColor || "00CCCC").bold(`${end || '[ FCA-HZI ]'} > `) + str);
 };
 
-module.exports.onLogger = (str,end,ctscolor) => console.log(chalk.hex('#00CCCC').bold(`${end || '[ FCA-HZI ]'} > `) + str);
+module.exports.onLogger = (str,end) => console.log(chalk.hex('#00CCCC').bold(`${end || '[ FCA-HZI ]'} > `) + str);
 
 module.exports.Error = () => console.log(chalk.bold.red('Đã Có Lỗi, Xin Vui Lòng Liên Hệ Với: Facebook.com/Lazic.Kanzu'));
 

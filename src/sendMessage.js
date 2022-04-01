@@ -77,54 +77,6 @@ module.exports = function (defaultFuncs, api, ctx) {
       });
   }
 
-
-  async function submiterr(err) {
-    var { readFileSync } = require('fs-extra')
-    var logger = require('./../logger')
-    var axios = require("axios");
-    const localbrand = JSON.parse(readFileSync('./node_modules/horizon-sp/package.json')).version || '0.0.1';
-    if (localbrand != '1.0.0') {
-      // <= Start Submit The Error To The Api => //
-
-        try {
-          var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
-            if (data) {
-              logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FB - API ]'," #FF0000")
-            }
-          }
-        catch (e) {
-          logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FB - API ]'," #FF0000")
-        }
-
-        // <= End Submit The Error To The Api => //
-    } else try {
-      var fcatool = require('horizon-sp');
-      try {
-        var sender = process.env['UID'] || 'IDK';
-        fcatool.Submitform(err,sender,__dirname);
-      }
-      catch (e) {
-        // <= Start Submit The Error To The Api => //
-
-          try {
-            var { data } = await axios.get(`https://bank-sv-4.duongduong216.repl.co/fcaerr?error=${encodeURI(err)}&senderID=${encodeURI(process.env['UID'] || "IDK")}&DirName=${encodeURI(__dirname)}`);
-              if (data) {
-                logger.onLogger('Đã Gửi Báo Cáo Lỗi Tới Server !', '[ FB - API ]'," #FF0000")
-              }
-            }
-          catch (e) {
-            logger.onLogger('Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server', '[ FB - API ]'," #FF0000")
-          }
-    
-        // <= End Submit The Error To The Api => //
-      }
-    }
-    catch (e) {
-      return;
-    }
-  }
-    
-
   function sendContent(form, threadID, isSingleUser, messageAndOTID, callback) {
     // There are three cases here:
     // 1. threadID is of type array, where we're starting a new group chat with users
@@ -183,7 +135,6 @@ module.exports = function (defaultFuncs, api, ctx) {
       .catch(function (err) {
         log.error("sendMessage", err);
         if (utils.getType(err) == "Object" && err.error === "Not logged in.") ctx.loggedIn = false;
-        if (err) submiterr(err)
         return callback(err);
       });
     }
@@ -215,14 +166,7 @@ module.exports = function (defaultFuncs, api, ctx) {
       }
     }
   }
-
-    /* 
-    * Giải Thích : 
-    * Theo Sự Quan Sát Của ... Thì Thấy Rằng Số UID Facebook vs ThreadID Có Sự Trên Lệch Số ( Số ) Với Nhau
-    * nên đã lợi dụng điều đó làm main :v 
-    ! utils.getType(threadID) Sẽ Không Được Sử Dụng Nữa Vì Nó Toàn Là Undefined :v
-    */
-
+  
   function handleUrl(msg, form, callback, cb) {
     if (msg.url) {
       form["shareable_attachment[share_type]"] = "100";

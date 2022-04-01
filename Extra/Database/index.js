@@ -7,9 +7,10 @@
 
 // Require Database
 var Database = require("better-sqlite3");
+const { join } = require("path");
 var db;
 // Create Database Under Conditions
-if (!db) db = new Database(__dirname + "thread.sqlite");
+if (!db) db = new Database(join(__dirname, "../Databasethread.sqlite"));
 
 
 var { fetch,set,add,subtract,push,deleteDB,has,all,type,clear } = require("./methods");

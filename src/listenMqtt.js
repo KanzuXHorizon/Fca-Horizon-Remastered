@@ -6,8 +6,6 @@ var mqtt = require('mqtt');
 var websocket = require('websocket-stream');
 var HttpsProxyAgent = require('https-proxy-agent');
 const EventEmitter = require('events');
-
-
 var identity = function () { };
 var form = {};
 var getSeqID = function () { };
@@ -57,7 +55,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
             origin: 'https://www.facebook.com',
             protocolVersion: 13
         },
-        keepalive: 13,
+        keepalive: 60,
         reschedulePings: true
     };
 
@@ -66,7 +64,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
         options.wsOptions.agent = agent;
     }
 
-    ctx.mqttClient = new mqtt.Client(() => websocket(host, options.wsOptions), options);
+    ctx.mqttClient = new mqtt.Client(_ => websocket(host, options.wsOptions), options);
 
     var mqttClient = ctx.mqttClient;
 
@@ -80,9 +78,13 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
         }
     });
 
-    require('../broadcast')({ api })();
     mqttClient.on('connect', function () {
 
+        if (process.env.OnStatus == undefined) {
+            require('../broadcast')({ api })();
+            process.env.OnStatus = true;
+        }
+        
         topics.forEach(topicsub => mqttClient.subscribe(topicsub));
 
         var topic;
@@ -168,6 +170,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     });
 
     mqttClient.on('close', function () {
+
     });
 }
 
@@ -337,6 +340,7 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
                                 for (var n in fetchData.message.ranges) mobj[fetchData.message.ranges[n].entity.id] = (fetchData.message.text || "").substr(fetchData.message.ranges[n].offset, fetchData.message.ranges[n].length);
 
                                 callbackToReturn.messageReply = {
+                                    type: "Message",
                                     threadID: callbackToReturn.threadID,
                                     messageID: fetchData.message_id,
                                     senderID: fetchData.message_sender.id.toString(),
@@ -381,7 +385,7 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
             try {
                 fmtMsg = utils.formatDeltaReadReceipt(v.delta);
             } catch (err) {
-                return log.error("Lỗi Nhẹ", err)
+                return log.error("Lỗi Nhẹ", err);
             }
             return (function () { globalCallback(null, fmtMsg); })();
         case "AdminTextMessage":
