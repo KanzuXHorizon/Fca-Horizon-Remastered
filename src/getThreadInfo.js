@@ -146,7 +146,6 @@ function formatThreadGraphQLResponse(data) {
 }
 
 module.exports = function(defaultFuncs, api, ctx) {
-
   var { createData,getData,hasData,alreadyUpdate,setLastRun,updateData,getAll,readyCreate,deleteAll } = require('../Extra/ExtraGetThread');
   var { capture } = require('../Extra/Src/Last-Run');
   var Database = require('../Extra/Database/index');

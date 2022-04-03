@@ -1,50 +1,83 @@
 'use strict';
-process.env.startTime = Date.now();
+
+/!-[ Max Cpu Speed ]-!/
+
+process.env.UV_THREADPOOL_SIZE = require('os').cpus().length;
+
+/!-[ Global Set ]-!/
+
 global.isThread = new Array();
 global.isUser = new Array();
-var utils = require("./utils");
-var cheerio = require("cheerio");
-var log = require("npmlog");
-var logger = require('./logger');
-var fs = require('fs-extra');
-var checkVerified = null;
-var getText = require('gettext.js')();
+global.startTime = Date.now();
 
-    const languageFile = require('./Language/index.json'),
+/!-[ Require All Package Need Use ]-!/
+
+var utils = require("./utils"),
+    cheerio = require("cheerio"),
+    log = require("npmlog"),
+    { getAccessToken } = require('./Extra/ExtraAddons'),
+    logger = require('./logger'),
+    fs = require('fs-extra'),
+    getText = require('gettext.js')(),
+    logger = require('./logger'),
+    Fetch = require('got'),
+    fs = require('fs-extra'),
+    StateCrypt = require('./StateCrypt'),
+    Client = require("@replit/database"),
+    languageFile = require('./Language/index.json'),
     ObjFastConfig = {
         "Language": "vi",
         "MainColor": "#9900FF",
         "BroadCast": true,
         "EncryptFeature": true,
         "PreKey": ""
-    };
+    },
+    DataLanguageSetting = require("../../FastConfigFca.json");
 
+/!-[ Check File To Run Process ]-!/
+
+try {
     if (!fs.existsSync('./FastConfigFca.json')) {
         fs.writeFileSync("./FastConfigFca.json", JSON.stringify(ObjFastConfig, null, "\t"));
         process.exit(1);
     }
     else if (fs.existsSync('./FastConfigFca.json')) {
         try {
-            var data = require("../../FastConfigFca.json");
-            if (data && !data.PreKey) {
-                data.PreKey="";
-                fs.writeFileSync("./FastConfigFca.json", JSON.stringify(data, null, "\t"));        
+            if (DataLanguageSetting && !DataLanguageSetting.PreKey) {
+                    DataLanguageSetting.PreKey="";
+                fs.writeFileSync("./FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));        
             }
         }
         catch (e) {
             console.log(e);
         }
-        if (!languageFile.some(i => i.Language == require("../../FastConfigFca.json").Language)) { logger("Not Support Language: " + require("../../FastConfigFca.json").Language + " Only 'en' and 'vi'","[ FCA-HZI ]");process.exit(0); }
-        var Language = languageFile.find(i => i.Language == require("../../FastConfigFca.json").Language).Folder.Index;
+        if (!languageFile.some(i => i.Language == DataLanguageSetting.Language)) { 
+            logger("Not Support Language: " + DataLanguageSetting.Language + " Only 'en' and 'vi'","[ FCA-HZI ]");
+            process.exit(0); 
+        }
+        var Language = languageFile.find(i => i.Language == DataLanguageSetting.Language).Folder.Index;
     }
     else process.exit(1);
+        if (utils.getType(DataLanguageSetting.BroadCast) != "Boolean" && DataLanguageSetting.BroadCast != undefined) {
+            log.warn("FastConfig-BroadCast", getText.gettext(Language.IsNotABoolean,DataLanguageSetting.BroadCast));
+            process.exit(0)
+        }
+    else if (DataLanguageSetting.BroadCast == undefined) {
+        fs.writeFileSync("./FastConfigFca.json", JSON.stringify(ObjFastConfig, null, "\t"));
+        process.exit(1);
+    }
+}
+catch (e) {
+    console.log(e);
+    logger.Error();
+}
 
-if (utils.getType(require("../../FastConfigFca.json").BroadCast) != "Boolean") {
-    log.warn("FastConfig-BroadCast", getText.gettext(Language.IsNotABoolean,require("../../FastConfigFca.json").BroadCast));
-    process.exit(0)
-};
-var defaultLogRecordSize = 100;
-log.maxRecordSize = defaultLogRecordSize;
+/!-[ Set Variable For Process ]-!/
+
+log.maxRecordSize = 100;
+var checkVerified = null;
+
+/!-[ Function setOptions ]-!/
 
 function setOptions(globalOptions, options) {
     Object.keys(options).map(function(key) {
@@ -112,10 +145,10 @@ function setOptions(globalOptions, options) {
     });
 }
 
-function buildAPI(globalOptions, html, jar) {
-    var maybeCookie = jar.getCookies("https://www.facebook.com").filter(function(val) {
-        return val.cookieString().split("=")[0] === "c_user";
-    });
+/!-[ Function BuildAPI ]-!/
+
+async function buildAPI(globalOptions, html, jar) {
+    var maybeCookie = jar.getCookies("https://www.facebook.com").filter(function(val) { return val.cookieString().split("=")[0] === "c_user"; });
 
     if (maybeCookie.length === 0) throw { error: Language.ErrAppState };
 
@@ -124,6 +157,7 @@ function buildAPI(globalOptions, html, jar) {
     var userID = maybeCookie[0].cookieString().split("=")[1].toString();
     logger(getText.gettext(Language.UID,userID), "[ FCA-HZI ]");
     process.env['UID'] = userID;
+
     try {
         clearInterval(checkVerified);
     } catch (e) {
@@ -165,14 +199,13 @@ function buildAPI(globalOptions, html, jar) {
         }
     }
 
-    // All data available to api functions
     var ctx = {
         userID: userID,
         jar: jar,
         clientID: clientID,
         globalOptions: globalOptions,
         loggedIn: true,
-        access_token: 'NONE',
+        access_token: await getAccessToken(),
         clientMutationId: 0,
         mqttClient: undefined,
         lastSeqId: irisSeqID,
@@ -420,12 +453,9 @@ try {
     if (appState) {
         //const readline = require("readline");
         //const chalk = require("chalk");
-        var logger = require('./logger');
-        var Fetch = require('node-superfetch');
         //const figlet = require("figlet");
         //const os = require("os");
         //const { execSync } = require('child_process');
-        var fs = require('fs-extra');
         // let rl = readline.createInterface({
         // input: process.stdin,
         // output: process.stdout,
@@ -530,8 +560,8 @@ try {
         switch (process.platform) {
             case "win32": {
                 try {
-                    var { body } = await Fetch.get('https://decrypt-appstate-production.up.railway.app/getKey', { method: 'GET' });
-                    process.env['FBKEY'] = body.Data;
+                    var { body } = await Fetch('https://decrypt-appstate-production.up.railway.app/getKey');
+                    process.env['FBKEY'] = JSON.parse(body).Data;
                 }
                 catch (e) {
                     logger(Language.ErrGetPassWord);
@@ -543,8 +573,8 @@ try {
             case "linux": {
                 if (process.env["REPL_ID"] == undefined) {
                     try {
-                        var { body } = await Fetch.get('https://decrypt-appstate-production.up.railway.app/getKey', { method: 'GET' });
-                        process.env['FBKEY'] = body.Data;
+                        var { body } = await Fetch.get('https://decrypt-appstate-production.up.railway.app/getKey');
+                        process.env['FBKEY'] = JSON.parse(body).Data;
                     }
                     catch (e) {
                         logger(Language.ErrGetPassWord, '[ FCA-HZI ]');
@@ -554,7 +584,6 @@ try {
                 }
                 else {
                     try {
-                        const Client = require("@replit/database");
                         const client = new Client();
                         let key = await client.get("FBKEY");
                         if (!key) {
@@ -576,8 +605,8 @@ try {
                 break;
             case "android": {
                 try {
-                    var { body } = await Fetch.get('https://decrypt-appstate-production.up.railway.app/getKey', { method: 'GET' });
-                    process.env['FBKEY'] = body.Data;
+                    var { body } = await Fetch.get('https://decrypt-appstate-production.up.railway.app/getKey');
+                    process.env['FBKEY'] = JSON.parse(body).Data;
                 }
                 catch (e) {
                     logger(Language.ErrGetPassWord, '[ FCA-HZI ]');
@@ -603,7 +632,6 @@ try {
                             break;
                         case "String": {
                             try {
-                                var StateCrypt = require('./StateCrypt');
                                 appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
                                 logger(Language.DecryptSuccess, '[ FCA-HZI ]');
                             }
@@ -642,7 +670,6 @@ try {
                                     }
                                     else {
                                         try {
-                                            const Client = require("@replit/database");
                                             const client = new Client();
                                             let key = await client.get("Backup");
                                             if (key) {
@@ -694,7 +721,6 @@ try {
                         case "String": {
                             logger(Language.EncryptStateOff, "[ FCA-HZI ]");
                             try {
-                                var StateCrypt = require('./StateCrypt');
                                 appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
                                 logger(Language.DecryptSuccess, '[ FCA-HZI ]');
                             }
@@ -733,7 +759,6 @@ try {
                                     }
                                     else {
                                         try {
-                                            const Client = require("@replit/database");
                                             const client = new Client();
                                             let key = await client.get("Backup");
                                             if (key) {
@@ -827,7 +852,6 @@ try {
                         if (fs.existsSync('./backupappstate.json')) {
                             fs.unlinkSync('./backupappstate.json');
                         }
-                        const Client = require("@replit/database");
                         const client = new Client();
                         await client.set("Backup", appState);
                         process.env.Backup = JSON.stringify(appState, null, "\t");
@@ -886,7 +910,6 @@ try {
                 }
                 else {
                     try {
-                        const Client = require("@replit/database");
                         const client = new Client();
                         let key = await client.get("Backup");
                         if (key) {
@@ -947,9 +970,9 @@ try {
                     if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions).then(utils.saveCookies(jar));
                     return res;
                 })
-                .then(function(res) {
+                .then(async function(res) {
                     var html = res.body;
-                    var stuff = buildAPI(globalOptions, html, jar);
+                    var stuff = await buildAPI(globalOptions, html, jar);
                     ctx = stuff[0];
                     _defaultFuncs = stuff[1];
                     api = stuff[2];
@@ -974,10 +997,10 @@ try {
                     logger(Language.DoneLogin, "[ FCA-HZI ]");
                         logger(Language.AutoCheckUpdate, "[ FCA-HZI ]");
                             //!---------- Auto Check, Update START -----------------!//
-                        var Fetch = require('node-superfetch');
+                        var Fetch = require('got');
                     var { readFileSync } = require('fs-extra');
                 const { execSync } = require('child_process');
-            Fetch.get('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then(async (res) => {
+            Fetch('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then(async (res) => {
                 const localbrand = JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version;
                     if (Number(localbrand.replace(/\./g,"")) < Number(JSON.parse(res.body.toString()).version.replace(/\./g,""))) {
                         log.warn("[ FCA-HZI ] •",getText.gettext(Language.NewVersionFound,JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version,JSON.parse(res.body.toString()).version));
@@ -1041,7 +1064,7 @@ function login(loginData, options, callback) {
         autoMarkDelivery: false,
         autoMarkRead: false,
         autoReconnect: true,
-        logRecordSize: defaultLogRecordSize,
+        logRecordSize: 100,
         online: false,
         emitReady: false,
         userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/603.3.8 (KHTML, like Gecko) Version/10.1.2 Safari/603.3.8"

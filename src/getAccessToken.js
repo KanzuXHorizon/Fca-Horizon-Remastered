@@ -21,14 +21,10 @@ module.exports = function (defaultFuncs, api, ctx) {
         };
       }
     try {
-      var { getAccessToken } = require('../Extra/ExtraAddons');
-        getAccessToken()
-            .then(data => {
-                return callback(null, data);
-        });
+      callback(null, ctx.access_token);
     }
     catch (e) {
-      return callback(null, e);
+      callback(null, e);
     }
     return returnPromise;
     };
