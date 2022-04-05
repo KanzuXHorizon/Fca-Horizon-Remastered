@@ -31,8 +31,7 @@ var utils = require("./utils"),
         "BroadCast": true,
         "EncryptFeature": true,
         "PreKey": ""
-    },
-    DataLanguageSetting = require("../../FastConfigFca.json");
+    };
 
 /!-[ Check File To Run Process ]-!/
 
@@ -41,7 +40,8 @@ try {
         fs.writeFileSync("./FastConfigFca.json", JSON.stringify(ObjFastConfig, null, "\t"));
         process.exit(1);
     }
-    else if (fs.existsSync('./FastConfigFca.json')) {
+    var DataLanguageSetting = require("../../FastConfigFca.json");
+    if (fs.existsSync('./FastConfigFca.json')) {
         try {
             if (DataLanguageSetting && !DataLanguageSetting.PreKey) {
                     DataLanguageSetting.PreKey="";
