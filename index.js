@@ -15,7 +15,6 @@ global.startTime = Date.now();
 var utils = require("./utils"),
     cheerio = require("cheerio"),
     log = require("npmlog"),
-    { getAccessToken } = require('./Extra/ExtraAddons'),
     logger = require('./logger'),
     fs = require('fs-extra'),
     getText = require('gettext.js')(),
@@ -147,7 +146,7 @@ function setOptions(globalOptions, options) {
 
 /!-[ Function BuildAPI ]-!/
 
-async function buildAPI(globalOptions, html, jar) {
+function buildAPI(globalOptions, html, jar) {
     var maybeCookie = jar.getCookies("https://www.facebook.com").filter(function(val) { return val.cookieString().split("=")[0] === "c_user"; });
 
     if (maybeCookie.length === 0) throw { error: Language.ErrAppState };
@@ -205,7 +204,7 @@ async function buildAPI(globalOptions, html, jar) {
         clientID: clientID,
         globalOptions: globalOptions,
         loggedIn: true,
-        access_token: await getAccessToken(),
+        access_token: 'NONE',
         clientMutationId: 0,
         mqttClient: undefined,
         lastSeqId: irisSeqID,
@@ -972,7 +971,7 @@ try {
                 })
                 .then(async function(res) {
                     var html = res.body;
-                    var stuff = await buildAPI(globalOptions, html, jar);
+                    var stuff = buildAPI(globalOptions, html, jar);
                     ctx = stuff[0];
                     _defaultFuncs = stuff[1];
                     api = stuff[2];

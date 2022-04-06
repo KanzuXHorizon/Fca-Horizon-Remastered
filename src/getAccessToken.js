@@ -21,7 +21,8 @@ module.exports = function (defaultFuncs, api, ctx) {
         };
       }
     try {
-      callback(null, ctx.access_token);
+      var { getAccessToken } = require('../Extra/ExtraAddons');
+      getAccessToken().then(data => callback(null,data));
     }
     catch (e) {
       callback(null, e);
