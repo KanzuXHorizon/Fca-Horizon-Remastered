@@ -9,6 +9,7 @@ process.env.UV_THREADPOOL_SIZE = require('os').cpus().length;
 global.isThread = new Array();
 global.isUser = new Array();
 global.startTime = Date.now();
+global.Setting = new Map();
 
 /!-[ Require All Package Need Use ]-!/
 

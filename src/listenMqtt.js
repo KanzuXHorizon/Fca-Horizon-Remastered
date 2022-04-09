@@ -55,7 +55,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
             origin: 'https://www.facebook.com',
             protocolVersion: 13
         },
-        keepalive: 60,
+        keepalive: 30,
         reschedulePings: true
     };
 

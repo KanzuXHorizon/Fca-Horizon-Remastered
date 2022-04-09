@@ -147,3 +147,4 @@ dist
 *.ini
 package-lock.json
 *.sqlite
+Extra/test.js
