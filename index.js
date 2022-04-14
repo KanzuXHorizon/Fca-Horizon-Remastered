@@ -10,67 +10,88 @@ global.isThread = new Array();
 global.isUser = new Array();
 global.startTime = Date.now();
 global.Setting = new Map();
-
-/!-[ Require All Package Need Use ]-!/
-
-var utils = require("./utils"),
-    cheerio = require("cheerio"),
-    log = require("npmlog"),
-    logger = require('./logger'),
-    fs = require('fs-extra'),
-    getText = require('gettext.js')(),
-    logger = require('./logger'),
-    Fetch = require('got'),
-    fs = require('fs-extra'),
-    StateCrypt = require('./StateCrypt'),
-    Client = require("@replit/database"),
-    languageFile = require('./Language/index.json'),
-    ObjFastConfig = {
+global.Data = new Object({
+    ObjFastConfig: {
         "Language": "vi",
         "MainColor": "#9900FF",
         "BroadCast": true,
         "EncryptFeature": true,
-        "PreKey": ""
-    };
+        "PreKey": "",
+        "Uptime": false
+    }
+});
+global.Require = new Object({
+    utils: require("./utils"),
+    fs: require("fs"),
+    languageFile: require('./Language/index.json'),
+    getText: require('gettext.js')(),
+    log: require("npmlog"),
+    Fetch: require('got'),
+    logger: require('./logger')
+}); 
 
 /!-[ Check File To Run Process ]-!/
 
 try {
-    if (!fs.existsSync('./FastConfigFca.json')) {
-        fs.writeFileSync("./FastConfigFca.json", JSON.stringify(ObjFastConfig, null, "\t"));
+    if (!global.Require.fs.existsSync('./FastConfigFca.json')) {
+        global.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(global.Data.ObjFastConfig, null, "\t"));
         process.exit(1);
     }
+
+try {
     var DataLanguageSetting = require("../../FastConfigFca.json");
-    if (fs.existsSync('./FastConfigFca.json')) {
+}
+catch (e) {
+    global.Require.logger.onLogger('Phát Hiện Setting FastConfigFca Của Bạn Không Hợp Lệ !')
+    global.Require.logger.Error();
+    process.exit(0)
+}
+
+    if (global.Require.fs.existsSync('./FastConfigFca.json')) {
         try {
-            if (DataLanguageSetting && !DataLanguageSetting.PreKey) {
-                    DataLanguageSetting.PreKey="";
-                fs.writeFileSync("./FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));        
+            if (DataLanguageSetting && !DataLanguageSetting.Uptime && !DataLanguageSetting.AutoRestartMinutes) {
+                    DataLanguageSetting.Uptime = false;
+                    DataLanguageSetting.AutoRestartMinutes = 0;
+                global.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));        
             }
         }
         catch (e) {
             console.log(e);
         }
-        if (!languageFile.some(i => i.Language == DataLanguageSetting.Language)) { 
+        if (!global.Require.languageFile.some(i => i.Language == DataLanguageSetting.Language)) { 
             logger("Not Support Language: " + DataLanguageSetting.Language + " Only 'en' and 'vi'","[ FCA-HZI ]");
             process.exit(0); 
         }
-        var Language = languageFile.find(i => i.Language == DataLanguageSetting.Language).Folder.Index;
+        var Language = global.Require.languageFile.find(i => i.Language == DataLanguageSetting.Language).Folder.Index;
+        global.Require.Language = global.Require.languageFile.find(i => i.Language == DataLanguageSetting.Language).Folder;
     }
     else process.exit(1);
-        if (utils.getType(DataLanguageSetting.BroadCast) != "Boolean" && DataLanguageSetting.BroadCast != undefined) {
-            log.warn("FastConfig-BroadCast", getText.gettext(Language.IsNotABoolean,DataLanguageSetting.BroadCast));
+        if (global.Require.utils.getType(DataLanguageSetting.BroadCast) != "Boolean" && DataLanguageSetting.BroadCast != undefined) {
+            global.Require.log.warn("FastConfig-BroadCast", global.Require.getText.gettext(Language.IsNotABoolean,DataLanguageSetting.BroadCast));
             process.exit(0)
         }
     else if (DataLanguageSetting.BroadCast == undefined) {
-        fs.writeFileSync("./FastConfigFca.json", JSON.stringify(ObjFastConfig, null, "\t"));
+        global.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(global.Data.ObjFastConfig, null, "\t"));
         process.exit(1);
     }
+    global.Require.FastConfig = require("../../FastConfigFca.json");
 }
 catch (e) {
     console.log(e);
-    logger.Error();
+    global.Require.logger.Error();
 }
+
+/!-[ Require All Package Need Use ]-!/
+
+var utils = global.Require.utils,
+    logger = global.Require.logger,
+    fs = global.Require.fs,
+    getText = global.Require.getText,
+    log = global.Require.log,
+    Fetch = global.Require.Fetch,
+    cheerio = require("cheerio"),
+    StateCrypt = require('./StateCrypt'),
+    Client = require("@replit/database");
 
 /!-[ Set Variable For Process ]-!/
 
@@ -232,6 +253,8 @@ function buildAPI(globalOptions, html, jar) {
     apiFuncNames.map(v => api[v.replace(".js","")] = require('./src/' + v)(defaultFuncs, api, ctx));
     return [ctx, defaultFuncs, api];
 }
+
+/!-[ Function makeLogin ]-!/
 
 function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
     return function(res) {
@@ -431,19 +454,21 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
     };
 }
 
-  function makeid(length) {
+/!-[ Function makeid ]-!/
+
+function makeid(length) {
     var result           = '';
     var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     var charactersLength = characters.length;
     for ( var i = 0; i < length; i++ ) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-   }
-   return result;
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+return result;
 }
 
+/!-[ async function loginHelper ]-!/
 
-// Helps the login
-  async function loginHelper(appState, email, password, globalOptions, callback, prCallback) {
+async function loginHelper(appState, email, password, globalOptions, callback, prCallback) {
     var mainPromise = null;
     var jar = utils.getJar();
 
@@ -451,74 +476,6 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
     // back into the jar.
 try {
     if (appState) {
-        //const readline = require("readline");
-        //const chalk = require("chalk");
-        //const figlet = require("figlet");
-        //const os = require("os");
-        //const { execSync } = require('child_process');
-        // let rl = readline.createInterface({
-        // input: process.stdin,
-        // output: process.stdout,
-        // prompt: chalk.hex('#00CCCC').bold('[FCA-HZI] • ')
-        // });
-        // let type = {
-        //     1: {
-        //         "name": "Tạo Mật Khẩu Cho Appstate",
-        //          onRun: async function() {
-        //             try {
-        //                 rl.question("Hãy Nhập Mật Khẩu Bạn Muốn Đặt Cho Appstate !", (answer) => {
-        //                     console.log("Được Rồi Mật Khẩu Của Bạn Là: " + answer + ", Bạn Hãy Nhớ Kĩ Nhé !");
-        //                 process.env["FBKEY"] = answer;
-        //                     fs.writeFile('../.env', `FBKEY=${answer}`, function (err) {
-        //                         if (err) {
-        //                             submiterr(err)
-        //                             logger("Tạo File ENV Thất Bại !", "[ FCA-HZI ]")
-        //                             rl.pause();
-        //                         }
-        //                         else logger("Tạo Thành Công File ENV !","[ FCA-HZI ]")
-        //                         rl.pause();
-        //                     });
-        //                 })
-        //             }
-        //             catch (e) {
-        //                 console.log(e);
-        //                 logger("Đã Có Lỗi Khi Đang Try Tạo Ra Câu Hỏi =))", "[ FCA-HZI ]");
-        //                 rl.pause();
-        //             }
-        //         }
-        //     },
-        //     2: {
-        //         "name": "Tiếp Tục Chạy Fca Mà Không Cần Mã Hóa AppState",
-        //          onRun: async function () {
-        //             rl.pause();
-        //         }
-        //     },
-        //     3: {
-        //         "name": "Đổi Mật Khẩu AppState (Comming Soon..)",
-        //         onRun: async function () {
-        //             console.log(chalk.red.bold("Đã bảo là comming soon rồi mà >:v"));
-        //         }
-        //     }
-        // }
-        // const localbrand = JSON.parse(readFileSync('./package.json')).name;
-        // const localbrand2 = JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version;
-        // var axios = require('axios');
-        //     axios.get('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then(async (res) => {
-        //         if (localbrand.toUpperCase() == 'HORIZON') {
-        //             console.group(chalk.bold.cyan('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'))
-        //                 console.log(chalk.bold.hex('#00FFCC')("[</>]") + chalk.bold.yellow(' => ') + "Hệ Điều Hành: " + chalk.bold.red(os.type()));
-        //                 console.log(chalk.bold.hex('#00FFCC')("[</>]") + chalk.bold.yellow(' => ') + "Thông Tin Máy: " + chalk.bold.red(os.version()));
-        //                 console.log(chalk.bold.hex('#00FFCC')("[</>]") + chalk.bold.yellow(' => ') + "Phiên Bản Hiện Tại: " + chalk.bold.red(localbrand2));
-        //                 console.log(chalk.bold.hex('#00FFCC')("[</>]") + chalk.bold.yellow(' => ')  + "Phiên Bản Mới Nhất: " + chalk.bold.red(res.data.version));
-        //             console.groupEnd();
-        //         }
-        //     else {
-        //         console.clear();
-        //         console.log(figlet.textSync('TeamHorizon', {font: 'ANSI Shadow',horizontalLayout: 'default',verticalLayout: 'default',width: 0,whitespaceBreak: true }))
-        //         console.log(chalk.hex('#9966CC')(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`));
-        //     }
-        // });
-
     logger(Language.OnProcess, "[ FCA-HZI ]");
         var backup = async(data) => {
             if (fs.existsSync('./appstate.json')) {
@@ -591,7 +548,7 @@ try {
                             let key = await client.get("FBKEY");
                             process.env['FBKEY'] = key;
                         } else {
-                          process.env['FBKEY'] = key;
+                            process.env['FBKEY'] = key;
                         }
                     }
                     catch (e) {
@@ -877,7 +834,7 @@ try {
     } catch (e) {
 
         if (process.env.Backup != undefined && process.env.Backup) {
-           return backup(process.env.Backup);
+            return backup(process.env.Backup);
         }
         switch (process.platform) {
             case "win32": {
@@ -916,7 +873,7 @@ try {
                             backup(JSON.stringify(key));
                         }
                         else {
-                          logger(Language.ErrBackup, '[ FCA-HZI ]');
+                            logger(Language.ErrBackup, '[ FCA-HZI ]');
                         }
                     }
                     catch (e) {
@@ -1038,6 +995,7 @@ try {
                         else {
                             logger(getText.gettext(Language.LocalVersion,localbrand), "[ FCA-HZI ]");
                             logger(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)], "[ FCA-HZI ]");
+                            require('./Extra/ExtraUptimeRobot').Values();
                             await new Promise(resolve => setTimeout(resolve, 5*1000));
                             callback(null, api);
                         }
@@ -1069,9 +1027,6 @@ function login(loginData, options, callback) {
         emitReady: false,
         userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/603.3.8 (KHTML, like Gecko) Version/10.1.2 Safari/603.3.8"
     };
-
-    //! bằng 1 cách nào đó tắt online sẽ đánh lừa được facebook :v
-    //! phải có that có this chứ :v
 
     setOptions(globalOptions, options);
 

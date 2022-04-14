@@ -60,6 +60,10 @@
                 "alreadyUpdate": "%1 Đã Sẵn Sàng Để Update Database",
                 "updateDataSuccess": "Cập Nhật Dữ Liệu Cho Nhóm %1 Thành Công !",
                 "updateDataFailure": "Cập Nhật Dữ Liệu Cho Nhóm %1 Thất Bại !"
+            },
+            "Src": {
+                "AutoRestart": "Tự Động Khởi Động Lại Sau: %1 Phút Nữa !",
+                "OnRestart": "Đang Restart Lại Bot !"
             }
         }
     },
@@ -123,6 +127,10 @@
                 "alreadyUpdate": "%1 Ready to Update Database",
                 "updateDataSuccess": "Data Update for Group %1 Success!",
                 "updateDataFailure": "Data Update for Group %1 Failed!"
+            },
+            "Src": {
+                "AutoRestart": "Automatically Restart After: %1 Minutes !",
+                "OnRestart": "Restarting..."
             }
         }
     }

@@ -1,18 +1,21 @@
 module.exports = function({ api }) {
     return function() {
-        switch (require("../../FastConfigFca.json").BroadCast) {
+        switch (global.Require.FastConfig.BroadCast) {
             case true: {
                 BroadCast();
                 return setInterval(() => { 
                     try {
                         var test = api.getCurrentUserID();
-                        if (test) return;
-                        else process.exit(1);
+                        if (test) {
+                            BroadCast();
+                        }
+                        else {
+                            process.exit(1);
+                        }
                     }
                     catch (e) {
                         console.log(e);
                     }
-                    return BroadCast(); 
                 },1800 * 1000);
             }
             case false: {
@@ -27,8 +30,8 @@ module.exports = function({ api }) {
 
 function BroadCast() {
     try {
-        var logger = require('./logger');
-            var Fetch = require('got');
+        var logger = global.Require.logger;
+            var Fetch = global.Require.Fetch;
                 Fetch.get("https://raw.githubusercontent.com/HarryWakazaki/Global-Horizon/main/FcaCast.json").then(async (res) => {
                 var random = JSON.parse(res.body.toString())[Math.floor(Math.random() * JSON.parse(res.body.toString()).length)] || "Ae Zui Zẻ Nhé !";
             logger(random, "[ FCA-HZI ]");

@@ -1,0 +1,24 @@
+[
+    {
+        "global": {
+
+        },
+        "Folder": {
+            "Extra": {
+                "Database": {
+                    "Index": {
+                        "MainFile": "../Databasethread.sqlite",
+                        "Method": "./methods"
+                    }
+                }
+            },
+            "Src": {
+                "AccessToken": "../Extra/ExtraAddons",
+                "LastRun": "../Extra/Src/Last-Run",
+                "ExtraGetThread": "../Extra/ExtraGetThread",
+                "ExtraFindUID": "../Extra/ExtraFindUID",
+                "ExtraAddons": "../Extra/ExtraAddons"
+            }
+        }
+    }
+]

@@ -140,28 +140,20 @@ module.exports = function (defaultFuncs, api, ctx) {
     }
 
   function send(form, threadID, messageAndOTID, callback, isGroup) {
- // đôi lời từ ai đó :v 
- // cái này chỉ fix send ko được tin nhắn thôi chứ i cũng đôn nâu cách fix lắm nên là có gì ae fix giùm nha kkk
+//Full Fix sendMessage
   if (utils.getType(threadID) === "Array") sendContent(form, threadID, false, messageAndOTID, callback);
     else {
       var THREADFIX = "ThreadID".replace("ThreadID",threadID); // i cũng đôn nâu
         if (THREADFIX.length <= 15 || global.isUser.includes(threadID)) sendContent(form, threadID, !isGroup, messageAndOTID, callback);
         else if (THREADFIX.length >= 15 && THREADFIX.indexOf(1) != 0 || global.isThread.includes(threadID)) sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
         else {
-          try {
-            var { getInfo } = require('../Extra/ExtraAddons');
-            getInfo(threadID)
-              .then(_ => {
-                global.isUser.push(threadID);
-                sendContent(form, threadID, !isGroup, messageAndOTID, callback)
-              })
-              .catch(function(_) {
-                global.isThread.push(threadID)
-                sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
-              })
-          }
-          catch (e) {
-            sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback)
+          if (global.Data.event.isGroup) {
+            sendContent(form, threadID, !isGroup, messageAndOTID, callback);
+            global.isThread.push(threadID);
+          } 
+          else {
+            sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
+            global.isUser.push(threadID)
         }
       }
     }
