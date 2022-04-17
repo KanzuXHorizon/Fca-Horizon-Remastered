@@ -148,11 +148,11 @@ module.exports = function (defaultFuncs, api, ctx) {
         else if (THREADFIX.length >= 15 && THREADFIX.indexOf(1) != 0 || global.isThread.includes(threadID)) sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
         else {
           if (global.Data.event.isGroup) {
-            sendContent(form, threadID, !isGroup, messageAndOTID, callback);
+            sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
             global.isThread.push(threadID);
           } 
           else {
-            sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
+            sendContent(form, threadID, !isGroup, messageAndOTID, callback);
             global.isUser.push(threadID)
         }
       }

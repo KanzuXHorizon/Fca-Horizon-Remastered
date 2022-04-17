@@ -5,13 +5,7 @@ module.exports = function({ api }) {
                 BroadCast();
                 return setInterval(() => { 
                     try {
-                        var test = api.getCurrentUserID();
-                        if (test) {
-                            BroadCast();
-                        }
-                        else {
-                            process.exit(1);
-                        }
+                        BroadCast();
                     }
                     catch (e) {
                         console.log(e);

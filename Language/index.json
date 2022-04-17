@@ -43,6 +43,7 @@
                 "LocalVersion": "Bạn Hiện Đang Sử Dụng Phiên Bản: %1 !",
                 "EncryptSuccess": "Mã Hoá AppState Thành Công !",
                 "ProcessDone": "Kết Thúc Với: %1 !",
+                "CountTime": "Tổng Thời Gian Bạn Sử Dụng: %1",
                 "InvaildMainColor": "%1 Không Phải Là Một Màu Hex !",
                 "IsNotABoolean": "%1 Không Phải Là Một Boolean, Cần Là true Hoặc false !",
                 "InvaildOption": "%1 Không Phải Là Một Lựa Chọn !",
@@ -61,9 +62,14 @@
                 "updateDataSuccess": "Cập Nhật Dữ Liệu Cho Nhóm %1 Thành Công !",
                 "updateDataFailure": "Cập Nhật Dữ Liệu Cho Nhóm %1 Thất Bại !"
             },
+            "ExtraUpTime": {
+                "Uptime": "Kết Nối Đến Server Uptime Thành Công !",
+                "NotSupport": "Hệ Điều Hành Của Bạn Hiện Không Hỗ Trợ Uptime Server !",
+                "Maintenance": "Server Uptime Đang Bảo Trì, Hãy Thử Lại Sau !"
+            },
             "Src": {
                 "AutoRestart": "Tự Động Khởi Động Lại Sau: %1 Phút Nữa !",
-                "OnRestart": "Đang Restart Lại Bot !"
+                "OnRestart": "Đang Restart..."
             }
         }
     },
@@ -115,6 +121,7 @@
                 "IsNotABoolean": "%1 Is Not A Boolean, Need To Be true Or false !",
                 "EncryptStateOff": "Encryption Has Been Turned Off !",
                 "InvaildOption": "Invail Option: %1",
+                "CountTime": "Total Time You Use: %1",
                 "WishMessage": [
                     "Have a Nice Day !",
                     "Please Report To Admin When There Is Error in FCA !",
@@ -127,6 +134,11 @@
                 "alreadyUpdate": "%1 Ready to Update Database",
                 "updateDataSuccess": "Data Update for Group %1 Success!",
                 "updateDataFailure": "Data Update for Group %1 Failed!"
+            },
+            "ExtraUpTime": {
+                "Uptime": "Connecting To Server Uptime Succeeds!",
+                "NotSupport": "Your Operating System does not currently support Uptime Server !",
+                "Maintenance": "Server Uptime In Maintenance, Try Again Later!"
             },
             "Src": {
                 "AutoRestart": "Automatically Restart After: %1 Minutes !",

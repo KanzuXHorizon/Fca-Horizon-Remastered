@@ -97,7 +97,7 @@ module.exports = function (defaultFuncs, api, ctx) {
       .then(function (resData) {
         if (!resData) throw { error: "setReaction returned empty object." };
         if (resData.error) throw resData;
-        callback(null);
+        callback(null); 
       })
       .catch(function (err) {
         log.error("setReaction", err);

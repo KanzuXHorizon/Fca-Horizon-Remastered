@@ -10,16 +10,6 @@ global.isThread = new Array();
 global.isUser = new Array();
 global.startTime = Date.now();
 global.Setting = new Map();
-global.Data = new Object({
-    ObjFastConfig: {
-        "Language": "vi",
-        "MainColor": "#9900FF",
-        "BroadCast": true,
-        "EncryptFeature": true,
-        "PreKey": "",
-        "Uptime": false
-    }
-});
 global.Require = new Object({
     utils: require("./utils"),
     fs: require("fs"),
@@ -29,6 +19,35 @@ global.Require = new Object({
     Fetch: require('got'),
     logger: require('./logger')
 }); 
+global.Data = new Object({
+    ObjFastConfig: {
+        "Language": "vi",
+        "PreKey": "",
+        "MainColor": "#9900FF",
+        "MainName": "[ FCA-HZI ]",
+        "Uptime": false,
+        "BroadCast": true,
+        "EncryptFeature": true,
+        "AutoRestartMinutes": 0
+    },
+    AppState: null,
+    event: null,
+    CountTime: function CountTime() {
+        var fs = global.Require.fs;
+        if (fs.existsSync(__dirname + '/CountTime.json')) {
+            var data = Number(fs.readFileSync(__dirname + '/CountTime.json', 'utf8')),
+            hours = Math.floor(data / (60 * 60)),
+            minutes = Math.floor((data % (60 * 60)) / 60),
+            seconds = Math.floor(data % 60);
+        }
+        else {
+            hours = 0,
+            minutes = 0,
+            seconds = 0;
+        }
+        return `${hours}h${minutes}m${seconds}s`;
+    }
+});
 
 /!-[ Check File To Run Process ]-!/
 
@@ -42,16 +61,15 @@ try {
     var DataLanguageSetting = require("../../FastConfigFca.json");
 }
 catch (e) {
-    global.Require.logger.onLogger('Phát Hiện Setting FastConfigFca Của Bạn Không Hợp Lệ !')
+    global.Require.logger.onLogger('Detect Your FastConfigFca Settings Invalid!')
     global.Require.logger.Error();
     process.exit(0)
 }
 
     if (global.Require.fs.existsSync('./FastConfigFca.json')) {
         try {
-            if (DataLanguageSetting && !DataLanguageSetting.Uptime && !DataLanguageSetting.AutoRestartMinutes) {
-                    DataLanguageSetting.Uptime = false;
-                    DataLanguageSetting.AutoRestartMinutes = 0;
+            if (DataLanguageSetting && !DataLanguageSetting.MainName) {
+                    DataLanguageSetting.MainName = "[ FCA-HZI ]";
                 global.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));        
             }
         }
@@ -70,7 +88,7 @@ catch (e) {
             global.Require.log.warn("FastConfig-BroadCast", global.Require.getText.gettext(Language.IsNotABoolean,DataLanguageSetting.BroadCast));
             process.exit(0)
         }
-    else if (DataLanguageSetting.BroadCast == undefined) {
+    else if (DataLanguageSetting.Uptime == undefined || DataLanguageSetting.AutoRestartMinutes == undefined) {
         global.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(global.Data.ObjFastConfig, null, "\t"));
         process.exit(1);
     }
@@ -133,7 +151,7 @@ function setOptions(globalOptions, options) {
                 globalOptions.forceLogin = Boolean(options.forceLogin);
                 break;
             case 'userAgent':
-                globalOptions.userAgent = options.userAgent;
+                globalOptions.userAgent = (options.userAgent || 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/600.3.18 (KHTML, like Gecko) Version/8.0.3');
                 break;
             case 'autoMarkDelivery':
                 globalOptions.autoMarkDelivery = Boolean(options.autoMarkDelivery);
@@ -176,7 +194,7 @@ function buildAPI(globalOptions, html, jar) {
     if (html.indexOf("/checkpoint/block/?next") > -1) log.warn("login", Language.CheckPointLevelI);
 
     var userID = maybeCookie[0].cookieString().split("=")[1].toString();
-    logger(getText.gettext(Language.UID,userID), "[ FCA-HZI ]");
+    logger(getText.gettext(Language.UID,userID));
     process.env['UID'] = userID;
 
     try {
@@ -197,21 +215,21 @@ function buildAPI(globalOptions, html, jar) {
         irisSeqID = oldFBMQTTMatch[1];
         mqttEndpoint = oldFBMQTTMatch[2];
         region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
-        logger(getText.gettext(Language.Area,region), "[ FCA-HZI ]");
+        logger(getText.gettext(Language.Area,region));
     } else {
         let newFBMQTTMatch = html.match(/{"app_id":"219994525426954","endpoint":"(.+?)","iris_seq_id":"(.+?)"}/);
         if (newFBMQTTMatch) {
             irisSeqID = newFBMQTTMatch[2];
             mqttEndpoint = newFBMQTTMatch[1].replace(/\\\//g, "/");
             region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
-            logger(getText.gettext(Language.Area,region), "[ FCA-HZI ]");
+            logger(getText.gettext(Language.Area,region));
         } else {
             let legacyFBMQTTMatch = html.match(/(\["MqttWebConfig",\[\],{fbid:")(.+?)(",appID:219994525426954,endpoint:")(.+?)(",pollingEndpoint:")(.+?)(3790])/);
             if (legacyFBMQTTMatch) {
                 mqttEndpoint = legacyFBMQTTMatch[4];
                 region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
                 log.warn("login", `Cannot get sequence ID with new RegExp. Fallback to old RegExp (without seqID)...`);
-                logger(getText.gettext(Language.Area,region), "[ FCA-HZI ]");
+                logger(getText.gettext(Language.Area,region));
                 logger("login", `[Unused] Polling endpoint: ${legacyFBMQTTMatch[6]}`);
             } else {
                 log.warn("login", getText.gettext(Language.NoAreaData));
@@ -297,7 +315,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
         });
         // ---------- Very Hacky Part Ends -----------------
 
-        logger(Language.OnLogin, "[ FCA-HZI ]");
+        logger(Language.OnLogin);
         return utils
             .post("https://www.facebook.com/login/device-based/regular/login/?login_attempt=1&lwv=110", jar, form, loginOptions)
             .then(utils.saveCookies(jar))
@@ -307,7 +325,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
 
                 // This means the account has login approvals turned on.
                 if (headers.location.indexOf('https://www.facebook.com/checkpoint/') > -1) {
-                    logger(Language.TwoAuth, "[ FCA-HZI ]");
+                    logger(Language.TwoAuth);
                     var nextURL = 'https://www.facebook.com/checkpoint/?next=https%3A%2F%2Fwww.facebook.com%2Fhome.php';
 
                     return utils
@@ -399,7 +417,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                         JSON.parse(res.body.replace(/for\s*\(\s*;\s*;\s*\)\s*;\s*/, ""));
                                                     } catch (ex) {
                                                         clearInterval(checkVerified);
-                                                        logger(Language.VerifiedCheck, "[ FCA-HZI ]");
+                                                        logger(Language.VerifiedCheck);
                                                         if (callback === prCallback) {
                                                             callback = function(err, api) {
                                                                 if (err) return prReject(err);
@@ -476,7 +494,7 @@ async function loginHelper(appState, email, password, globalOptions, callback, p
     // back into the jar.
 try {
     if (appState) {
-    logger(Language.OnProcess, "[ FCA-HZI ]");
+    logger(Language.OnProcess);
         var backup = async(data) => {
             if (fs.existsSync('./appstate.json')) {
                 try {
@@ -663,7 +681,7 @@ try {
                         }
                             break;
                         default: {
-                            logger(Language.InvaildAppState, "[ FCA-HZI ]");
+                            logger(Language.InvaildAppState);
                             process.exit(0)
                         }
                     } 
@@ -672,11 +690,11 @@ try {
                 case false: {
                     switch (utils.getType(appState)) { 
                         case "Array": {
-                            logger(Language.EncryptStateOff, "[ FCA-HZI ]");
+                            logger(Language.EncryptStateOff);
                         }
                             break;
                         case "String": {
-                            logger(Language.EncryptStateOff, "[ FCA-HZI ]");
+                            logger(Language.EncryptStateOff);
                             try {
                                 appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
                                 logger(Language.DecryptSuccess, '[ FCA-HZI ]');
@@ -751,14 +769,14 @@ try {
                         }
                             break;
                         default: {
-                            logger(Language.InvaildAppState, "[ FCA-HZI ]");
+                            logger(Language.InvaildAppState);
                             process.exit(0)
                         }
                     }  
                 }
                     break;
                 default: {
-                    logger(getText.gettext(Language.IsNotABoolean,require("../../FastConfigFca.json").EncryptFeature), "[ FCA-HZI ]")
+                    logger(getText.gettext(Language.IsNotABoolean,require("../../FastConfigFca.json").EncryptFeature))
                     process.exit(0);
                 }
             }
@@ -779,6 +797,7 @@ try {
         }
     }
     try {
+        global.Data.AppState = appState;
         appState.map(function(c) {
             var str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
             jar.setCookie(str, "http://" + c.domain);
@@ -951,8 +970,8 @@ try {
            // At the end we call the callback or catch an exception
             mainPromise
                 .then(function() {
-                    logger(Language.DoneLogin, "[ FCA-HZI ]");
-                        logger(Language.AutoCheckUpdate, "[ FCA-HZI ]");
+                    logger(Language.DoneLogin);
+                        logger(Language.AutoCheckUpdate);
                             //!---------- Auto Check, Update START -----------------!//
                         var Fetch = require('got');
                     var { readFileSync } = require('fs-extra');
@@ -976,7 +995,7 @@ try {
                                 require.resolve('horizon-sp');
                             }
                             catch (e) {
-                                logger(Language.InstallSupportTool, "[ FCA-HZI ]");
+                                logger(Language.InstallSupportTool);
                                 execSync('npm install horizon-sp@latest', { stdio: 'inherit' });
                                 process.exit(1);
                             }
@@ -993,9 +1012,10 @@ try {
                         }
                     }
                         else {
-                            logger(getText.gettext(Language.LocalVersion,localbrand), "[ FCA-HZI ]");
-                            logger(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)], "[ FCA-HZI ]");
+                            logger(getText.gettext(Language.LocalVersion,localbrand));
+                            logger(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
                             require('./Extra/ExtraUptimeRobot').Values();
+                            logger(getText.gettext(Language.CountTime,global.Data.CountTime()))
                             await new Promise(resolve => setTimeout(resolve, 5*1000));
                             callback(null, api);
                         }

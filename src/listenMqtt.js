@@ -48,15 +48,17 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
             headers: {
                 'Cookie': cookies,
                 'Origin': 'https://www.facebook.com',
-                'User-Agent': ctx.globalOptions.userAgent,
+                'User-Agent': (ctx.globalOptions.userAgent || 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/600.3.18 (KHTML, like Gecko) Version/8.0.3'),
                 'Referer': 'https://www.facebook.com/',
                 'Host': new URL(host).hostname //'edge-chat.facebook.com'
             },
             origin: 'https://www.facebook.com',
             protocolVersion: 13
         },
-        keepalive: 30,
-        reschedulePings: true
+        keepalive: 60,
+        reschedulePings: true,
+        connectTimeout: 10000,
+        reconnectPeriod: 1000
     };
 
     if (typeof ctx.globalOptions.proxy != "undefined") {
@@ -185,11 +187,35 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
 
     });
 
+    process.on('SIGINT', function () {
+        LogUptime();process.kill(process.pid);
+    });
+
+    process.on('exit', (code) => {
+        LogUptime();
+    });
+    
     mqttClient.on('close', function () {
 
     });
+
+    mqttClient.on('disconnect',function () {
+        process.exit(1);
+    })
 }
 
+function LogUptime() {
+    var uptime = process.uptime();
+    var { join } = require('path');
+    if (global.Require.fs.existsSync(join(__dirname, '../CountTime.json'))) {
+        var Time1 = (Number(global.Require.fs.readFileSync(join(__dirname, '../CountTime.json'), 'utf8')) || 0);
+        global.Require.fs.writeFileSync(join(__dirname, '../CountTime.json'), String(Number(uptime) + Time1), 'utf8');
+    }
+    else {
+        var Time1 = 0;
+        global.Require.fs.writeFileSync(join(__dirname, '../CountTime.json'), String(Number(uptime) + Time1), 'utf8');
+    }
+}
 function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
     if (v.delta.class == "NewMessage") {
         //Not tested for pages
@@ -407,6 +433,8 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
             return (function () { globalCallback(null, fmtMsg); })();
         case "AdminTextMessage":
             switch (v.delta.type) {
+                case "joinable_group_link_mode_change":
+                case "magic_words":
                 case "change_thread_theme":
                 case "change_thread_icon":
                 case "change_thread_nickname":

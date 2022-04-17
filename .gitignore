@@ -148,3 +148,4 @@ dist
 package-lock.json
 *.sqlite
 Extra/test.js
+CountTime.json
