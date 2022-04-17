@@ -9,7 +9,7 @@
 var Database = require("better-sqlite3");
 var db;
 // Create Database Under Conditions
-if (!db) db = new Database("./Databasethread.sqlite");
+if (!db) db = new Database(__dirname + "/Databasethread.sqlite");
 
 
 var { fetch,set,add,subtract,push,deleteDB,has,all,type,clear } = require("./methods");
