@@ -1,7 +1,7 @@
 /* eslint-disable linebreak-style */
 "use strict";
 
-module.exports = function (defaultFuncs, api, ctx) {
+module.exports = function (_defaultFuncs, api, _ctx) {
     return function getUID(link, callback) {
       var resolveFunc = function () { };
       var rejectFunc = function () { };
@@ -16,32 +16,33 @@ module.exports = function (defaultFuncs, api, ctx) {
           resolveFunc(uid);
         };
       }
+      
     try {
         var Link = String(link);
-        var FindUID = require('../Extra/ExtraFindUID')
+        var FindUID = require('../Extra/ExtraFindUID');
         if (Link.includes('facebook.com') || Link.includes('Facebook.com') || Link.includes('fb')) {
             var LinkSplit = Link.split('/');
             if (LinkSplit.indexOf("https:") == 0) {
               if (!isNaN(LinkSplit[3])) {
-                api.sendMessage('Sai Link, Link Cần Có Định Dạng Như Sau: facebook.com/Lazic.Kanzu',global.Data.event.threadID,global.Data.event.messageID)
+                api.sendMessage('Sai Link, Link Cần Có Định Dạng Như Sau: facebook.com/Lazic.Kanzu',global.Fca.Data.event.threadID,global.Fca.Data.event.messageID);
                 callback(null, String(4));
               }
               else {
                 FindUID(Link,api).then(function (data) {
                   callback(null, data);
-                })
+                });
               }
             }
             else {
                 var Form = `https://www.facebook.com/${LinkSplit[1]}`;
                 FindUID(Form,api).then(function (data) {
                     callback(null, data);
-                })
+                });
             }
         }
         else {
             callback(null, null);
-            api.sendMessage('Sai Link, Link Cần Là Link Của Facebook',global.Data.event.threadID,global.Data.event.messageID)
+            api.sendMessage('Sai Link, Link Cần Là Link Của Facebook',global.Fca.Data.event.threadID,global.Fca.Data.event.messageID)
         }
     }
     catch (e) {

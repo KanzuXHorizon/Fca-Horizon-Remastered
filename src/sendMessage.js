@@ -1,8 +1,8 @@
 "use strict";
 
 /**
- * Được Fix Hay Làm Màu Bởi: @KanzuWakazaki
- * 19/2/2022
+ * Được Fix Hay Làm Màu Bởi: @HarryWakazaki
+ * 21/4/2022
 */
 
 var utils = require("../utils");
@@ -144,16 +144,16 @@ module.exports = function (defaultFuncs, api, ctx) {
   if (utils.getType(threadID) === "Array") sendContent(form, threadID, false, messageAndOTID, callback);
     else {
       var THREADFIX = "ThreadID".replace("ThreadID",threadID); // i cũng đôn nâu
-        if (THREADFIX.length <= 15 || global.isUser.includes(threadID)) sendContent(form, threadID, !isGroup, messageAndOTID, callback);
-        else if (THREADFIX.length >= 15 && THREADFIX.indexOf(1) != 0 || global.isThread.includes(threadID)) sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
+        if (THREADFIX.length <= 15 || global.Fca.isUser.includes(threadID)) sendContent(form, threadID, !isGroup, messageAndOTID, callback);
+        else if (THREADFIX.length >= 15 && THREADFIX.indexOf(1) != 0 || global.Fca.isThread.includes(threadID)) sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
         else {
-          if (global.Data.event.isGroup) {
+          if (global.Fca.Data.event.isGroup) {
             sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
-            global.isThread.push(threadID);
+            global.Fca.isThread.push(threadID);
           } 
           else {
             sendContent(form, threadID, !isGroup, messageAndOTID, callback);
-            global.isUser.push(threadID)
+            global.Fca.isUser.push(threadID)
         }
       }
     }
@@ -301,7 +301,7 @@ module.exports = function (defaultFuncs, api, ctx) {
       is_spoof_warning: false,
       source: "source:chat:web",
       "source_tags[0]": "source:chat",
-      body: msg.body ? msg.body.toString() : "",
+      body: msg.body ? msg.body.toString().replace("\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f\ufe0f",'   ') : "",
       html_body: false,
       ui_push_phase: "V3",
       status: "0",

@@ -1,6 +1,6 @@
 module.exports = function({ api }) {
     return function() {
-        switch (global.Require.FastConfig.BroadCast) {
+        switch (global.Fca.Require.FastConfig.BroadCast) {
             case true: {
                 BroadCast();
                 return setInterval(() => { 
@@ -24,12 +24,12 @@ module.exports = function({ api }) {
 
 function BroadCast() {
     try {
-        var logger = global.Require.logger;
-            var Fetch = global.Require.Fetch;
+        var logger = global.Fca.Require.logger;
+            var Fetch = global.Fca.Require.Fetch;
                 Fetch.get("https://raw.githubusercontent.com/HarryWakazaki/Global-Horizon/main/FcaCast.json").then(async (res) => {
                 var random = JSON.parse(res.body.toString())[Math.floor(Math.random() * JSON.parse(res.body.toString()).length)] || "Ae Zui Zẻ Nhé !";
             logger(random, "[ FCA-HZI ]");
-        });
+        }); 
     }	
     catch (e) {
         console.log(e);

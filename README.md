@@ -4,14 +4,8 @@ Lưu Ý! Đây Là Sản Phẩm Được Horizon Remake ( Chính Bởi Facebook-
 
 ## Support For : 
 
-+ Horizon Lucius Synthesis IV
-+ MiraiPr0ject
-+ C3C
-+ Kb2a
-+ Lawer
-+ Goat
-+ JABD
-+ Sumi
++ Support English, VietNamese !,
++ All bot if using listenMqtt first.
 
 # Api Cho ChatBot Messenger
 
@@ -61,7 +55,7 @@ login({email: "Gmail Account", password: "Mật Khẩu Facebook Của Bạn"}, (
     if(err) return console.error(err); // trường hợp lỗi
 
     // tạo bot tự động nhái theo bạn:
-    api.listen((err, message) => {
+    api.listenMqtt((err, message) => {
         api.sendMessage(message.body, message.threadID);
     });
 
@@ -83,9 +77,9 @@ Bạn Cần Vô File Mirai.js,Sau Đó Tìm Đến Dòng
 ```js
     var login = require('tùy bot'); 
     /* Có thể là :
-    var login = require('@maihuybao/fca-Unofficial');
-    var login = require('fca-xuyen-get');
-    var login = require('fca-unofficial-force');
+        var login = require('@maihuybao/fca-Unofficial');
+        var login = require('fca-xuyen-get');
+        var login = require('fca-unofficial-force');
     ...   
     */
 ```
@@ -121,7 +115,7 @@ var credentials = {email: "FB_EMAIL", password: "FB_PASSWORD"}; // thông tin tk
 login(credentials, (err, api) => {
     if(err) return console.error(err);
     // đăng nhập
-    fs.writeFileSync('appstate.json', JSON.stringify(api.getAppState())); //tạo appstate
+    fs.writeFileSync('appstate.json', JSON.stringify(api.getAppState(), null,'\t')); //tạo appstate
 });
 ```
 

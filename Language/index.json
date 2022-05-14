@@ -40,7 +40,7 @@
                 "UseSupportToolAfterUpdateFailed": "Nâng Cấp Thức Bại, Tiến Hành Sử Dụng Công Cụ Hỗ Trợ !",
                 "InstallSupportTool": "Đang Tải Dụng Cụ Hộ Trợ Cho Fca !",
                 "NotiAfterUseToolFail": "Hãy Tự Fix Bằng Cách Nhập:",
-                "LocalVersion": "Bạn Hiện Đang Sử Dụng Phiên Bản: %1 !",
+                "LocalVersion": "Phiên Bản Đang Dùng Hiện Tại Là: %1 !",
                 "EncryptSuccess": "Mã Hoá AppState Thành Công !",
                 "ProcessDone": "Kết Thúc Với: %1 !",
                 "CountTime": "Tổng Thời Gian Bạn Sử Dụng: %1",
@@ -64,7 +64,7 @@
             },
             "ExtraUpTime": {
                 "Uptime": "Kết Nối Đến Server Uptime Thành Công !",
-                "NotSupport": "Hệ Điều Hành Của Bạn Hiện Không Hỗ Trợ Uptime Server !",
+                "NotSupport": "Không Hỗ Trợ Uptime Server!",
                 "Maintenance": "Server Uptime Đang Bảo Trì, Hãy Thử Lại Sau !"
             },
             "Src": {

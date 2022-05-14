@@ -1,59 +1,81 @@
 'use strict';
 
+/**
+    * Developers: @KanzuWakazaki - @HarryWakazaki
+    ** A few words about developer appstate security.
+    *! Statement renouncing responsibility for the security of appstate encryption of the following operating systems: windows, Android, Linux operating systems,.. (maybe repl.it?),
+    *! because the above operating systems are private (except rep.it if the fraudster does not own your account or invite link to join).
+    *! If the intruder owns the computer, these private operating systems,the security of this fca cannot guarantee 100% of the time.
+    ** If the grammar is wrong, please understand because I'm just a kid 🍵.
+*/
+
 /!-[ Max Cpu Speed ]-!/
 
 process.env.UV_THREADPOOL_SIZE = require('os').cpus().length;
 
 /!-[ Global Set ]-!/
 
-global.isThread = new Array();
-global.isUser = new Array();
-global.startTime = Date.now();
-global.Setting = new Map();
-global.Require = new Object({
-    utils: require("./utils"),
-    fs: require("fs"),
-    languageFile: require('./Language/index.json'),
-    getText: require('gettext.js')(),
-    log: require("npmlog"),
-    Fetch: require('got'),
-    logger: require('./logger')
-}); 
-global.Data = new Object({
-    ObjFastConfig: {
-        "Language": "vi",
-        "PreKey": "",
-        "MainColor": "#9900FF",
-        "MainName": "[ FCA-HZI ]",
-        "Uptime": false,
-        "BroadCast": true,
-        "EncryptFeature": true,
-        "AutoRestartMinutes": 0
+global.Fca = new Object({
+    isThread: new Array(),
+    isUser: new Array(),
+    startTime: Date.now(),
+    Setting: new Map(),
+    Require: new Object({
+        utils: require("./utils"),
+        fs: require("fs"),
+        languageFile: require('./Language/index.json'),
+        log: require("npmlog"),
+        Fetch: require('got'),
+        logger: require('./logger'),
+        NodeCache: require( "node-cache"),
+        Security: require("uuid-apikey")
+    }),
+    getText: function(...Data) {
+        var Main = (Data.splice(0,1)).toString();
+        for (let i = 0; i < Data.length; i++) Main = Main.replace(RegExp(`%${i + 1}`, 'g'), Data[i]);
+        return Main;
     },
-    AppState: null,
-    event: null,
-    CountTime: function CountTime() {
-        var fs = global.Require.fs;
-        if (fs.existsSync(__dirname + '/CountTime.json')) {
-            var data = Number(fs.readFileSync(__dirname + '/CountTime.json', 'utf8')),
-            hours = Math.floor(data / (60 * 60)),
-            minutes = Math.floor((data % (60 * 60)) / 60),
-            seconds = Math.floor(data % 60);
+    Data: new Object({
+        ObjFastConfig: {
+            "Language": "vi",
+            "PreKey": "",
+            "MainColor": "#9900FF",
+            "MainName": "[ FCA-HZI ]",
+            "Uptime": false,
+            "BroadCast": true,
+            "EncryptFeature": true,
+            "AutoRestartMinutes": 0,
+            "HTML": {
+                "UserName": "Guest",
+                "MusicLink": "https://drive.google.com/uc?id=1zlAALlxk1TnO7jXtEP_O6yvemtzA2ukA&export=download"
+            }
+        },
+        CountTime: function() {
+            var fs = global.Fca.Require.fs;
+            if (fs.existsSync(__dirname + '/CountTime.json')) {
+                var data = Number(fs.readFileSync(__dirname + '/CountTime.json', 'utf8')),
+                hours = Math.floor(data / (60 * 60));
+            }
+            else {
+                hours = 0;
+            }
+            return `${hours} Hours`;
         }
-        else {
-            hours = 0,
-            minutes = 0,
-            seconds = 0;
-        }
-        return `${hours}h${minutes}m${seconds}s`;
-    }
+    })
 });
+
+/*
+global.Fca.Cache = new global.Fca.Require.NodeCache({ 
+    stdTTL: 5, 
+    checkperiod: 5 
+});
+*/
 
 /!-[ Check File To Run Process ]-!/
 
 try {
-    if (!global.Require.fs.existsSync('./FastConfigFca.json')) {
-        global.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(global.Data.ObjFastConfig, null, "\t"));
+    if (!global.Fca.Require.fs.existsSync('./FastConfigFca.json')) {
+        global.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(global.Fca.Data.ObjFastConfig, null, "\t"));
         process.exit(1);
     }
 
@@ -61,140 +83,209 @@ try {
     var DataLanguageSetting = require("../../FastConfigFca.json");
 }
 catch (e) {
-    global.Require.logger.onLogger('Detect Your FastConfigFca Settings Invalid!')
-    global.Require.logger.Error();
+    global.Fca.Require.logger.onLogger('Detect Your FastConfigFca Settings Invalid!')
+    global.Fca.Require.logger.Error();
     process.exit(0)
 }
 
-    if (global.Require.fs.existsSync('./FastConfigFca.json')) {
-        try {
-            if (DataLanguageSetting && !DataLanguageSetting.MainName) {
-                    DataLanguageSetting.MainName = "[ FCA-HZI ]";
-                global.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));        
+    if (global.Fca.Require.fs.existsSync('./FastConfigFca.json')) {
+        try { 
+            if (!DataLanguageSetting.HTML || global.Fca.Require.utils.getType(DataLanguageSetting.HTML) != 'Object') {
+                    DataLanguageSetting.HTML = {
+                        UserName: "Guest",
+                        MusicLink: "https://drive.google.com/uc?id=1zlAALlxk1TnO7jXtEP_O6yvemtzA2ukA&export=download",
+                    }
+                global.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));        
             }
         }
         catch (e) {
             console.log(e);
         }
-        if (!global.Require.languageFile.some(i => i.Language == DataLanguageSetting.Language)) { 
+        if (!global.Fca.Require.languageFile.some(i => i.Language == DataLanguageSetting.Language)) { 
             logger("Not Support Language: " + DataLanguageSetting.Language + " Only 'en' and 'vi'","[ FCA-HZI ]");
             process.exit(0); 
         }
-        var Language = global.Require.languageFile.find(i => i.Language == DataLanguageSetting.Language).Folder.Index;
-        global.Require.Language = global.Require.languageFile.find(i => i.Language == DataLanguageSetting.Language).Folder;
+        var Language = global.Fca.Require.languageFile.find(i => i.Language == DataLanguageSetting.Language).Folder.Index;
+        global.Fca.Require.Language = global.Fca.Require.languageFile.find(i => i.Language == DataLanguageSetting.Language).Folder;
     }
     else process.exit(1);
-        if (global.Require.utils.getType(DataLanguageSetting.BroadCast) != "Boolean" && DataLanguageSetting.BroadCast != undefined) {
-            global.Require.log.warn("FastConfig-BroadCast", global.Require.getText.gettext(Language.IsNotABoolean,DataLanguageSetting.BroadCast));
+        if (global.Fca.Require.utils.getType(DataLanguageSetting.BroadCast) != "Boolean" && DataLanguageSetting.BroadCast != undefined) {
+            global.Fca.Require.log.warn("FastConfig-BroadCast", global.Fca.getText(Language.IsNotABoolean,DataLanguageSetting.BroadCast));
             process.exit(0)
         }
     else if (DataLanguageSetting.Uptime == undefined || DataLanguageSetting.AutoRestartMinutes == undefined) {
-        global.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(global.Data.ObjFastConfig, null, "\t"));
+        global.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(global.Fca.Data.ObjFastConfig, null, "\t"));
         process.exit(1);
     }
-    global.Require.FastConfig = require("../../FastConfigFca.json");
+    global.Fca.Require.FastConfig = DataLanguageSetting;
 }
 catch (e) {
     console.log(e);
-    global.Require.logger.Error();
+    global.Fca.Require.logger.Error();
 }
 
 /!-[ Require All Package Need Use ]-!/
 
-var utils = global.Require.utils,
-    logger = global.Require.logger,
-    fs = global.Require.fs,
-    getText = global.Require.getText,
-    log = global.Require.log,
-    Fetch = global.Require.Fetch,
+var utils = global.Fca.Require.utils,
+    logger = global.Fca.Require.logger,
+    fs = global.Fca.Require.fs,
+    getText = global.Fca.getText,
+    log = global.Fca.Require.log,
+    Fetch = global.Fca.Require.Fetch,
+    http = require("http"),
+    { join } = require('path'),
     cheerio = require("cheerio"),
     StateCrypt = require('./StateCrypt'),
-    Client = require("@replit/database");
+    Client = require("@replit/database"),
+    { readFileSync } = require('fs-extra'),
+    Database = require("./Extra/Database/index");
+    
 
 /!-[ Set Variable For Process ]-!/
 
 log.maxRecordSize = 100;
 var checkVerified = null;
+var Boolean_Option = ['online','selfListen','listenEvents','updatePresence','forceLogin','autoMarkDelivery','autoMarkRead','listenTyping','autoReconnect','emitReady'];
+
+/!-[ Premium Check ]-!/
+
+var Premium = require("./Extra/Src/Premium");
+(async function() {
+    global.Fca.Data.PremText = await Premium();
+})();
+
+/!-[ Set And Check Template HTML ]-!/
+
+var css = readFileSync(join(__dirname, 'Extra', 'Html', 'Classic', 'style.css'));
+var js = readFileSync(join(__dirname, 'Extra', 'Html', 'Classic', 'script.js'));
+
+/!-[ Function Generate HTML Template ]-!/
+
+function ClassicHTML(UserName,Type,link) {
+    return `<!DOCTYPE html>
+    <html lang="en" >
+        <head>
+        <meta charset="UTF-8">
+        <title>Horizon</title>
+        <link rel="stylesheet" href="./style.css">
+    </head>
+    <body>
+        <center>
+            <marquee><b>On May 30, 2022 We will be handing out gifts on fca-horizon-remake anniversary!</b></marquee>
+            <h2>Horizon User Infomation</h2>
+            <h3>UserName: ${UserName} | Type: ${Type}</h3>
+            <canvas id="myCanvas"></canvas>
+            <script  src="./script.js"></script>
+            <footer class="footer">
+                <div id="music">
+                    <audio autoplay="true" controls="true" loop="true" src="${link}" __idm_id__="5070849">Your browser does not support the audio element.</audio>
+                    <br><b>Session ID:</b> ${global.Fca.Require.Security.create().uuid}<br>
+                    <br>Thanks For Using <b>Fca-Horizon-Remake</b> - From <b>Kanzu</b> <3<br>
+                </div>
+            </footer>
+            </div>
+        </center>
+    </html>
+    </body>`
+}
+
+
+/!-[ Stating Http Infomation ]-!/
+
+global.Fca.Require.Web = http.createServer(function (request, res) {
+    switch (request.url) {
+        case "/style.css": {
+            res.writeHead(200, "OK", { "Content-Type": "text/css" });
+                res.write(css);
+            break;
+        }
+        case "/script.js": {
+            res.writeHead(200, "OK", { "Content-Type": "text/javascript" });
+                res.write(js);
+            break;
+        }
+        default: {
+            res.writeHead(200, "OK", { "Content-Type": "text/html" });
+            res.write(ClassicHTML(global.Fca.Require.FastConfig.HTML.UserName, global.Fca.Data.PremText.includes("Premium") ? "Premium": "Free", global.Fca.Require.FastConfig.HTML.MusicLink));
+        }
+    }
+    res.end()
+});
 
 /!-[ Function setOptions ]-!/
 
 function setOptions(globalOptions, options) {
     Object.keys(options).map(function(key) {
-        switch (key) {
-            case 'pauseLog':
-                if (options.pauseLog) log.pause();
+        switch (Boolean_Option.includes(key)) {
+            case true: {
+                globalOptions[key] = Boolean(options[key]);
                 break;
-            case 'online':
-                globalOptions.online = Boolean(options.online);
-                break;
-            case 'logLevel':
-                log.level = options.logLevel;
-                globalOptions.logLevel = options.logLevel;
-                break;
-            case 'logRecordSize':
-                log.maxRecordSize = options.logRecordSize;
-                globalOptions.logRecordSize = options.logRecordSize;
-                break;
-            case 'selfListen':
-                globalOptions.selfListen = Boolean(options.selfListen);
-                break;
-            case 'listenEvents':
-                globalOptions.listenEvents = Boolean(options.listenEvents);
-                break;
-            case 'pageID':
-                globalOptions.pageID = options.pageID.toString();
-                break;
-            case 'updatePresence':
-                globalOptions.updatePresence = Boolean(options.updatePresence);
-                break;
-            case 'forceLogin':
-                globalOptions.forceLogin = Boolean(options.forceLogin);
-                break;
-            case 'userAgent':
-                globalOptions.userAgent = (options.userAgent || 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/600.3.18 (KHTML, like Gecko) Version/8.0.3');
-                break;
-            case 'autoMarkDelivery':
-                globalOptions.autoMarkDelivery = Boolean(options.autoMarkDelivery);
-                break;
-            case 'autoMarkRead':
-                globalOptions.autoMarkRead = Boolean(options.autoMarkRead);
-                break;
-            case 'listenTyping':
-                globalOptions.listenTyping = Boolean(options.listenTyping);
-                break;
-            case 'proxy':
-                if (typeof options.proxy != "string") {
-                    delete globalOptions.proxy;
-                    utils.setProxy();
-                } else {
-                    globalOptions.proxy = options.proxy;
-                    utils.setProxy(globalOptions.proxy);
+            }
+            case false: {
+                switch (key) {
+                    case 'pauseLog': {
+                        if (options.pauseLog) log.pause();
+                            else log.resume();
+                        break;
+                    }
+                    case 'logLevel': {
+                        log.level = options.logLevel;
+                            globalOptions.logLevel = options.logLevel;
+                        break;
+                    }
+                    case 'logRecordSize': {
+                        log.maxRecordSize = options.logRecordSize;
+                            globalOptions.logRecordSize = options.logRecordSize;
+                        break;
+                    }
+                    case 'pageID': {
+                        globalOptions.pageID = options.pageID.toString();
+                        break;
+                    }
+                    case 'userAgent': {
+                        globalOptions.userAgent = (options.userAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36');
+                        break;
+                    }
+                    case 'proxy': {
+                        if (typeof options.proxy != "string") {
+                            delete globalOptions.proxy;
+                            utils.setProxy();
+                        } else {
+                            globalOptions.proxy = options.proxy;
+                            utils.setProxy(globalOptions.proxy);
+                        }
+                        break;
+                    }
+                    default: {
+                        log.warn("setOptions", "Unrecognized option given to setOptions: " + key);
+                        break;
+                    }
                 }
-                break;
-            case 'autoReconnect':
-                globalOptions.autoReconnect = Boolean(options.autoReconnect);
-                break;
-            case 'emitReady':
-                globalOptions.emitReady = Boolean(options.emitReady);
-                break;
-            default:
-                log.warn("setOptions", "Unrecognized option given to setOptions: " + key);
-                break;
+            break;
+            }
         }
     });
 }
 
 /!-[ Function BuildAPI ]-!/
 
-function buildAPI(globalOptions, html, jar) {
-    var maybeCookie = jar.getCookies("https://www.facebook.com").filter(function(val) { return val.cookieString().split("=")[0] === "c_user"; });
+async function buildAPI(globalOptions, html, jar) {
 
-    if (maybeCookie.length === 0) throw { error: Language.ErrAppState };
+var userID;
+    (await jar.getCookiesSync("https://www.facebook.com")).map(function(val) {
+        if (require('cookie').parse(String(val)).c_user != undefined) {
+            return userID = String(require('cookie').parse(String(val)).c_user);
+        }
+    })
 
-    if (html.indexOf("/checkpoint/block/?next") > -1) log.warn("login", Language.CheckPointLevelI);
-
-    var userID = maybeCookie[0].cookieString().split("=")[1].toString();
-    logger(getText.gettext(Language.UID,userID));
+    if (userID.length === 0) throw { 
+        error: Language.ErrAppState 
+    };
+    else if (html.indexOf("/checkpoint/block/?next") > -1) {
+        log.warn("login", Language.CheckPointLevelI);
+    }
+    
+    logger(getText(Language.UID,String(userID)));
     process.env['UID'] = userID;
 
     try {
@@ -205,38 +296,39 @@ function buildAPI(globalOptions, html, jar) {
 
     var clientID = (Math.random() * 2147483648 | 0).toString(16);
 
-    let oldFBMQTTMatch = html.match(/irisSeqID:"(.+?)",appID:219994525426954,endpoint:"(.+?)"/);
-    let mqttEndpoint = null;
-    let region = null;
-    let irisSeqID = null;
-    var noMqttData = null;
-
-    if (oldFBMQTTMatch) {
-        irisSeqID = oldFBMQTTMatch[1];
-        mqttEndpoint = oldFBMQTTMatch[2];
-        region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
-        logger(getText.gettext(Language.Area,region));
-    } else {
-        let newFBMQTTMatch = html.match(/{"app_id":"219994525426954","endpoint":"(.+?)","iris_seq_id":"(.+?)"}/);
-        if (newFBMQTTMatch) {
-            irisSeqID = newFBMQTTMatch[2];
-            mqttEndpoint = newFBMQTTMatch[1].replace(/\\\//g, "/");
-            region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
-            logger(getText.gettext(Language.Area,region));
-        } else {
-            let legacyFBMQTTMatch = html.match(/(\["MqttWebConfig",\[\],{fbid:")(.+?)(",appID:219994525426954,endpoint:")(.+?)(",pollingEndpoint:")(.+?)(3790])/);
-            if (legacyFBMQTTMatch) {
-                mqttEndpoint = legacyFBMQTTMatch[4];
-                region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
-                log.warn("login", `Cannot get sequence ID with new RegExp. Fallback to old RegExp (without seqID)...`);
-                logger(getText.gettext(Language.Area,region));
-                logger("login", `[Unused] Polling endpoint: ${legacyFBMQTTMatch[6]}`);
-            } else {
-                log.warn("login", getText.gettext(Language.NoAreaData));
-                noMqttData = html;
-            }
-        }
+    var CHECK_MQTT = {
+        oldFBMQTTMatch: html.match(/irisSeqID:"(.+?)",appID:219994525426954,endpoint:"(.+?)"/),
+        newFBMQTTMatch: html.match(/{"app_id":"219994525426954","endpoint":"(.+?)","iris_seq_id":"(.+?)"}/),
+        legacyFBMQTTMatch: html.match(/(\["MqttWebConfig",\[\],{fbid:")(.+?)(",appID:219994525426954,endpoint:")(.+?)(",pollingEndpoint:")(.+?)(3790])/)
     }
+
+    let Slot = Object.keys(CHECK_MQTT);
+    
+    var mqttEndpoint,region,irisSeqID;
+    Object.keys(CHECK_MQTT).map(function(MQTT) {
+        if (CHECK_MQTT[MQTT] && !region) {
+            switch (Slot.indexOf(MQTT)) {
+                case 0: {
+                    irisSeqID = CHECK_MQTT[MQTT][1];
+                        mqttEndpoint = CHECK_MQTT[MQTT][2];
+                        region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
+                    return;
+                }
+                case 1: {
+                    irisSeqID = CHECK_MQTT[MQTT][2];
+                        mqttEndpoint = CHECK_MQTT[MQTT][1].replace(/\\\//g, "/");
+                        region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
+                    return;
+                }
+                case 2: {
+                    mqttEndpoint = CHECK_MQTT[MQTT][4];
+                        region = new URL(mqttEndpoint).searchParams.get("region").toUpperCase();
+                    return;
+                }
+            }
+        return;
+        }
+    });
 
     var ctx = {
         userID: userID,
@@ -249,38 +341,45 @@ function buildAPI(globalOptions, html, jar) {
         mqttClient: undefined,
         lastSeqId: irisSeqID,
         syncToken: undefined,
-        mqttEndpoint,
-        region,
+        mqttEndpoint: mqttEndpoint,
+        region: region,
         firstListen: true
     };
 
     var api = {
         setOptions: setOptions.bind(null, globalOptions),
         getAppState: function getAppState() {
-            return utils.getAppState(jar);
+            return utils.getAppState(jar,ctx);
         }
     };
 
-    if (noMqttData) api["htmlData"] = noMqttData;
-
-    const apiFuncNames = fs.readdirSync(__dirname + "/src").filter((File) => File.endsWith(".js") && !File.includes('Dev'));
+    if (region && mqttEndpoint) {
+        // do something
+    }
+    else {
+        log.warn("login", getText(Language.NoAreaData));
+        api["htmlData"] = html;
+    }
 
     var defaultFuncs = utils.makeDefaults(html, userID, ctx);
 
-    // Load all api functions in a loop
-    apiFuncNames.map(v => api[v.replace(".js","")] = require('./src/' + v)(defaultFuncs, api, ctx));
-    return [ctx, defaultFuncs, api];
+    fs.readdirSync(__dirname + "/src")
+    .filter((File) => File.endsWith(".js") && !File.includes('Dev_'))
+    .map((File) => api[File.split('.').slice(0, -1).join('.')] = require('./src/' + File)(defaultFuncs, api, ctx));
+
+    return {
+        ctx,
+        defaultFuncs, 
+        api
+    };
 }
 
 /!-[ Function makeLogin ]-!/
 
 function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
     return function(res) {
-        var html = res.body;
-        var $ = cheerio.load(html);
-        var arr = [];
+        var html = res.body,$ = cheerio.load(html),arr = [];
 
-        // This will be empty, but just to be sure we leave it
         $("#login_form input").map((i, v) => arr.push({ val: $(v).val(), name: $(v).attr("name") }));
 
         arr = arr.filter(function(v) {
@@ -288,39 +387,39 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
         });
 
         var form = utils.arrToForm(arr);
-        form.lsd = utils.getFrom(html, "[\"LSD\",[],{\"token\":\"", "\"}");
-        form.lgndim = Buffer.from("{\"w\":1440,\"h\":900,\"aw\":1440,\"ah\":834,\"c\":24}").toString('base64');
-        form.email = email;
-        form.pass = password;
-        form.default_persistent = '0';
-        form.lgnrnd = utils.getFrom(html, "name=\"lgnrnd\" value=\"", "\"");
-        form.locale = 'en_US';
-        form.timezone = '240';
-        form.lgnjs = ~~(Date.now() / 1000);
+            form.lsd = utils.getFrom(html, "[\"LSD\",[],{\"token\":\"", "\"}");
+            form.lgndim = Buffer.from("{\"w\":1440,\"h\":900,\"aw\":1440,\"ah\":834,\"c\":24}").toString('base64');
+            form.email = email;
+            form.pass = password;
+            form.default_persistent = '0';
+            form.lgnrnd = utils.getFrom(html, "name=\"lgnrnd\" value=\"", "\"");
+                switch (global.Fca.Require.FastConfig.Language) {
+                    case "en": {
+                        form.locale = 'en_US';
+                        break;
+                    }
+                    case "vi": {
+                        form.locale = 'vi_VN'; // locale vi_VN sẽ dành cho người việt de tranh bay acc
+                        break;
+                    }
+                    default: {
+                        form.locale = 'en_US';
+                        break;
+                    }
+                }
+            form.timezone = '240';
+            form.lgnjs = ~~(Date.now() / 1000);
 
-
-        // Getting cookies from the HTML page... (kill me now plz)
-        // we used to get a bunch of cookies in the headers of the response of the
-        // request, but FB changed and they now send those cookies inside the JS.
-        // They run the JS which then injects the cookies in the page.
-        // The "solution" is to parse through the html and find those cookies
-        // which happen to be conveniently indicated with a _js_ in front of their
-        // variable name.
-        //
-        // ---------- Very Hacky Part Starts -----------------
-        var willBeCookies = html.split("\"_js_");
-        willBeCookies.slice(1).map(function(val) {
-            var cookieData = JSON.parse("[\"" + utils.getFrom(val, "", "]") + "]");
-            jar.setCookie(utils.formatCookie(cookieData, "facebook"), "https://www.facebook.com");
+        html.split("\"_js_").slice(1).map((val) => {
+            jar.setCookieSync(utils.formatCookie(JSON.parse("[\"" + utils.getFrom(val, "", "]") + "]"), "facebook"),"https://www.facebook.com")
         });
-        // ---------- Very Hacky Part Ends -----------------
 
         logger(Language.OnLogin);
         return utils
             .post("https://www.facebook.com/login/device-based/regular/login/?login_attempt=1&lwv=110", jar, form, loginOptions)
             .then(utils.saveCookies(jar))
             .then(function(res) {
-                var headers = res.headers;
+                var headers = res.headers;  
                 if (!headers.location) throw { error: Language.InvaildAccount };
 
                 // This means the account has login approvals turned on.
@@ -332,17 +431,13 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                         .get(headers.location, jar, null, loginOptions)
                         .then(utils.saveCookies(jar))
                         .then(function(res) {
-                            var html = res.body;
-                            // Make the form in advance which will contain the fb_dtsg and nh
-                            var $ = cheerio.load(html);
-                            var arr = [];
+                            var html = res.body,$ = cheerio.load(html), arr = [];
+
                             $("form input").map((i, v) => arr.push({ val: $(v).val(), name: $(v).attr("name") }));
 
-                            arr = arr.filter(function(v) {
-                                return v.val && v.val.length;
-                            });
-
+                            arr = arr.filter(v => { return v.val && v.val.length });
                             var form = utils.arrToForm(arr);
+
                             if (html.indexOf("checkpoint/?next") > -1) {
                                 setTimeout(() => {
                                     checkVerified = setInterval((_form) => {}, 5000, {
@@ -351,17 +446,16 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                         dpr: 1
                                     });
                                 }, 2500);
+
                                 throw {
                                     error: 'login-approval',
                                     continue: function submit2FA(code) {
                                         form.approvals_code = code;
                                         form['submit[Continue]'] = $("#checkpointSubmitButton").html(); //'Continue';
-                                        var prResolve = null;
-                                        var prReject = null;
-                                        var rtPromise = new Promise(function(resolve, reject) {
-                                            prResolve = resolve;
-                                            prReject = reject;
-                                        });
+                                        var prResolve,prReject;
+
+                                        var rtPromise = new Promise((resolve, reject) => { prResolve = resolve; prReject = reject; });
+
                                         if (typeof code == "string") {
                                             utils
                                                 .post(nextURL, jar, form, loginOptions)
@@ -378,11 +472,11 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                         };
                                                     }
                                                 })
+
                                                 .then(function() {
-                                                    // Use the same form (safe I hope)
-                                                    delete form.no_fido;
-                                                    delete form.approvals_code;
-                                                    form.name_action_selected = 'save_device'; //'save_device' || 'dont_save;
+                                                    delete form.no_fido;delete form.approvals_code;
+
+                                                    form.name_action_selected = 'dont_save'; //'save_device' || 'dont_save;
 
                                                     return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
                                                 })
@@ -399,12 +493,9 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                         };
                                                     }
 
-                                                    // Simply call loginHelper because all it needs is the jar
-                                                    // and will then complete the login process
                                                     return loginHelper(appState, email, password, loginOptions, callback);
                                                 })
                                                 .catch(function(err) {
-                                                    // Check if using Promise instead of callback
                                                     if (callback === prCallback) prReject(err);
                                                     else callback(err);
                                                 });
@@ -413,7 +504,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                 .post("https://www.facebook.com/checkpoint/?next=https%3A%2F%2Fwww.facebook.com%2Fhome.php", jar, form, loginOptions, null, { "Referer": "https://www.facebook.com/checkpoint/?next" })
                                                 .then(utils.saveCookies(jar))
                                                 .then(res => {
-                                                    try {
+                                                    try { 
                                                         JSON.parse(res.body.replace(/for\s*\(\s*;\s*;\s*\)\s*;\s*/, ""));
                                                     } catch (ex) {
                                                         clearInterval(checkVerified);
@@ -446,8 +537,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                     .post(nextURL, jar, form, loginOptions)
                                     .then(utils.saveCookies(jar))
                                     .then(function() {
-                                        // Use the same form (safe I hope)
-                                        form.name_action_selected = 'save_device';
+                                        form.name_action_selected = 'dont_save';
 
                                         return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
                                     })
@@ -458,8 +548,6 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
 
                                         var appState = utils.getAppState(jar);
 
-                                        // Simply call loginHelper because all it needs is the jar
-                                        // and will then complete the login process
                                         return loginHelper(appState, email, password, loginOptions, callback);
                                     })
                                     .catch(e => callback(e));
@@ -475,456 +563,511 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
 /!-[ Function makeid ]-!/
 
 function makeid(length) {
-    var result           = '';
-    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    var charactersLength = characters.length;
-    for ( var i = 0; i < length; i++ ) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    var result,
+    characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+    charactersLength = characters.length;
+        for ( var i = 0; i < length; i++ ) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+    return result;
+}
+
+/!-[ Async Function backup ]-!/
+
+function backup(data,globalOptions, callback, prCallback) {
+    try {
+        var appstate;
+        try {
+            appstate = JSON.parse(data)
+        }
+        catch(e) {
+            appstate = data;
+        }
+        logger(Language.BackupNoti,"[ FCA-HZI ]");
+        try {
+            loginHelper(appstate,null,null,globalOptions, callback, prCallback)
+        }
+        catch (e) {
+            logger(Language.ErrBackup);
+            process.exit(0);
+        }
     }
-return result;
+    catch (e) {
+        return logger.Error();
+    }
 }
 
 /!-[ async function loginHelper ]-!/
 
 async function loginHelper(appState, email, password, globalOptions, callback, prCallback) {
     var mainPromise = null;
-    var jar = utils.getJar();
+    var jar = utils.getJar;
 
-    // If we're given an appState we loop through it and save each cookie
-    // back into the jar.
+    if (fs.existsSync('./backupappstate.json')) {
+        fs.unlinkSync('./backupappstate.json');
+    }
+
 try {
     if (appState) {
-    logger(Language.OnProcess);
-        var backup = async(data) => {
-            if (fs.existsSync('./appstate.json')) {
-                try {
-                    fs.writeFileSync('./appstate.json', data);
-                }
-                catch(e) {
-                    fs.writeFileSync('./appstate.json', JSON.stringify(data, null, "\t"));
-                }
-                logger(Language.BackupNoti,"[ FCA-HZI ]");
-                await new Promise(resolve => setTimeout(resolve, 5*1000));
-                process.exit(1);
-            }
-            else if (fs.existsSync('./Facebook.json')) {
-                try {
-                    fs.writeFileSync('./Facebook.json', data);
-                }
-                catch (e) {
-                    fs.writeFileSync('./Facebook.json', JSON.stringify(data, null, "\t"));
-                }
-                logger(Language.BackupNoti,"[ FCA-HZI ]");
-                await new Promise(resolve => setTimeout(resolve, 5*1000));
-                process.exit(1);
-            }
-            else if (fs.existsSync('fbstate.json')) {
-                try {
-                    fs.writeFileSync('./fbstate.json', data);
-                }
-                catch (e) {
-                    fs.writeFileSync('./fbstate.json', JSON.stringify(data), null, "\t");
-                }
-                logger(Language.BackupNoti,"[ FCA-HZI ]");
-                await new Promise(resolve => setTimeout(resolve, 5*1000));
-                process.exit(1);
-            }
-            else return logger.Error();
-        }
-
-        switch (process.platform) {
-            case "win32": {
-                try {
-                    var { body } = await Fetch('https://decrypt-appstate-production.up.railway.app/getKey');
-                    process.env['FBKEY'] = JSON.parse(body).Data;
-                }
-                catch (e) {
-                    logger(Language.ErrGetPassWord);
-                    logger.Error();
-                    process.exit(1);
-                }
-            }
-                break;
-            case "linux": {
-                if (process.env["REPL_ID"] == undefined) {
-                    try {
-                        var { body } = await Fetch.get('https://decrypt-appstate-production.up.railway.app/getKey');
-                        process.env['FBKEY'] = JSON.parse(body).Data;
-                    }
-                    catch (e) {
-                        logger(Language.ErrGetPassWord, '[ FCA-HZI ]');
-                        logger.Error();
-                        process.exit(1);
-                    }
-                }
-                else {
-                    try {
-                        const client = new Client();
-                        let key = await client.get("FBKEY");
-                        if (!key) {
-                            await client.set("FBKEY", makeid(49));
-                            let key = await client.get("FBKEY");
-                            process.env['FBKEY'] = key;
-                        } else {
-                            process.env['FBKEY'] = key;
+        logger(Language.OnProcess);
+            switch (process.platform) {
+                case "android":
+                    case "win32": {
+                        try {
+                            switch (Database.has("FBKEY")) {
+                                case true: {
+                                    process.env['FBKEY'] = Database.get("FBKEY");
+                                }
+                                    break;
+                                case false: {
+                                    const SecurityKey = global.Fca.Require.Security.create().apiKey;
+                                        process.env['FBKEY'] = SecurityKey;
+                                    Database.set('FBKEY', SecurityKey);
+                                }
+                                    break;
+                                default: {
+                                    const SecurityKey = global.Fca.Require.Security.create().apiKey;
+                                        process.env['FBKEY'] = SecurityKey;
+                                    Database.set('FBKEY', SecurityKey);
+                                }
+                            }   
                         }
-                    }
-                    catch (e) {
-                        logger(Language.ErrGenerateKey, '[ FCA-HZI ]');
-                        logger(e, '[ FCA-HZI ]');
-                        logger.Error();
-                        process.exit(0)
-                    }
-                }
-            }
-                break;
-            case "android": {
-                try {
-                    var { body } = await Fetch.get('https://decrypt-appstate-production.up.railway.app/getKey');
-                    process.env['FBKEY'] = JSON.parse(body).Data;
-                }
-                catch (e) {
-                    logger(Language.ErrGetPassWord, '[ FCA-HZI ]');
-                    return logger.Error();
-                }
-            }
-                break;
-            default: {
-                logger(Language.UnsupportedDevice, '[ FCA-HZI ]');
-                logger.Error();
-                process.exit(0);
-            }
-        }
-
-        try {
-            switch (require("../../FastConfigFca.json").EncryptFeature) {
-                case true: {
-                    appState = JSON.parse(JSON.stringify(appState, null, "\t"));
-                    switch (utils.getType(appState)) {
-                        case "Array": {
-                            logger(Language.NotReadyToDecrypt, '[ FCA-HZI ]');
-                        }
-                            break;
-                        case "String": {
+                        catch (e) {
                             try {
-                                appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
-                                logger(Language.DecryptSuccess, '[ FCA-HZI ]');
+                                const SecurityKey = global.Fca.Require.Security.create().apiKey;
+                                    process.env['FBKEY'] = SecurityKey;
+                                Database.set('FBKEY', SecurityKey);
                             }
                             catch (e) {
-                                if (process.env.Backup != undefined && process.env.Backup) {
-                                backup(process.env.Backup);
+                                logger(Language.ErrGetPassWord);
+                                logger.Error();
+                                process.exit(1);
                             }
-                            else switch (process.platform) {
-                                case "win32": {
-                                    try {
-                                        if (fs.existsSync('./backupappstate.json')) {
-                                            let content = fs.readFileSync('./backupappstate.json','utf8');
-                                            return backup(content);
-                                        }
-                                    }
-                                    catch (e) {
-                                        logger(Language.ErrBackup, '[ FCA-HZI ]');
-                                        logger.Error();
-                                        process.exit(0);
-                                    }
-                                }
-                                    break;
-                                case "linux": {
-                                    if (process.env["REPL_ID"] == undefined) {
-                                        try {
-                                            if (fs.existsSync('./backupappstate.json')) {
-                                                let content = fs.readFileSync('./backupappstate.json','utf8');
-                                                return backup(content);
-                                            }
-                                        }
-                                        catch (e) {
-                                            logger(Language.ErrBackup, '[ FCA-HZI ]');
-                                            logger.Error();
-                                            process.exit(0);
-                                        }
-                                    }
-                                    else {
-                                        try {
-                                            const client = new Client();
-                                            let key = await client.get("Backup");
-                                            if (key) {
-                                                return backup(JSON.stringify(key));
-                                            }
-                                            else {
-                                            logger(Language.ErrBackup, '[ FCA-HZI ]');
-                                            }
-                                        }
-                                        catch (e) {
-                                            logger(Language.ErrBackup, '[ FCA-HZI ]');
-                                        }
-                                    }
-                                }
-                                    break;
-                                case "android": {
-                                    try {
-                                        if (fs.existsSync('./backupappstate.json')) {
-                                            let content = fs.readFileSync('./backupappstate.json','utf8');
-                                            return backup(content);
-                                        }
-                                    }
-                                    catch (e) {
-                                        logger(Language.ErrBackup, '[ FCA-HZI ]');
-                                        logger.Error();
-                                        process.exit(0);
-                                    }
-                                }
-                            }
-                                logger(Language.DecryptFailed, '[ FCA-HZI ]');
-                                return logger.Error();
-                            }
-                            logger(getText.gettext(Language.YourAppStatePass,process.env.FBKEY), '[ FCA-HZI ]');
                         }
-                            break;
-                        default: {
-                            logger(Language.InvaildAppState);
-                            process.exit(0)
-                        }
-                    } 
-                }
-                    break;
-                case false: {
-                    switch (utils.getType(appState)) { 
-                        case "Array": {
-                            logger(Language.EncryptStateOff);
-                        }
-                            break;
-                        case "String": {
-                            logger(Language.EncryptStateOff);
+                    }
+                        break;
+                    case "linux": {
+                        if (process.env["REPL_ID"] == undefined) {
                             try {
-                                appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
-                                logger(Language.DecryptSuccess, '[ FCA-HZI ]');
+                                switch (Database.has("FBKEY")) {
+                                    case true: {
+                                        process.env['FBKEY'] = Database.get("FBKEY");
+                                    }
+                                        break;
+                                    case false: {
+                                        const SecurityKey = global.Fca.Require.Security.create().apiKey;
+                                            process.env['FBKEY'] = SecurityKey;
+                                        Database.set('FBKEY', SecurityKey);
+                                    }
+                                        break;
+                                    default: {
+                                        const SecurityKey = global.Fca.Require.Security.create().apiKey;
+                                            process.env['FBKEY'] = SecurityKey;
+                                        Database.set('FBKEY', SecurityKey);
+                                    }
+                                }   
                             }
                             catch (e) {
-                                if (process.env.Backup != undefined && process.env.Backup) {
-                                backup(process.env.Backup);
-                            }
-                            else switch (process.platform) {
-                                case "win32": {
-                                    try {
-                                        if (fs.existsSync('./backupappstate.json')) {
-                                            let content = fs.readFileSync('./backupappstate.json','utf8');
-                                            return backup(content);
-                                        }
-                                    }
-                                    catch (e) {
-                                        logger(Language.ErrBackup, '[ FCA-HZI ]');
-                                        logger.Error();
-                                        process.exit(0);
-                                    }
+                                try {
+                                    const SecurityKey = global.Fca.Require.Security.create().apiKey;
+                                        process.env['FBKEY'] = SecurityKey;
+                                    Database.set('FBKEY', SecurityKey);
                                 }
-                                    break;
-                                case "linux": {
-                                    if (process.env["REPL_ID"] == undefined) {
-                                        try {
-                                            if (fs.existsSync('./backupappstate.json')) {
-                                                let content = fs.readFileSync('./backupappstate.json','utf8');
-                                                return backup(content);
-                                            }
-                                        }
-                                        catch (e) {
-                                            logger(Language.ErrBackup, '[ FCA-HZI ]');
-                                            logger.Error();
-                                            process.exit(0);
-                                        }
-                                    }
-                                    else {
-                                        try {
-                                            const client = new Client();
-                                            let key = await client.get("Backup");
-                                            if (key) {
-                                                return backup(JSON.stringify(key));
-                                            }
-                                            else {
-                                            logger(Language.ErrBackup, '[ FCA-HZI ]');
-                                            }
-                                        }
-                                        catch (e) {
-                                            logger(Language.ErrBackup, '[ FCA-HZI ]');
-                                        }
-                                    }
+                                catch (e) {
+                                    logger(Language.ErrGetPassWord);
+                                    logger.Error();
+                                    process.exit(1);
                                 }
-                                    break;
-                                case "android": {
-                                    try {
-                                        if (fs.existsSync('./backupappstate.json')) {
-                                            let content = fs.readFileSync('./backupappstate.json','utf8');
-                                            return backup(content);
-                                        }
-                                    }
-                                    catch (e) {
-                                        logger(Language.ErrBackup, '[ FCA-HZI ]');
-                                        logger.Error();
-                                        process.exit(0);
-                                    }
-                                }
-                            }
-                                logger(Language.DecryptFailed, '[ FCA-HZI ]');
-                                return logger.Error();
                             }
                         }
-                            break;
-                        default: {
-                            logger(Language.InvaildAppState);
-                            process.exit(0)
+                        else {
+                            try {
+                                const client = new Client();
+                                    let key = await client.get("FBKEY");
+                                if (!key) {
+                                    await client.set("FBKEY", makeid(49));
+                                        let key = await client.get("FBKEY");
+                                    process.env['FBKEY'] = key;
+                                } else {
+                                    process.env['FBKEY'] = key;
+                                }
+                            }
+                            catch (e) {
+                                logger(Language.ErrGenerateKey);
+                                    logger(e);
+                                    logger.Error();
+                                process.exit(0)
+                            }
                         }
-                    }  
-                }
+                    }
                     break;
                 default: {
-                    logger(getText.gettext(Language.IsNotABoolean,require("../../FastConfigFca.json").EncryptFeature))
-                    process.exit(0);
-                }
-            }
-        }
-        catch (e) {
-            console.log(e);
-        }
-
-    try {
-        appState = JSON.parse(appState);
-    }
-    catch (e) {
-        try {
-            appState = appState;
-        }
-        catch (e) {
-            return logger.Error();
-        }
-    }
-    try {
-        global.Data.AppState = appState;
-        appState.map(function(c) {
-            var str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
-            jar.setCookie(str, "http://" + c.domain);
-        });
-        switch (process.platform) {
-            case "win32": {
-                try {
-                    fs.writeFileSync("./backupappstate.json", JSON.stringify(appState, null, "\t"));
-                    process.env.Backup = JSON.stringify(appState, null, "\t");
-                }
-                catch (e) {
-                    logger(Language.BackupFailed, '[ FCA-HZI ]');
-                }
-            }
-            break;
-            case "linux": {
-                if (process.env["REPL_ID"] == undefined) {
-                    try {
-                        fs.writeFileSync("./backupappstate.json", JSON.stringify(appState, null, "\t"));
-                        process.env.Backup = JSON.stringify(appState, null, "\t");
-                    }
-                    catch (e) {
-                        logger(Language.BackupFailed, '[ FCA-HZI ]');
-                    }
-                }
-                else {
-                    try {
-                        if (fs.existsSync('./backupappstate.json')) {
-                            fs.unlinkSync('./backupappstate.json');
-                        }
-                        const client = new Client();
-                        await client.set("Backup", appState);
-                        process.env.Backup = JSON.stringify(appState, null, "\t");
-                    }
-                    catch (e) {
-                        logger(Language.BackupFailed, '[ FCA-HZI ]');
-                    }
-                }
-            }
-            break;
-            case "android": {
-                try {
-                    fs.writeFileSync("./backupappstate.json", JSON.stringify(appState, null, "\t"));
-                    process.env.Backup = JSON.stringify(appState, null, "\t");
-                }
-                catch (e) {
-                    logger(Language.BackupFailed, '[ FCA-HZI ]');
-                }
-            }
-        }
-
-        mainPromise = utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true }).then(utils.saveCookies(jar));
-    } catch (e) {
-
-        if (process.env.Backup != undefined && process.env.Backup) {
-            return backup(process.env.Backup);
-        }
-        switch (process.platform) {
-            case "win32": {
-                try {
-                    if (fs.existsSync('./backupappstate.json')) {
-                        let content = fs.readFileSync('./backupappstate.json','utf8');
-                        return backup(content);
-                    }
-                }
-                catch (e) {
-                    logger(Language.ErrBackup, '[ FCA-HZI ]');
-                    logger.Error();
-                    process.exit(0);
-                }
-            }
-                break;
-            case "linux": {
-                if (process.env["REPL_ID"] == undefined) {
-                    try {
-                        if (fs.existsSync('./backupappstate.json')) {
-                            let content = fs.readFileSync('./backupappstate.json','utf8');
-                            return backup(content);
-                        }
-                    }
-                    catch (e) {
-                        logger(Language.ErrBackup, '[ FCA-HZI ]');
+                    logger(Language.UnsupportedDevice);
                         logger.Error();
+                    process.exit(0);
+                }
+            }
+            try {
+                switch (global.Fca.Require.FastConfig.EncryptFeature) {
+                    case true: {
+                        appState = JSON.parse(JSON.stringify(appState, null, "\t"));
+                        switch (utils.getType(appState)) {
+                            case "Array": {
+                                logger(Language.NotReadyToDecrypt);
+                            }
+                                break;
+                            case "Object": {
+                                try {
+                                    appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
+                                    logger(Language.DecryptSuccess);
+                                }
+                                catch (e) {
+                                    if (process.env.Backup != undefined && process.env.Backup) {
+                                    await backup(process.env.Backup,globalOptions, callback, prCallback);
+                                }
+                                else switch (process.platform) {
+                                    case "android":
+                                        case "win32": {
+                                            try {
+                                                if (Database.has('Backup')) {
+                                                    return await backup(Database.get('Backup'),globalOptions, callback, prCallback);
+                                                }
+                                                else {
+                                                    logger(Language.ErrBackup);
+                                                    process.exit(0);
+                                                }
+                                            }
+                                            catch (e) {
+                                                logger(Language.ErrBackup);
+                                                logger.Error();
+                                                process.exit(0);
+                                            }
+                                        }
+                                            break;
+                                        case "linux": {
+                                            if (process.env["REPL_ID"] == undefined) {
+                                                try {
+                                                    if (Database.has('Backup')) {
+                                                        return await  backup(Database.get('Backup'),globalOptions, callback, prCallback);
+                                                    }
+                                                    else {
+                                                        logger(Language.ErrBackup);
+                                                        process.exit(0);
+                                                    }
+                                                }
+                                                catch (e) {
+                                                    logger(Language.ErrBackup);
+                                                    logger.Error();
+                                                    process.exit(0);
+                                                }
+                                            }
+                                            else {
+                                                try {
+                                                    const client = new Client();
+                                                    let Data = await client.get("Backup");
+                                                    if (Data) {
+                                                        return await backup(JSON.stringify(Data),globalOptions, callback, prCallback);
+                                                    }
+                                                    else {
+                                                        logger(Language.ErrBackup);
+                                                    }
+                                                }
+                                                catch (e) {
+                                                    logger(Language.ErrBackup);
+                                                }
+                                            }
+                                        }
+                                    break;
+                                }
+                                    logger(Language.DecryptFailed);
+                                    return logger.Error();
+                                }
+                            }
+                                break;
+                            case "String": {
+                                try {
+                                    appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
+                                    logger(Language.DecryptSuccess);
+                                }
+                                catch (e) {
+                                    if (process.env.Backup != undefined && process.env.Backup) {
+                                    await backup(process.env.Backup,globalOptions, callback, prCallback);
+                                }
+                                else switch (process.platform) {
+                                    case "android":
+                                        case "win32": {
+                                            try {
+                                                if (Database.has('Backup')) {
+                                                    return await backup(Database.get('Backup'),globalOptions, callback, prCallback);
+                                                }
+                                                else {
+                                                    logger(Language.ErrBackup);
+                                                    process.exit(0);
+                                                }
+                                            }
+                                            catch (e) {
+                                                logger(Language.ErrBackup);
+                                                logger.Error();
+                                                process.exit(0);
+                                            }
+                                        }
+                                            break;
+                                        case "linux": {
+                                            if (process.env["REPL_ID"] == undefined) {
+                                                try {
+                                                    if (Database.has('Backup')) {
+                                                        return await  backup(Database.get('Backup'),globalOptions, callback, prCallback);
+                                                    }
+                                                    else {
+                                                        logger(Language.ErrBackup);
+                                                        process.exit(0);
+                                                    }
+                                                }
+                                                catch (e) {
+                                                    logger(Language.ErrBackup);
+                                                    logger.Error();
+                                                    process.exit(0);
+                                                }
+                                            }
+                                            else {
+                                                try {
+                                                    const client = new Client();
+                                                    let Data = await client.get("Backup");
+                                                    if (Data) {
+                                                        return await backup(JSON.stringify(Data),globalOptions, callback, prCallback);
+                                                    }
+                                                    else {
+                                                        logger(Language.ErrBackup);
+                                                    }
+                                                }
+                                                catch (e) {
+                                                    logger(Language.ErrBackup);
+                                                }
+                                            }
+                                        }
+                                    break;
+                                }
+                                    logger(Language.DecryptFailed);
+                                    return logger.Error();
+                                } 
+                            }
+                                break;
+                            default: {
+                                logger(Language.InvaildAppState);
+                                process.exit(0)
+                            }
+                        } 
+                    }
+                        break;
+                    case false: {
+                        switch (utils.getType(appState)) { 
+                            case "Array": {
+                                logger(Language.EncryptStateOff);
+                            }
+                                break;
+                            case "Object": {
+                                logger(Language.EncryptStateOff);
+                                try {
+                                    appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
+                                    logger(Language.DecryptSuccess);
+                                }
+                                catch (e) {
+                                    if (process.env.Backup != undefined && process.env.Backup) {
+                                        await backup(process.env.Backup,globalOptions, callback, prCallback);
+                                    }
+                                else switch (process.platform) {
+                                    case "android":
+                                        case "win32": {
+                                            try {
+                                                if (Database.has('Backup')) {
+                                                    return await backup(Database.get('Backup'),globalOptions, callback, prCallback);
+                                                }
+                                                else {
+                                                    logger(Language.ErrBackup);
+                                                    process.exit(0);
+                                                }
+                                            }
+                                            catch (e) {
+                                                logger(Language.ErrBackup);
+                                                logger.Error();
+                                                process.exit(0);
+                                            }
+                                        }
+                                            break;
+                                        case "linux": {
+                                            if (process.env["REPL_ID"] == undefined) {
+                                                try {
+                                                    if (Database.has('Backup')) {
+                                                        return await backup(Database.get('Backup'),globalOptions, callback, prCallback);
+                                                    }
+                                                    else {
+                                                        logger(Language.ErrBackup);
+                                                        process.exit(0);
+                                                    }
+                                                }
+                                                catch (e) {
+                                                    logger(Language.ErrBackup);
+                                                    logger.Error();
+                                                    process.exit(0);
+                                                }
+                                            }
+                                            else {
+                                                try {
+                                                    const client = new Client();
+                                                    let Data = await client.get("Backup");
+                                                    if (Data) {
+                                                        return await backup(JSON.stringify(Data),globalOptions, callback, prCallback);
+                                                    }
+                                                    else {
+                                                        logger(Language.ErrBackup);
+                                                    }
+                                                }
+                                                catch (e) {
+                                                    logger(Language.ErrBackup);
+                                                }
+                                            }
+                                        }
+                                    break;
+                                }
+                                    logger(Language.DecryptFailed);
+                                    return logger.Error();
+                                }
+                            }
+                                break;
+                            default: {
+                                logger(Language.InvaildAppState);
+                                process.exit(0)
+                            }
+                        } 
+                    }
+                        break;
+                    default: {
+                        logger(getText(Language.IsNotABoolean,global.Fca.Require.FastConfig.EncryptFeature))
                         process.exit(0);
                     }
                 }
-                else {
-                    try {
-                        const client = new Client();
-                        let key = await client.get("Backup");
-                        if (key) {
-                            backup(JSON.stringify(key));
+            }
+            catch (e) {
+                console.log(e);
+            }
+
+        try {
+            appState = JSON.parse(appState);
+        }
+        catch (e) {
+            try {
+                appState = appState;
+            }
+            catch (e) {
+                return logger.Error();
+            }
+        }
+        try {
+            global.Fca.Data.AppState = appState;
+                appState.map(function(c) {
+                    var str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
+                    jar.setCookieSync(str, "http://" + c.domain);
+                });
+            switch (process.platform) {
+                case "android":
+                    case "win32": {
+                        try {
+                            process.env.Backup = JSON.stringify(appState, null, "\t");
+                            Database.set('Backup', appState);
+                        }
+                        catch (e) {
+                            logger(Language.BackupFailed);
+                        }
+                    }
+                        break;
+                    case "linux": {
+                        if (process.env["REPL_ID"] == undefined) {
+                            try {
+                                process.env.Backup = JSON.stringify(appState, null, "\t");
+                                Database.set('Backup', appState);
+                            }
+                            catch (e) {
+                                logger(Language.BackupFailed);
+                            }
                         }
                         else {
-                            logger(Language.ErrBackup, '[ FCA-HZI ]');
+                            try {
+                                const client = new Client();
+                                    await client.set("Backup", appState);
+                                process.env.Backup = JSON.stringify(appState, null, "\t");
+                            }
+                            catch (e) {
+                                logger(Language.BackupFailed);
+                            }
                         }
                     }
-                    catch (e) {
-                        logger(Language.ErrBackup, '[ FCA-HZI ]');
-                    }
-                }
-            }
                 break;
-            case "android": {
-                try {
-                    if (fs.existsSync('./backupappstate.json')) {
-                        let content = fs.readFileSync('./backupappstate.json','utf8');
-                        return backup(content);
-                    }
-                }
-                catch (e) {
-                    logger(Language.ErrBackup, '[ FCA-HZI ]');
-                    logger.Error();
-                    process.exit(0);
-                }
             }
-            break;
-        }
-
+            mainPromise = utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true }).then(utils.saveCookies(jar));
+        } catch (e) {
+console.log(e)
+            if (process.env.Backup != undefined && process.env.Backup) {
+                return await backup(process.env.Backup,globalOptions, callback, prCallback);
+            }
+            switch (process.platform) {
+                case "android":
+                    case "win32": {
+                        try {
+                            if (Database.has('Backup')) {
+                                return await backup(Database.get('Backup'),globalOptions, callback, prCallback);
+                            }
+                            else {
+                                logger(Language.ErrBackup);
+                                process.exit(0);
+                            }
+                        }
+                        catch (e) {
+                            logger(Language.ErrBackup);
+                                logger.Error();
+                            process.exit(0);
+                        }
+                    }
+                    case "linux": {
+                        if (process.env["REPL_ID"] == undefined) {
+                            try {
+                                if (Database.has('Backup')) {
+                                    return await backup(Database.get('Backup'),globalOptions, callback, prCallback);
+                                }
+                                else {
+                                    logger(Language.ErrBackup);
+                                    process.exit(0);
+                                }
+                            }
+                            catch (e) {
+                                logger(Language.ErrBackup);
+                                    logger.Error();
+                                process.exit(0);
+                            }
+                        }
+                        else {
+                            try {
+                                const client = new Client();
+                                    let Data = await client.get("Backup");
+                                if (Data) {
+                                    return await backup(JSON.stringify(Data),globalOptions, callback, prCallback);
+                                }
+                                else {
+                                    logger(Language.ErrBackup);
+                                }
+                            }
+                            catch (e) {
+                                logger(Language.ErrBackup);
+                            }
+                        }
+                    }
+                break;
+            }
         console.log(e);
         return logger(Language.ScreenShotConsoleAndSendToAdmin, '[ FCA-HSP ]');
     }
 } else {
-        // Open the main page, then we login with the given credentials and finally
-        // load the main page again (it'll give us some IDs that we need)
-        mainPromise = utils
-            .get("https://www.facebook.com/", null, null, globalOptions, { noRef: true })
+    mainPromise = utils
+        .get("https://www.facebook.com/", null, null, globalOptions, { noRef: true })
             .then(utils.saveCookies(jar))
             .then(makeLogin(jar, email, password, globalOptions, callback, prCallback))
             .then(function() {
@@ -934,27 +1077,19 @@ try {
     } catch (e) {
         console.log(e);
     }
-            var ctx = null;
-            var _defaultFuncs = null;
-            var api = null;
-
+        var ctx,api;
             mainPromise = mainPromise
                 .then(function(res) {
-                    // Hacky check for the redirection that happens on some ISPs, which doesn't return statusCode 3xx
-                    var reg = /<meta http-equiv="refresh" content="0;url=([^"]+)[^>]+>/;
-                    var redirect = reg.exec(res.body);
-                    if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions).then(utils.saveCookies(jar));
+                    var reg = /<meta http-equiv="refresh" content="0;url=([^"]+)[^>]+>/,redirect = reg.exec(res.body);
+                        if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions).then(utils.saveCookies(jar));
                     return res;
                 })
                 .then(async function(res) {
-                    var html = res.body;
-                    var stuff = buildAPI(globalOptions, html, jar);
-                    ctx = stuff[0];
-                    _defaultFuncs = stuff[1];
-                    api = stuff[2];
+                    var html = res.body,Obj = await  buildAPI(globalOptions, html, jar);
+                        ctx = Obj.ctx;
+                        api = Obj.api;
                     return res;
                 });
-            // given a pageID we log in as a page
             if (globalOptions.pageID) {
                 mainPromise = mainPromise
                     .then(function() {
@@ -966,65 +1101,56 @@ try {
                         return utils.get('https://www.facebook.com' + url, ctx.jar, null, globalOptions);
                     });
             }
-
-           // At the end we call the callback or catch an exception
-            mainPromise
-                .then(function() {
-                    logger(Language.DoneLogin);
-                        logger(Language.AutoCheckUpdate);
-                            //!---------- Auto Check, Update START -----------------!//
-                        var Fetch = require('got');
-                    var { readFileSync } = require('fs-extra');
-                const { execSync } = require('child_process');
-            Fetch('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then(async (res) => {
-                const localbrand = JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version;
-                    if (Number(localbrand.replace(/\./g,"")) < Number(JSON.parse(res.body.toString()).version.replace(/\./g,""))) {
-                        log.warn("[ FCA-HZI ] •",getText.gettext(Language.NewVersionFound,JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version,JSON.parse(res.body.toString()).version));
-                        log.warn("[ FCA-HZI ] •",Language.AutoUpdate);
-                            try {
-                                execSync('npm install fca-horizon-remake@latest', { stdio: 'inherit' });
+        mainPromise
+            .then(function() {
+                var { readFileSync } = require('fs-extra');
+            const { execSync } = require('child_process');
+        Fetch('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then(async (res) => {
+            const localVersion = JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version;
+                if (Number(localVersion.replace(/\./g,"")) < Number(JSON.parse(res.body.toString()).version.replace(/\./g,""))) {
+                    log.warn("[ FCA-HZI ] •",getText(Language.NewVersionFound,JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version,JSON.parse(res.body.toString()).version));
+                    log.warn("[ FCA-HZI ] •",Language.AutoUpdate);
+                        try {
+                            execSync('npm install fca-horizon-remake@latest', { stdio: 'inherit' });
                                 logger(Language.UpdateSuccess,"[ FCA-HZI ]")
-                                logger(Language.RestartAfterUpdate, '[ FCA-HZI ]');
-                                await new Promise(resolve => setTimeout(resolve,5*1000));
+                                    logger(Language.RestartAfterUpdate);
+                                    await new Promise(resolve => setTimeout(resolve,5*1000));
                                 console.clear();process.exit(1);
                             }
                         catch (err) {
                             log.warn('Error Update: ' + err);
-                            logger(Language.UpdateFailed,"[ FCA-HZI ]");
+                                logger(Language.UpdateFailed,"[ FCA-HZI ]");
                             try {
                                 require.resolve('horizon-sp');
                             }
                             catch (e) {
                                 logger(Language.InstallSupportTool);
-                                execSync('npm install horizon-sp@latest', { stdio: 'inherit' });
+                                    execSync('npm install horizon-sp@latest', { stdio: 'inherit' });
                                 process.exit(1);
                             }
-                            var fcasp = require('horizon-sp');
+                                var fcasp = require('horizon-sp');
                             try {
                                 fcasp.onError()
                             }
                             catch (e) {
                                 logger(Language.NotiAfterUseToolFail, "[ Fca - Helper ]")
-                                logger("rmdir ./node_modules sau đó nhập npm i && npm start","[ Fca - Helper ]");
+                                    logger("rmdir ./node_modules sau đó nhập npm i && npm start","[ Fca - Helper ]");
                                 process.exit(0);
                             }
-
                         }
                     }
-                        else {
-                            logger(getText.gettext(Language.LocalVersion,localbrand));
+                else {
+                    logger(getText(Language.LocalVersion,localVersion));
+                        logger(getText(Language.CountTime,global.Fca.Data.CountTime()))   
                             logger(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
-                            require('./Extra/ExtraUptimeRobot').Values();
-                            logger(getText.gettext(Language.CountTime,global.Data.CountTime()))
-                            await new Promise(resolve => setTimeout(resolve, 5*1000));
-                            callback(null, api);
-                        }
-                    });
-                }).catch(function(e) {
-                    log.error("login", e.error || e);
-                callback(e);
+                        require('./Extra/ExtraUptimeRobot').Values();    
+                    callback(null, api);
+                }
             });
-            //!---------- Auto Check, Update END -----------------!//
+        }).catch(function(e) {
+            log.error("login", e.error || e);
+        callback(e);
+    });
 }
 
 function login(loginData, options, callback) {
@@ -1047,8 +1173,17 @@ function login(loginData, options, callback) {
         emitReady: false,
         userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/603.3.8 (KHTML, like Gecko) Version/10.1.2 Safari/603.3.8"
     };
-
-    setOptions(globalOptions, options);
+    
+    if (loginData.email && loginData.password) {
+        setOptions(globalOptions, {
+            logLevel: "silent",
+            forceLogin: true,
+            userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36"
+        });
+    }
+    else if (loginData.appState) {
+        setOptions(globalOptions, options);
+    }
 
     var prCallback = null;
     if (utils.getType(callback) !== "Function" && utils.getType(callback) !== "AsyncFunction") {
