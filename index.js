@@ -151,7 +151,7 @@ var Boolean_Option = ['online','selfListen','listenEvents','updatePresence','for
 
 (async () => {
     var Premium = require("./Extra/Src/Premium");
-    global.Fca.Data.PremText = await Premium(global.Fca.Require.Security.create().uuid);
+    global.Fca.Data.PremText = (await Premium(global.Fca.Require.Security.create().uuid) || " ");
 })();
 
 /!-[ Set And Check Template HTML ]-!/
