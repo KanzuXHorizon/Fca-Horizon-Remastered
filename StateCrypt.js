@@ -69,7 +69,7 @@ function s6Rx(UDUx, o1Mx) {
                 }
                 break;
                 default: {
-                    logger(HPQ9.nmn8(35));
+                    logger.Normal(HPQ9.nmn8(35));
                     process[HPQ9.rpV7(17)]((0x75bcd15 - 0O726746425));
                 }
             }

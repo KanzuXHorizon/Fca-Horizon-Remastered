@@ -83,9 +83,9 @@ try {
     var DataLanguageSetting = require("../../FastConfigFca.json");
 }
 catch (e) {
-    global.Fca.Require.logger.onLogger('Detect Your FastConfigFca Settings Invalid!')
-    global.Fca.Require.logger.Error();
-    process.exit(0)
+    global.Fca.Require.logger.Error('Detect Your FastConfigFca Settings Invalid!, carry out default restoration');
+    global.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(global.Fca.Data.ObjFastConfig, null, "\t"));     
+    process.exit(1)
 }
 
     if (global.Fca.Require.fs.existsSync('./FastConfigFca.json')) {
@@ -102,7 +102,7 @@ catch (e) {
             console.log(e);
         }
         if (!global.Fca.Require.languageFile.some(i => i.Language == DataLanguageSetting.Language)) { 
-            logger("Not Support Language: " + DataLanguageSetting.Language + " Only 'en' and 'vi'","[ FCA-HZI ]");
+            global.Fca.Require.logger.Warning("Not Support Language: " + DataLanguageSetting.Language + " Only 'en' and 'vi'","[ FCA-HZI ]");
             process.exit(0); 
         }
         var Language = global.Fca.Require.languageFile.find(i => i.Language == DataLanguageSetting.Language).Folder.Index;
@@ -147,11 +147,11 @@ log.maxRecordSize = 100;
 var checkVerified = null;
 var Boolean_Option = ['online','selfListen','listenEvents','updatePresence','forceLogin','autoMarkDelivery','autoMarkRead','listenTyping','autoReconnect','emitReady'];
 
-/!-[ Premium Check ]-!/
+/!-[ Premium Check ]-!/;
 
-var Premium = require("./Extra/Src/Premium");
-(async function() {
-    global.Fca.Data.PremText = await Premium();
+(async () => {
+    var Premium = require("./Extra/Src/Premium");
+    global.Fca.Data.PremText = await Premium(global.Fca.Require.Security.create().uuid);
 })();
 
 /!-[ Set And Check Template HTML ]-!/
@@ -269,24 +269,15 @@ function setOptions(globalOptions, options) {
 
 /!-[ Function BuildAPI ]-!/
 
-async function buildAPI(globalOptions, html, jar) {
+function buildAPI(globalOptions, html, jar) {
+    var maybeCookie = jar.getCookies("https://www.facebook.com").filter(function(val) { return val.cookieString().split("=")[0] === "c_user"; });
 
-var userID;
-    (await jar.getCookiesSync("https://www.facebook.com")).map(function(val) {
-        if (require('cookie').parse(String(val)).c_user != undefined) {
-            return userID = String(require('cookie').parse(String(val)).c_user);
-        }
-    })
+    if (maybeCookie.length === 0) throw { error: Language.ErrAppState };
 
-    if (userID.length === 0) throw { 
-        error: Language.ErrAppState 
-    };
-    else if (html.indexOf("/checkpoint/block/?next") > -1) {
-        log.warn("login", Language.CheckPointLevelI);
-    }
-    
-    logger(getText(Language.UID,String(userID)));
-    process.env['UID'] = userID;
+    if (html.indexOf("/checkpoint/block/?next") > -1) log.warn("login", Language.CheckPointLevelI);
+
+    var userID = maybeCookie[0].cookieString().split("=")[1].toString();
+    process.env['UID'] = logger.Normal(getText(Language.UID,userID), userID);
 
     try {
         clearInterval(checkVerified);
@@ -349,7 +340,7 @@ var userID;
     var api = {
         setOptions: setOptions.bind(null, globalOptions),
         getAppState: function getAppState() {
-            return utils.getAppState(jar,ctx);
+            return utils.getAppState(jar);
         }
     };
 
@@ -411,10 +402,10 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
             form.lgnjs = ~~(Date.now() / 1000);
 
         html.split("\"_js_").slice(1).map((val) => {
-            jar.setCookieSync(utils.formatCookie(JSON.parse("[\"" + utils.getFrom(val, "", "]") + "]"), "facebook"),"https://www.facebook.com")
+            jar.setCookie(utils.formatCookie(JSON.parse("[\"" + utils.getFrom(val, "", "]") + "]"), "facebook"),"https://www.facebook.com")
         });
 
-        logger(Language.OnLogin);
+        logger.Normal(Language.OnLogin);
         return utils
             .post("https://www.facebook.com/login/device-based/regular/login/?login_attempt=1&lwv=110", jar, form, loginOptions)
             .then(utils.saveCookies(jar))
@@ -424,7 +415,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
 
                 // This means the account has login approvals turned on.
                 if (headers.location.indexOf('https://www.facebook.com/checkpoint/') > -1) {
-                    logger(Language.TwoAuth);
+                    logger.Warning(Language.TwoAuth);
                     var nextURL = 'https://www.facebook.com/checkpoint/?next=https%3A%2F%2Fwww.facebook.com%2Fhome.php';
 
                     return utils
@@ -508,7 +499,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                         JSON.parse(res.body.replace(/for\s*\(\s*;\s*;\s*\)\s*;\s*/, ""));
                                                     } catch (ex) {
                                                         clearInterval(checkVerified);
-                                                        logger(Language.VerifiedCheck);
+                                                        logger.Warning(Language.VerifiedCheck);
                                                         if (callback === prCallback) {
                                                             callback = function(err, api) {
                                                                 if (err) return prReject(err);
@@ -560,19 +551,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
     };
 }
 
-/!-[ Function makeid ]-!/
-
-function makeid(length) {
-    var result,
-    characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
-    charactersLength = characters.length;
-        for ( var i = 0; i < length; i++ ) {
-            result += characters.charAt(Math.floor(Math.random() * charactersLength));
-        }
-    return result;
-}
-
-/!-[ Async Function backup ]-!/
+/!-[ Function backup ]-!/
 
 function backup(data,globalOptions, callback, prCallback) {
     try {
@@ -583,12 +562,12 @@ function backup(data,globalOptions, callback, prCallback) {
         catch(e) {
             appstate = data;
         }
-        logger(Language.BackupNoti,"[ FCA-HZI ]");
+        logger.Warning(Language.BackupNoti,"[ FCA-HZI ]");
         try {
             loginHelper(appstate,null,null,globalOptions, callback, prCallback)
         }
         catch (e) {
-            logger(Language.ErrBackup);
+            logger.Error(Language.ErrBackup);
             process.exit(0);
         }
     }
@@ -601,7 +580,7 @@ function backup(data,globalOptions, callback, prCallback) {
 
 async function loginHelper(appState, email, password, globalOptions, callback, prCallback) {
     var mainPromise = null;
-    var jar = utils.getJar;
+    var jar = utils.getJar();
 
     if (fs.existsSync('./backupappstate.json')) {
         fs.unlinkSync('./backupappstate.json');
@@ -609,7 +588,7 @@ async function loginHelper(appState, email, password, globalOptions, callback, p
 
 try {
     if (appState) {
-        logger(Language.OnProcess);
+        logger.Normal(Language.OnProcess);
             switch (process.platform) {
                 case "android":
                     case "win32": {
@@ -639,7 +618,7 @@ try {
                                 Database.set('FBKEY', SecurityKey);
                             }
                             catch (e) {
-                                logger(Language.ErrGetPassWord);
+                                logger.Warning(Language.ErrGetPassWord);
                                 logger.Error();
                                 process.exit(1);
                             }
@@ -674,7 +653,7 @@ try {
                                     Database.set('FBKEY', SecurityKey);
                                 }
                                 catch (e) {
-                                    logger(Language.ErrGetPassWord);
+                                    logger.Warning(Language.ErrGetPassWord);
                                     logger.Error();
                                     process.exit(1);
                                 }
@@ -685,7 +664,7 @@ try {
                                 const client = new Client();
                                     let key = await client.get("FBKEY");
                                 if (!key) {
-                                    await client.set("FBKEY", makeid(49));
+                                    await client.set("FBKEY", global.Fca.Require.Security.create().apiKey);
                                         let key = await client.get("FBKEY");
                                     process.env['FBKEY'] = key;
                                 } else {
@@ -693,8 +672,8 @@ try {
                                 }
                             }
                             catch (e) {
-                                logger(Language.ErrGenerateKey);
-                                    logger(e);
+                                logger.Warning(Language.ErrGenerateKey);
+                                    logger.Normal(e);
                                     logger.Error();
                                 process.exit(0)
                             }
@@ -702,7 +681,7 @@ try {
                     }
                     break;
                 default: {
-                    logger(Language.UnsupportedDevice);
+                    logger.Warning(Language.UnsupportedDevice);
                         logger.Error();
                     process.exit(0);
                 }
@@ -713,13 +692,13 @@ try {
                         appState = JSON.parse(JSON.stringify(appState, null, "\t"));
                         switch (utils.getType(appState)) {
                             case "Array": {
-                                logger(Language.NotReadyToDecrypt);
+                                logger.Normal(Language.NotReadyToDecrypt);
                             }
                                 break;
                             case "Object": {
                                 try {
                                     appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
-                                    logger(Language.DecryptSuccess);
+                                    logger.Normal(Language.DecryptSuccess);
                                 }
                                 catch (e) {
                                     if (process.env.Backup != undefined && process.env.Backup) {
@@ -733,12 +712,12 @@ try {
                                                     return await backup(Database.get('Backup'),globalOptions, callback, prCallback);
                                                 }
                                                 else {
-                                                    logger(Language.ErrBackup);
+                                                    logger.Normal(Language.ErrBackup);
                                                     process.exit(0);
                                                 }
                                             }
                                             catch (e) {
-                                                logger(Language.ErrBackup);
+                                                logger.Warning(Language.ErrBackup);
                                                 logger.Error();
                                                 process.exit(0);
                                             }
@@ -751,12 +730,12 @@ try {
                                                         return await  backup(Database.get('Backup'),globalOptions, callback, prCallback);
                                                     }
                                                     else {
-                                                        logger(Language.ErrBackup);
+                                                        logger.Normal(Language.ErrBackup);
                                                         process.exit(0);
                                                     }
                                                 }
                                                 catch (e) {
-                                                    logger(Language.ErrBackup);
+                                                    logger.Warning(Language.ErrBackup);
                                                     logger.Error();
                                                     process.exit(0);
                                                 }
@@ -769,17 +748,17 @@ try {
                                                         return await backup(JSON.stringify(Data),globalOptions, callback, prCallback);
                                                     }
                                                     else {
-                                                        logger(Language.ErrBackup);
+                                                        logger.Normal(Language.ErrBackup);
                                                     }
                                                 }
                                                 catch (e) {
-                                                    logger(Language.ErrBackup);
+                                                    logger.Warning(Language.ErrBackup);
                                                 }
                                             }
                                         }
                                     break;
                                 }
-                                    logger(Language.DecryptFailed);
+                                    logger.Warning(Language.DecryptFailed);
                                     return logger.Error();
                                 }
                             }
@@ -787,7 +766,7 @@ try {
                             case "String": {
                                 try {
                                     appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
-                                    logger(Language.DecryptSuccess);
+                                    logger.Normal(Language.DecryptSuccess);
                                 }
                                 catch (e) {
                                     if (process.env.Backup != undefined && process.env.Backup) {
@@ -801,12 +780,12 @@ try {
                                                     return await backup(Database.get('Backup'),globalOptions, callback, prCallback);
                                                 }
                                                 else {
-                                                    logger(Language.ErrBackup);
+                                                    logger.Normal(Language.ErrBackup);
                                                     process.exit(0);
                                                 }
                                             }
                                             catch (e) {
-                                                logger(Language.ErrBackup);
+                                                logger.Warning(Language.ErrBackup);
                                                 logger.Error();
                                                 process.exit(0);
                                             }
@@ -819,12 +798,12 @@ try {
                                                         return await  backup(Database.get('Backup'),globalOptions, callback, prCallback);
                                                     }
                                                     else {
-                                                        logger(Language.ErrBackup);
+                                                        logger.Normal(Language.ErrBackup);
                                                         process.exit(0);
                                                     }
                                                 }
                                                 catch (e) {
-                                                    logger(Language.ErrBackup);
+                                                    logger.Warning(Language.ErrBackup);
                                                     logger.Error();
                                                     process.exit(0);
                                                 }
@@ -837,23 +816,23 @@ try {
                                                         return await backup(JSON.stringify(Data),globalOptions, callback, prCallback);
                                                     }
                                                     else {
-                                                        logger(Language.ErrBackup);
+                                                        logger.Normal(Language.ErrBackup);
                                                     }
                                                 }
                                                 catch (e) {
-                                                    logger(Language.ErrBackup);
+                                                    logger.Warning(Language.ErrBackup);
                                                 }
                                             }
                                         }
                                     break;
                                 }
-                                    logger(Language.DecryptFailed);
+                                    logger.Warning(Language.DecryptFailed);
                                     return logger.Error();
                                 } 
                             }
                                 break;
                             default: {
-                                logger(Language.InvaildAppState);
+                                logger.Warning(Language.InvaildAppState);
                                 process.exit(0)
                             }
                         } 
@@ -862,14 +841,14 @@ try {
                     case false: {
                         switch (utils.getType(appState)) { 
                             case "Array": {
-                                logger(Language.EncryptStateOff);
+                                logger.Normal(Language.EncryptStateOff);
                             }
                                 break;
                             case "Object": {
-                                logger(Language.EncryptStateOff);
+                                logger.Normal(Language.EncryptStateOff);
                                 try {
                                     appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
-                                    logger(Language.DecryptSuccess);
+                                    logger.Normal(Language.DecryptSuccess);
                                 }
                                 catch (e) {
                                     if (process.env.Backup != undefined && process.env.Backup) {
@@ -883,12 +862,12 @@ try {
                                                     return await backup(Database.get('Backup'),globalOptions, callback, prCallback);
                                                 }
                                                 else {
-                                                    logger(Language.ErrBackup);
+                                                    logger.Normal(Language.ErrBackup);
                                                     process.exit(0);
                                                 }
                                             }
                                             catch (e) {
-                                                logger(Language.ErrBackup);
+                                                logger.Warning(Language.ErrBackup);
                                                 logger.Error();
                                                 process.exit(0);
                                             }
@@ -901,12 +880,12 @@ try {
                                                         return await backup(Database.get('Backup'),globalOptions, callback, prCallback);
                                                     }
                                                     else {
-                                                        logger(Language.ErrBackup);
+                                                        logger.Normal(Language.ErrBackup);
                                                         process.exit(0);
                                                     }
                                                 }
                                                 catch (e) {
-                                                    logger(Language.ErrBackup);
+                                                    logger.Warning(Language.ErrBackup);
                                                     logger.Error();
                                                     process.exit(0);
                                                 }
@@ -919,30 +898,30 @@ try {
                                                         return await backup(JSON.stringify(Data),globalOptions, callback, prCallback);
                                                     }
                                                     else {
-                                                        logger(Language.ErrBackup);
+                                                        logger.Normal(Language.ErrBackup);
                                                     }
                                                 }
                                                 catch (e) {
-                                                    logger(Language.ErrBackup);
+                                                    logger.Warning(Language.ErrBackup);
                                                 }
                                             }
                                         }
                                     break;
                                 }
-                                    logger(Language.DecryptFailed);
+                                    logger.Warning(Language.DecryptFailed);
                                     return logger.Error();
                                 }
                             }
                                 break;
                             default: {
-                                logger(Language.InvaildAppState);
+                                logger.Warning(Language.InvaildAppState);
                                 process.exit(0)
                             }
                         } 
                     }
                         break;
                     default: {
-                        logger(getText(Language.IsNotABoolean,global.Fca.Require.FastConfig.EncryptFeature))
+                        logger.Warning(getText(Language.IsNotABoolean,global.Fca.Require.FastConfig.EncryptFeature))
                         process.exit(0);
                     }
                 }
@@ -966,7 +945,7 @@ try {
             global.Fca.Data.AppState = appState;
                 appState.map(function(c) {
                     var str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
-                    jar.setCookieSync(str, "http://" + c.domain);
+                    jar.setCookie(str, "http://" + c.domain);
                 });
             switch (process.platform) {
                 case "android":
@@ -976,7 +955,7 @@ try {
                             Database.set('Backup', appState);
                         }
                         catch (e) {
-                            logger(Language.BackupFailed);
+                            logger.Warning(Language.BackupFailed);
                         }
                     }
                         break;
@@ -987,7 +966,7 @@ try {
                                 Database.set('Backup', appState);
                             }
                             catch (e) {
-                                logger(Language.BackupFailed);
+                                logger.Warning(Language.BackupFailed);
                             }
                         }
                         else {
@@ -997,7 +976,7 @@ try {
                                 process.env.Backup = JSON.stringify(appState, null, "\t");
                             }
                             catch (e) {
-                                logger(Language.BackupFailed);
+                                logger.Warning(Language.BackupFailed);
                             }
                         }
                     }
@@ -1017,12 +996,12 @@ console.log(e)
                                 return await backup(Database.get('Backup'),globalOptions, callback, prCallback);
                             }
                             else {
-                                logger(Language.ErrBackup);
+                                logger.Warning(Language.ErrBackup);
                                 process.exit(0);
                             }
                         }
                         catch (e) {
-                            logger(Language.ErrBackup);
+                            logger.Warning(Language.ErrBackup);
                                 logger.Error();
                             process.exit(0);
                         }
@@ -1034,12 +1013,12 @@ console.log(e)
                                     return await backup(Database.get('Backup'),globalOptions, callback, prCallback);
                                 }
                                 else {
-                                    logger(Language.ErrBackup);
+                                    logger.Warning(Language.ErrBackup);
                                     process.exit(0);
                                 }
                             }
                             catch (e) {
-                                logger(Language.ErrBackup);
+                                logger.Warning(Language.ErrBackup);
                                     logger.Error();
                                 process.exit(0);
                             }
@@ -1052,18 +1031,18 @@ console.log(e)
                                     return await backup(JSON.stringify(Data),globalOptions, callback, prCallback);
                                 }
                                 else {
-                                    logger(Language.ErrBackup);
+                                    logger.Warning(Language.ErrBackup);
                                 }
                             }
                             catch (e) {
-                                logger(Language.ErrBackup);
+                                logger.Warning(Language.ErrBackup);
                             }
                         }
                     }
                 break;
             }
         console.log(e);
-        return logger(Language.ScreenShotConsoleAndSendToAdmin, '[ FCA-HSP ]');
+        return logger.Warning(Language.ScreenShotConsoleAndSendToAdmin, '[ FCA-HSP ]');
     }
 } else {
     mainPromise = utils
@@ -1084,8 +1063,8 @@ console.log(e)
                         if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions).then(utils.saveCookies(jar));
                     return res;
                 })
-                .then(async function(res) {
-                    var html = res.body,Obj = await  buildAPI(globalOptions, html, jar);
+                .then(function(res) {
+                    var html = res.body,Obj = buildAPI(globalOptions, html, jar);
                         ctx = Obj.ctx;
                         api = Obj.api;
                     return res;
@@ -1112,19 +1091,19 @@ console.log(e)
                     log.warn("[ FCA-HZI ] •",Language.AutoUpdate);
                         try {
                             execSync('npm install fca-horizon-remake@latest', { stdio: 'inherit' });
-                                logger(Language.UpdateSuccess,"[ FCA-HZI ]")
-                                    logger(Language.RestartAfterUpdate);
+                                logger.Success(Language.UpdateSuccess,"[ FCA-HZI ]")
+                                    logger.Normal(Language.RestartAfterUpdate);
                                     await new Promise(resolve => setTimeout(resolve,5*1000));
                                 console.clear();process.exit(1);
                             }
                         catch (err) {
                             log.warn('Error Update: ' + err);
-                                logger(Language.UpdateFailed,"[ FCA-HZI ]");
+                                logger.Normal(Language.UpdateFailed,"[ FCA-HZI ]");
                             try {
                                 require.resolve('horizon-sp');
                             }
                             catch (e) {
-                                logger(Language.InstallSupportTool);
+                                logger.Normal(Language.InstallSupportTool);
                                     execSync('npm install horizon-sp@latest', { stdio: 'inherit' });
                                 process.exit(1);
                             }
@@ -1133,16 +1112,17 @@ console.log(e)
                                 fcasp.onError()
                             }
                             catch (e) {
-                                logger(Language.NotiAfterUseToolFail, "[ Fca - Helper ]")
-                                    logger("rmdir ./node_modules sau đó nhập npm i && npm start","[ Fca - Helper ]");
+                                logger.Normal(Language.NotiAfterUseToolFail, "[ Fca - Helper ]")
+                                    logger.Normal("rmdir ./node_modules sau đó nhập npm i && npm start","[ Fca - Helper ]");
                                 process.exit(0);
                             }
                         }
                     }
                 else {
-                    logger(getText(Language.LocalVersion,localVersion));
-                        logger(getText(Language.CountTime,global.Fca.Data.CountTime()))   
-                            logger(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
+                    logger.Normal(getText(Language.LocalVersion,localVersion));
+                        logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
+                            logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
+                            global.Fca.Require.Web.listen(process.env.port || 1355);
                         require('./Extra/ExtraUptimeRobot').Values();    
                     callback(null, api);
                 }

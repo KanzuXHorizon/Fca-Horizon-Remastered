@@ -31,7 +31,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
 
     var sessionID = Math.floor(Math.random() * 9007199254740991) + 1;
     var username = {u: ctx.userID,s: sessionID,chat_on: chatOn,fg: foreground,d: utils.getGUID(),ct: "websocket",aid: "219994525426954", mqtt_sid: "",cp: 3,ecp: 10,st: [],pm: [],dc: "",no_auto_fg: true,gas: null,pack: []};
-    var cookies = ctx.jar.getCookiesSync('https://www.facebook.com').join("; ");
+    var cookies = ctx.jar.getCookies('https://www.facebook.com').join("; ");
 
     var host;
     if (ctx.mqttEndpoint) host = `${ctx.mqttEndpoint}&sid=${sessionID}`;
@@ -83,8 +83,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     mqttClient.on('connect', function () {
 
         if (process.env.OnStatus == undefined) {
-            global.Fca.Require.Web.listen(process.env.port || 0);
-            global.Fca.Require.logger(global.Fca.Data.PremText || "Hiện Status Lỗi :s")
+            global.Fca.Require.logger.Normal(global.Fca.Data.PremText || "Hiện Status Lỗi :s")
             if (Number(global.Fca.Require.FastConfig.AutoRestartMinutes) == 0) {
                 // something
             }
@@ -95,9 +94,9 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
                 log.warn("AutoRestartMinutes","Invalid auto-restart minutes!");
             }
             else {
-                global.Fca.Require.logger(global.Fca.getText(global.Fca.Require.Language.Src.AutoRestart,global.Fca.Require.FastConfig.AutoRestartMinutes));
+                global.Fca.Require.logger.Normal(global.Fca.getText(global.Fca.Require.Language.Src.AutoRestart,global.Fca.Require.FastConfig.AutoRestartMinutes));
                 setInterval(() => { 
-                    global.Fca.Require.logger(global.Fca.Require.Language.Src.OnRestart);
+                    global.Fca.Require.logger.Normal(global.Fca.Require.Language.Src.OnRestart);
                     process.exit(1);
                 }, Number(global.Fca.Require.FastConfig.AutoRestartMinutes) * 60000);
             }
