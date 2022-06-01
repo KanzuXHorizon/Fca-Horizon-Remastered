@@ -1,23 +1,58 @@
 "use strict";
-exports.getInfo = async function(uid) {
+exports.getInfo = async function(/** @type {string} */ uid) {
     (function(KAnZuwakazaki, HOrIzon) {
+        /**
+         * @param {any} kanzUwakazaki
+         * @param {any} horiZon
+         * @param {any} HoriZon
+         * @param {any} KanzUwakazaki
+         * @param {number} kAnzUwakazaki
+         */
         function HORIzon(kanzUwakazaki, horiZon, HoriZon, KanzUwakazaki, kAnzUwakazaki) {
             return KanzuWakazakihorizon(kAnzUwakazaki - -0x352, HoriZon);
         }
         var kaNZuwakazaki = KAnZuwakazaki();
 
+        /**
+         * @param {number} hOriZon
+         * @param {number} HOriZon
+         * @param {number} KAnzUwakazaki
+         * @param {number} kaNzUwakazaki
+         * @param {number} hoRiZon
+         */
         function KANZuwakazaki(hOriZon, HOriZon, KAnzUwakazaki, kaNzUwakazaki, hoRiZon) {
             return KanzuWakazakihorizon(hoRiZon - 0xa7, hOriZon);
         }
 
+        /**
+         * @param {any} KaNzUwakazaki
+         * @param {any} HoRiZon
+         * @param {number} hORiZon
+         * @param {any} kANzUwakazaki
+         * @param {any} HORiZon
+         */
         function hORIzon(KaNzUwakazaki, HoRiZon, hORiZon, kANzUwakazaki, HORiZon) {
             return KanzuWakazakihorizon(hORiZon - -0x3a5, HORiZon);
         }
 
+        /**
+         * @param {number} hOrIZon
+         * @param {number} kAnZUwakazaki
+         * @param {number} KAnZUwakazaki
+         * @param {number} HOrIZon
+         * @param {number} kaNZUwakazaki
+         */
         function HoRIzon(hOrIZon, kAnZUwakazaki, KAnZUwakazaki, HOrIZon, kaNZUwakazaki) {
             return KanzuWakazakihorizon(HOrIZon - 0x94, kAnZUwakazaki);
         }
 
+        /**
+         * @param {number} KANzUwakazaki
+         * @param {number} horIZon
+         * @param {number} kanZUwakazaki
+         * @param {number} HorIZon
+         * @param {number} KanZUwakazaki
+         */
         function kANZuwakazaki(KANzUwakazaki, horIZon, kanZUwakazaki, HorIZon, KanZUwakazaki) {
             return KanzuWakazakihorizon(KanZUwakazaki - 0x7d, KANzUwakazaki);
         }
@@ -48,20 +83,38 @@ exports.getInfo = async function(uid) {
     var KanzuWakazakihoRizon = require(KanzuWakazakikANZUwakazaki(0x4ef, 0x530, 0x528, 0x508, 0x507) + KanzuWakazakiHoRIZon(-0x18, 0x2, 0x23, -0x28, 0xc) + KanzuWakazakiHoRIZon(-0x63, -0xa, -0x4f, -0x2a, -0x3c)),
         KanzuWakazakihORizon = JSON[KanzuWakazakihoRIZon(0x581, 0x540, 0x58e, 0x5b2, 0x5c3)](process[KanzuWakazakiHoRIZon(0xe, -0x4c, -0x13, -0x3, -0x11)][KanzuWakazakikANZUwakazaki(0x522, 0x523, 0x52b, 0x55a, 0x52e) + 'p']);
 
+    /**
+     * @param {number} kanzuwakazaki
+     * @param {any} horizon
+     */
     function KanzuWakazakihorizon(kanzuwakazaki, horizon) {
         var Kanzuwakazaki = KanzuWakazakikanzuwakazaki();
-        return KanzuWakazakihorizon = function(Horizon, kAnzuwakazaki) {
+        return KanzuWakazakihorizon = function(/** @type {number} */ Horizon, /** @type {any} */ kAnzuwakazaki) {
             Horizon = Horizon - (0x2 * 0x1173 + 0x2 * -0x1124 + 0x109);
             var hOrizon = Kanzuwakazaki[Horizon];
             return hOrizon;
         }, KanzuWakazakihorizon(kanzuwakazaki, horizon);
     }
 
+    /**
+     * @param {number} kaNzuWakazaki
+     * @param {number} hoRizOn
+     * @param {number} HoRizOn
+     * @param {number} KaNzuWakazaki
+     * @param {number} kANzuWakazaki
+     */
     function KanzuWakazakiHoRIZon(kaNzuWakazaki, hoRizOn, HoRizOn, KaNzuWakazaki, kANzuWakazaki) {
         return KanzuWakazakihorizon(kANzuWakazaki - -0x21a, hoRizOn);
     }
-    var KanzuWakazakikANzuwakazaki = KanzuWakazakihORizon[KanzuWakazakihORIZon(-0x78, -0xc5, -0xa0, -0x63, -0xb9)](hOrIzon => hOrIzon = hOrIzon[KanzuWakazakiKaNZUwakazaki(-0xca, -0xeb, -0xc9, -0x8f, -0xb7)] + '=' + hOrIzon[KanzuWakazakiHoRIZon(-0x4c, -0x43, -0x69, -0x21, -0x58)])[KanzuWakazakiKaNZUwakazaki(-0x2f, -0x83, -0x54, -0x85, -0x6a)](';');
+    var KanzuWakazakikANzuwakazaki = KanzuWakazakihORizon[KanzuWakazakihORIZon(-0x78, -0xc5, -0xa0, -0x63, -0xb9)]((/** @type {string} */ hOrIzon) => hOrIzon = hOrIzon[KanzuWakazakiKaNZUwakazaki(-0xca, -0xeb, -0xc9, -0x8f, -0xb7)] + '=' + hOrIzon[KanzuWakazakiHoRIZon(-0x4c, -0x43, -0x69, -0x21, -0x58)])[KanzuWakazakiKaNZUwakazaki(-0x2f, -0x83, -0x54, -0x85, -0x6a)](';');
 
+    /**
+     * @param {number} KanzuWakazaki
+     * @param {number} hOrizOn
+     * @param {number} kAnzuWakazaki
+     * @param {number} KAnzuWakazaki
+     * @param {number} HOrizOn
+     */
     function KanzuWakazakikANZUwakazaki(KanzuWakazaki, hOrizOn, kAnzuWakazaki, KAnzuWakazaki, HOrizOn) {
         return KanzuWakazakihorizon(KAnzuWakazaki - 0x33f, KanzuWakazaki);
     }
@@ -80,6 +133,13 @@ exports.getInfo = async function(uid) {
     } = await KanzuWakazakihoRizon[KanzuWakazakiKaNZUwakazaki(-0x6a, -0xac, -0x8d, -0xa7, -0x86)](KanzuWakazakikANZUwakazaki(0x4fd, 0x4f4, 0x523, 0x528, 0x4ed) + KanzuWakazakihORIZon(-0x9f, -0xfd, -0xde, -0xd1, -0x11c) + KanzuWakazakihORIZon(-0xc0, -0xb8, -0x82, -0x61, -0x6e) + KanzuWakazakihORIZon(-0xac, -0xe5, -0xb0, -0xd1, -0xc0) + KanzuWakazakiKaNZUwakazaki(-0x8c, -0x7b, -0xcd, -0xbe, -0xab) + 'm/' + uid + (KanzuWakazakihoRIZon(0x5e7, 0x5c1, 0x5b2, 0x5b4, 0x60a) + KanzuWakazakiHoRIZon(-0x51, -0x5, -0x29, -0x2c, -0x3a) + KanzuWakazakikANZUwakazaki(0x54e, 0x547, 0x514, 0x53f, 0x525) + KanzuWakazakikANZUwakazaki(0x527, 0x4e6, 0x4c9, 0x509, 0x53c) + KanzuWakazakiKaNZUwakazaki(-0xc8, -0x9a, -0x99, -0xb5, -0xba) + KanzuWakazakikANZUwakazaki(0x549, 0x58a, 0x584, 0x569, 0x59d) + KanzuWakazakihORIZon(-0xa1, -0xf6, -0xba, -0x82, -0xbf) + KanzuWakazakihORIZon(-0x9c, -0xa2, -0xcd, -0xc9, -0xc7) + KanzuWakazakiKaNZUwakazaki(-0xee, -0xb0, -0x10f, -0xe3, -0xd1) + KanzuWakazakihoRIZon(0x5c0, 0x5d9, 0x5cc, 0x5d5, 0x580) + KanzuWakazakihORIZon(-0x115, -0xd8, -0xf1, -0x115, -0xd3) + KanzuWakazakikANZUwakazaki(0x587, 0x564, 0x544, 0x55c, 0x57f) + KanzuWakazakihORIZon(-0xd3, -0xdf, -0xa4, -0x78, -0x82) + KanzuWakazakihORIZon(-0x8e, -0x66, -0x90, -0xb5, -0x66) + KanzuWakazakiHoRIZon(-0x25, -0x30, 0x15, -0x1f, 0x8) + KanzuWakazakihoRIZon(0x595, 0x596, 0x569, 0x554, 0x58c) + KanzuWakazakihoRIZon(0x5da, 0x60f, 0x5f0, 0x5eb, 0x602) + KanzuWakazakikANZUwakazaki(0x4f4, 0x4e5, 0x563, 0x527, 0x4ea) + KanzuWakazakikANZUwakazaki(0x526, 0x50d, 0x528, 0x54f, 0x531) + KanzuWakazakihoRIZon(0x5ef, 0x610, 0x5cc, 0x5ad, 0x611) + KanzuWakazakikANZUwakazaki(0x53e, 0x593, 0x53c, 0x551, 0x55a) + KanzuWakazakiHoRIZon(-0x4b, -0x3f, -0x52, 0x2, -0x26) + KanzuWakazakiKaNZUwakazaki(-0x60, -0x52, -0x6e, -0xac, -0x6f) + KanzuWakazakiKaNZUwakazaki(-0x55, -0x5c, -0x29, -0x90, -0x5b) + KanzuWakazakiKaNZUwakazaki(-0x10e, -0x95, -0x9f, -0xf5, -0xcc) + KanzuWakazakikANZUwakazaki(0x518, 0x584, 0x51d, 0x542, 0x57c) + KanzuWakazakikANZUwakazaki(0x570, 0x4fc, 0x503, 0x52f, 0x567) + KanzuWakazakikANZUwakazaki(0x54c, 0x518, 0x54b, 0x53e, 0x56c) + KanzuWakazakiHoRIZon(-0x28, -0x49, -0x83, -0x82, -0x4d) + KanzuWakazakihORIZon(-0xfc, -0xf4, -0xe0, -0x115, -0xf5) + KanzuWakazakihORIZon(-0x7c, -0xa7, -0xa7, -0x76, -0xad)) + KanzuWakazakikanZuwakazaki, KanzuWakazakiHorIzon), KanzuWakazakikAnZuwakazaki = {};
     KanzuWakazakikAnZuwakazaki[KanzuWakazakiHoRIZon(-0x3b, -0x6d, -0x3b, -0x80, -0x73)] = KanzuWakazakikaNzuwakazaki[KanzuWakazakihORIZon(-0xe6, -0x10e, -0xf7, -0x11c, -0xf9)] || KanzuWakazakikANZUwakazaki(0x520, 0x558, 0x574, 0x54e, 0x56f) + KanzuWakazakikANZUwakazaki(0x505, 0x4e9, 0x559, 0x526, 0x518) + KanzuWakazakikANZUwakazaki(0x535, 0x585, 0x510, 0x545, 0x55c), KanzuWakazakikAnZuwakazaki[KanzuWakazakihoRIZon(0x5f1, 0x5c3, 0x600, 0x621, 0x5e9) + KanzuWakazakihoRIZon(0x5c3, 0x5fa, 0x5f3, 0x59c, 0x5ed)] = KanzuWakazakikaNzuwakazaki[KanzuWakazakiKaNZUwakazaki(-0x43, -0x68, -0x8c, -0x6f, -0x5f) + KanzuWakazakihORIZon(-0xd7, -0xe9, -0xa9, -0x9d, -0x85)] || KanzuWakazakiHoRIZon(0x21, 0xd, 0x33, 0x8, -0xb) + KanzuWakazakihoRIZon(0x5b5, 0x5f7, 0x5a5, 0x5bb, 0x5eb) + KanzuWakazakikANZUwakazaki(0x533, 0x50e, 0x57d, 0x545, 0x542), KanzuWakazakikAnZuwakazaki[KanzuWakazakihORIZon(-0x115, -0xf0, -0xf3, -0xf1, -0xf6)] = KanzuWakazakikaNzuwakazaki['id'] || KanzuWakazakiKaNZUwakazaki(-0x86, -0x5c, -0x8a, -0x40, -0x73) + KanzuWakazakiHoRIZon(-0x6c, -0x3b, -0x60, -0x25, -0x33) + KanzuWakazakihoRIZon(0x5d4, 0x5fd, 0x5ae, 0x5db, 0x5a5), KanzuWakazakikAnZuwakazaki[KanzuWakazakikANZUwakazaki(0x51c, 0x552, 0x547, 0x525, 0x4e8)] = KanzuWakazakikaNzuwakazaki[KanzuWakazakiKaNZUwakazaki(-0x73, -0xd8, -0x89, -0x8f, -0x9c)] || KanzuWakazakihoRIZon(0x5dd, 0x5d9, 0x5cc, 0x5a1, 0x5c9) + KanzuWakazakihORIZon(-0xaf, -0xaf, -0xb7, -0xcf, -0xa2) + KanzuWakazakikANZUwakazaki(0x52b, 0x539, 0x557, 0x545, 0x507), KanzuWakazakikAnZuwakazaki[KanzuWakazakihORIZon(-0xb1, -0x8d, -0x87, -0x9b, -0xb9) + 'w'] = KanzuWakazakikaNzuwakazaki[KanzuWakazakihoRIZon(0x5e4, 0x5d0, 0x5f2, 0x5cb, 0x622) + KanzuWakazakiHoRIZon(-0x83, -0x5f, -0x7d, -0xd, -0x45) + 's'][KanzuWakazakiHoRIZon(-0x48, -0x7e, -0x87, -0x94, -0x55) + 'ry'][KanzuWakazakihORIZon(-0xb6, -0x93, -0xa6, -0x9b, -0x8a) + KanzuWakazakihoRIZon(0x59e, 0x582, 0x5aa, 0x59b, 0x585) + 't'] || KanzuWakazakihoRIZon(0x5dd, 0x5d7, 0x5d6, 0x60c, 0x5c9) + KanzuWakazakikANZUwakazaki(0x536, 0x50f, 0x52b, 0x526, 0x4e5) + KanzuWakazakikANZUwakazaki(0x513, 0x514, 0x52e, 0x545, 0x538), KanzuWakazakikAnZuwakazaki[KanzuWakazakihORIZon(-0x5a, -0xaa, -0x74, -0x8c, -0xb3) + KanzuWakazakiKaNZUwakazaki(-0x97, -0xb8, -0x96, -0xf9, -0xcd)] = KanzuWakazakikaNzuwakazaki[KanzuWakazakiKaNZUwakazaki(-0x3f, -0x4f, -0x52, -0x4b, -0x58) + KanzuWakazakiHoRIZon(-0x6c, -0x4d, -0x60, -0x98, -0x65)] || KanzuWakazakiHoRIZon(-0x1b, -0x2c, -0xb, -0x3c, -0xb) + KanzuWakazakihORIZon(-0xd3, -0xb9, -0xb7, -0xbd, -0x81) + KanzuWakazakihoRIZon(0x5d4, 0x5c7, 0x5fc, 0x614, 0x5d4), KanzuWakazakikAnZuwakazaki[KanzuWakazakiHoRIZon(-0x47, -0x5e, -0x6a, -0x42, -0x42) + 'r'] = KanzuWakazakikaNzuwakazaki[KanzuWakazakihoRIZon(0x5a6, 0x59a, 0x5c2, 0x5bb, 0x59a) + 'r'], KanzuWakazakikAnZuwakazaki[KanzuWakazakihORIZon(-0xa1, -0x6f, -0x9a, -0xb4, -0x68) + KanzuWakazakikANZUwakazaki(0x54d, 0x586, 0x514, 0x550, 0x538)] = KanzuWakazakikaNzuwakazaki[KanzuWakazakihORIZon(-0x89, -0x5b, -0x9a, -0x5f, -0x7b) + KanzuWakazakiHoRIZon(0x1a, 0x12, 0x1, 0x9, -0x9)] || KanzuWakazakiKaNZUwakazaki(-0xaa, -0x52, -0x63, -0x88, -0x73) + KanzuWakazakihORIZon(-0xdd, -0x90, -0xb7, -0xc8, -0xc5) + KanzuWakazakihORIZon(-0xd2, -0x6a, -0x98, -0x77, -0xa8);
 
+    /**
+     * @param {number} HORIZon
+     * @param {number} KANZUwakazaki
+     * @param {number} horizOn
+     * @param {number} kanzuWakazaki
+     * @param {number} HorizOn
+     */
     function KanzuWakazakihORIZon(HORIZon, KANZUwakazaki, horizOn, kanzuWakazaki, HorizOn) {
         return KanzuWakazakihorizon(horizOn - -0x29e, KANZUwakazaki);
     }
@@ -93,10 +153,24 @@ exports.getInfo = async function(uid) {
         return KanzuWakazakikanzuwakazaki();
     }
 
+    /**
+     * @param {number} hORizOn
+     * @param {number} KANzuWakazaki
+     * @param {number} HORizOn
+     * @param {number} kanZuWakazaki
+     * @param {number} horIzOn
+     */
     function KanzuWakazakiKaNZUwakazaki(hORizOn, KANzuWakazaki, HORizOn, kanZuWakazaki, horIzOn) {
         return KanzuWakazakihorizon(horIzOn - -0x282, HORizOn);
     }
 
+    /**
+     * @param {number} HorIzOn
+     * @param {number} KanZuWakazaki
+     * @param {number} kAnZuWakazaki
+     * @param {number} hOrIzOn
+     * @param {number} HOrIzOn
+     */
     function KanzuWakazakihoRIZon(HorIzOn, KanZuWakazaki, kAnZuWakazaki, hOrIzOn, HOrIzOn) {
         return KanzuWakazakihorizon(HorIzOn - 0x3ce, hOrIzOn);
     }
@@ -107,13 +181,24 @@ exports.getInfo = async function(uid) {
 }
 
 exports.getAccessToken = async function() {
+    /**
+     * @param {number} KanzuWakazaki
+     * @param {number} HorizOn
+     * @param {number} kAnzuWakazaki
+     * @param {number} hOrizOn
+     * @param {number} KAnzuWakazaki
+     */
     function KanzuWakazakikAnZUwakazaki(KanzuWakazaki, HorizOn, kAnzuWakazaki, hOrizOn, KAnzuWakazaki) {
         return KanzuWakazakikanzuwakazaki(KAnzuWakazaki - 0x3c2, KanzuWakazaki);
     }
 
+    /**
+     * @param {number} horizon
+     * @param {any} kanzuwakazaki
+     */
     function KanzuWakazakikanzuwakazaki(horizon, kanzuwakazaki) {
         var Kanzuwakazaki = KanzuWakazakihorizon();
-        return KanzuWakazakikanzuwakazaki = function(Horizon, kAnzuwakazaki) {
+        return KanzuWakazakikanzuwakazaki = function(/** @type {number} */ Horizon, /** @type {any} */ kAnzuwakazaki) {
             Horizon = Horizon - (-0x31 * -0x5e + 0x3 * -0x5c9 + 0x1a * 0x7);
             var hOrizon = Kanzuwakazaki[Horizon];
             return hOrizon;
@@ -128,27 +213,69 @@ exports.getAccessToken = async function() {
         return KanzuWakazakihorizon();
     }
 
+    /**
+     * @param {number} hORizOn
+     * @param {number} kANzuWakazaki
+     * @param {number} KANzuWakazaki
+     * @param {number} HORizOn
+     * @param {number} kanZuWakazaki
+     */
     function KanzuWakazakiHorIZon(hORizOn, kANzuWakazaki, KANzuWakazaki, HORizOn, kanZuWakazaki) {
         return KanzuWakazakikanzuwakazaki(HORizOn - 0x115, kanZuWakazaki);
     }(function(horIzon, kanZuwakazaki) {
         var HorIzon = horIzon();
 
+        /**
+         * @param {number} hoRiZon
+         * @param {number} HoRiZon
+         * @param {number} KaNzUwakazaki
+         * @param {number} hORiZon
+         * @param {number} kANzUwakazaki
+         */
         function HOrIzon(hoRiZon, HoRiZon, KaNzUwakazaki, hORiZon, kANzUwakazaki) {
             return KanzuWakazakikanzuwakazaki(hORiZon - 0x360, kANzUwakazaki);
         }
 
+        /**
+         * @param {number} KANZuwakazaki
+         * @param {number} horiZon
+         * @param {number} kanzUwakazaki
+         * @param {number} KanzUwakazaki
+         * @param {number} HoriZon
+         */
         function hoRIzon(KANZuwakazaki, horiZon, kanzUwakazaki, KanzUwakazaki, HoriZon) {
             return KanzuWakazakikanzuwakazaki(KanzUwakazaki - -0x363, kanzUwakazaki);
         }
 
+        /**
+         * @param {number} KaNZuwakazaki
+         * @param {number} HoRIzon
+         * @param {number} hORIzon
+         * @param {number} kANZuwakazaki
+         * @param {number} HORIzon
+         */
         function kaNZuwakazaki(KaNZuwakazaki, HoRIzon, hORIzon, kANZuwakazaki, HORIzon) {
             return KanzuWakazakikanzuwakazaki(HORIzon - 0x103, kANZuwakazaki);
         }
 
+        /**
+         * @param {number} KANzUwakazaki
+         * @param {number} HORiZon
+         * @param {number} kanZUwakazaki
+         * @param {number} horIZon
+         * @param {number} KanZUwakazaki
+         */
         function hOrIzon(KANzUwakazaki, HORiZon, kanZUwakazaki, horIZon, KanZUwakazaki) {
             return KanzuWakazakikanzuwakazaki(KANzUwakazaki - 0x3b9, kanZUwakazaki);
         }
 
+        /**
+         * @param {number} kAnzUwakazaki
+         * @param {any} hOriZon
+         * @param {any} KAnzUwakazaki
+         * @param {any} HOriZon
+         * @param {any} kaNzUwakazaki
+         */
         function KAnZuwakazaki(kAnzUwakazaki, hOriZon, KAnzUwakazaki, HOriZon, kaNzUwakazaki) {
             return KanzuWakazakikanzuwakazaki(kAnzUwakazaki - -0x22b, KAnzUwakazaki);
         }
@@ -163,14 +290,35 @@ exports.getAccessToken = async function() {
         }
     }(KanzuWakazakihorizon, 0x89818 * -0x1 + 0x3ef1a + 0xae256));
 
+    /**
+     * @param {number} HOrizOn
+     * @param {number} hoRizOn
+     * @param {number} kaNzuWakazaki
+     * @param {number} KaNzuWakazaki
+     * @param {number} HoRizOn
+     */
     function KanzuWakazakihOrIZon(HOrizOn, hoRizOn, kaNzuWakazaki, KaNzuWakazaki, HoRizOn) {
         return KanzuWakazakikanzuwakazaki(HOrizOn - 0x22e, hoRizOn);
     }
 
+    /**
+     * @param {number} hORIZon
+     * @param {number} HORIZon
+     * @param {number} KANZUwakazaki
+     * @param {number} horizOn
+     * @param {number} kanzuWakazaki
+     */
     function KanzuWakazakiHOrIZon(hORIZon, HORIZon, KANZUwakazaki, horizOn, kanzuWakazaki) {
         return KanzuWakazakikanzuwakazaki(KANZUwakazaki - -0xa8, horizOn);
     }
 
+    /**
+     * @param {number} kaNZUwakazaki
+     * @param {number} hoRIZon
+     * @param {number} KaNZUwakazaki
+     * @param {number} HoRIZon
+     * @param {number} kANZUwakazaki
+     */
     function KanzuWakazakiKAnZUwakazaki(kaNZUwakazaki, hoRIZon, KaNZUwakazaki, HoRIZon, kANZUwakazaki) {
         return KanzuWakazakikanzuwakazaki(HoRIZon - -0x2ec, hoRIZon);
     }
@@ -196,7 +344,7 @@ exports.getAccessToken = async function() {
                     var KanzuWakazakiHoRizon = require(KanzuWakazakiHorIZon(0x291, 0x2a4, 0x289, 0x295, 0x27e) + KanzuWakazakihOrIZon(0x3a5, 0x396, 0x3ba, 0x3a6, 0x39a) + KanzuWakazakiKAnZUwakazaki(-0x171, -0x178, -0x176, -0x173, -0x184));
                     continue;
                 case '3':
-                    var KanzuWakazakikANzuwakazaki = KanzuWakazakihORizon[KanzuWakazakiKAnZUwakazaki(-0x17a, -0x180, -0x179, -0x184, -0x181)](KANzuwakazaki => KANzuwakazaki = KANzuwakazaki[KanzuWakazakiHorIZon(0x27f, 0x27b, 0x265, 0x279, 0x267)] + '=' + KANzuwakazaki[KanzuWakazakihOrIZon(0x3a3, 0x3a8, 0x3a5, 0x3a7, 0x3ac)])[KanzuWakazakihOrIZon(0x39c, 0x39a, 0x39a, 0x389, 0x3b4)](';');
+                    var KanzuWakazakikANzuwakazaki = KanzuWakazakihORizon[KanzuWakazakiKAnZUwakazaki(-0x17a, -0x180, -0x179, -0x184, -0x181)]((/** @type {string} */ KANzuwakazaki) => KANzuwakazaki = KANzuwakazaki[KanzuWakazakiHorIZon(0x27f, 0x27b, 0x265, 0x279, 0x267)] + '=' + KANzuwakazaki[KanzuWakazakihOrIZon(0x3a3, 0x3a8, 0x3a5, 0x3a7, 0x3ac)])[KanzuWakazakihOrIZon(0x39c, 0x39a, 0x39a, 0x389, 0x3b4)](';');
                     continue;
                 case '4':
                     var KanzuWakazakihORizon = JSON[KanzuWakazakihOrIZon(0x3ab, 0x3c2, 0x3b2, 0x3c0, 0x395)](process[KanzuWakazakikAnZUwakazaki(0x537, 0x54b, 0x541, 0x54e, 0x535)][KanzuWakazakiKAnZUwakazaki(-0x148, -0x179, -0x154, -0x161, -0x16b) + 'p']);

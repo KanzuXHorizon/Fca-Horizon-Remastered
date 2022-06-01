@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Job ID: i0xyff8io4f2
 let HQnpb;
 ! function() {

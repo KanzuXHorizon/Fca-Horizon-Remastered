@@ -3,8 +3,8 @@
 var utils = require("../utils");
 var log = require("npmlog");
 
-module.exports = function (defaultFuncs, api, ctx) {
-  return function handleMessageRequest(threadID, accept, callback) {
+module.exports = function (/** @type {{ post: any; postFormData?: (arg0: string, arg1: any, arg2: any, arg3: {}) => any; get?: (arg0: any, arg1: any) => Promise<any>; }} */ defaultFuncs, /** @type {any} */ api, /** @type {{ jar: any; fb_dtsg?: string; ttstamp?: string; }} */ ctx) {
+  return function handleMessageRequest(/** @type {string | any[]} */ threadID, /** @type {any} */ accept, /** @type {((err: any, data: any) => void) | ((arg0: undefined) => any)} */ callback) {
     if (utils.getType(accept) !== "Boolean") throw { error: "Please pass a boolean as a second argument." };
 
     var resolveFunc = function () { };
@@ -15,7 +15,7 @@ module.exports = function (defaultFuncs, api, ctx) {
     });
 
     if (!callback) {
-      callback = function (err, data) {
+      callback = function (/** @type {any} */ err, /** @type {any} */ data) {
         if (err) return rejectFunc(err);
         resolveFunc(data);
       };
@@ -34,12 +34,12 @@ module.exports = function (defaultFuncs, api, ctx) {
     defaultFuncs
       .post("https://www.facebook.com/ajax/mercury/move_thread.php", ctx.jar, form)
       .then(utils.parseAndCheckLogin(ctx, defaultFuncs))
-      .then(function (resData) {
+      .then(function (/** @type {{ error: any; }} */ resData) {
         if (resData.error) throw resData;
 
         return callback();
       })
-      .catch(function (err) {
+      .catch(function (/** @type {string} */ err) {
         log.error("handleMessageRequest", err);
         return callback(err);
       });

@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 let HPQ9;
 ! function() {
@@ -26,6 +27,10 @@ function gZKz() {
     }
 }
 
+/**
+ * @param {any} k6mA
+ * @param {any} EtfA
+ */
 function IykA(k6mA, EtfA) {
     switch (gZKz()) {
         case !![]: {
@@ -48,6 +53,10 @@ function IykA(k6mA, EtfA) {
     }
 }
 
+/**
+ * @param {any} UDUx
+ * @param {any} o1Mx
+ */
 function s6Rx(UDUx, o1Mx) {
     switch (gZKz()) {
         case !![]: {

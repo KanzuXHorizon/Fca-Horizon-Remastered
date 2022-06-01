@@ -48,6 +48,17 @@
                 "IsNotABoolean": "%1 Không Phải Là Một Boolean, Cần Là true Hoặc false !",
                 "InvaildOption": "%1 Không Phải Là Một Lựa Chọn !",
                 "EncryptStateOff": "Tính Năng EncryptState Đã Bị Tắt !",
+
+                "AutoLogin": "AutoLogin Đang Bật, Tiến Hành Đăng Nhập Lại !",
+                "TypeAccount": "Hãy Nhập Tài Khoản: ",
+                "TypePassword": "Hãy Nhập Mật Khẩu: ",
+                "TypeAccountError": "Tài Khoản Cần Là ID Hoặc Số Điện Thoại Hay Là Gmail !",
+                "ErrDataBase": "Lỗi Khi Đặt Dữ Liệu Auto Login !",
+                "SuccessSetData": "Đã Đặt Dữ Liệu Auto Login Thành Công !",
+
+                "EnterSecurityCode": "Hãy Nhập Mã Xác Thực 2 Yếu Tố Của Bạn: ",
+                "ErrThroughCookies": "Đã Xảy Ra Lỗi Khi Xuyên 2Fa, Hãy Nhập Mã 2Fa Lại !",
+
                 "WishMessage": [
                     "Chúc Bạn Một Ngày Tốt Lành Nhé !",
                     "Hãy Báo Cáo Với Admin Khi Có Lỗi Fca Nhé !",
@@ -122,6 +133,17 @@
                 "EncryptStateOff": "Encryption Has Been Turned Off !",
                 "InvaildOption": "Invail Option: %1",
                 "CountTime": "Total Time You Use: %1",
+
+                "AutoLogin": "AutoLogin Is On, Proceed to Log Back in!",
+                "TypeAccount": "Enter Account: ",
+                "TypePassword": "Enter a Password: ",
+                "TypeAccountError": "The account needs to be an ID or Phone number or Gmail!",
+                "ErrDataBase": "Error When Setting Auto Login Data !",
+                "SuccessSetData": "Auto Login Data Set Successfully !",
+
+                "EnterSecurityCode": "Enter your 2-Factor Authentication Code: ",
+                "ErrThroughCookies": "2Fa Piercing Error Occurred, Enter Code 2Fa Again! ",
+
                 "WishMessage": [
                     "Have a Nice Day !",
                     "Please Report To Admin When There Is Error in FCA !",

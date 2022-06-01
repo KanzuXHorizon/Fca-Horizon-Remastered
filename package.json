@@ -1,6 +1,6 @@
 {
   "name": "fca-horizon-remake",
-  "version": "4.8.7",
+  "version": "5.1.0",
   "description": "Facebook Chat Api Được Remake Bới Horizon Chống Get (available) Và Pay Acc 🐧 (maybe?)",
   "scripts": {
     "test": "mocha",
@@ -19,7 +19,7 @@
     "fca bot"
   ],
   "bugs": {
-    "url": "https://bank-sv-4.duongduong216.repl.co/fcacheckall"
+    "url": "https://github.com/HarryWakazaki/Fca-Horizon-Remake/issues"
   },
   "author": "Avery, David, Maude, Benjamin, Kanzu",
   "license": "MIT",
@@ -27,7 +27,7 @@
     "@replit/database": "latest",
     "aes-js": "latest",
     "assert": "latest",
-    "better-sqlite3": "7.5.0",
+    "better-sqlite3": "7.5.3",
     "bluebird": "latest",
     "chalk": "4.1.2",
     "cheerio": "latest",
@@ -44,13 +44,13 @@
     "path": "latest",
     "pretty-ms": "latest",
     "request": "latest",
-    "semver": "latest",
     "websocket-stream": "latest",
     "uuid-apikey": "latest",
-    "node-cache": "latest"
+    "express": "latest",
+    "readline": "latest"
   },
   "engines": {
-    "node": ">=14.x"
+    "node": ">=14.x <16.x"
   },
   "devDependencies": {
     "eslint": "latest",

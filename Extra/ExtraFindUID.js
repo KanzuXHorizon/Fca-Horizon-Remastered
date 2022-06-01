@@ -1,5 +1,9 @@
 const got = global.Fca.Require.Fetch;
 
+/**
+ * @param {string | URL} url
+ * @param {{ sendMessage: (arg0: string, arg1: any) => any; }} api
+ */
 async function getUIDSlow(url,api) {
     var FormData =  require("form-data");
     var Form = new FormData();
@@ -19,6 +23,10 @@ async function getUIDSlow(url,api) {
     else return JSON.parse(data.body.toString()).data.id || "nịt";
 }
 
+/**
+ * @param {string | URL} url
+ * @param {{ sendMessage: (arg0: string, arg1: any, arg2: any) => any; }} api
+ */
 async function getUIDFast(url,api) {
     var FormData =  require("form-data");
     var Form = new FormData();
@@ -35,6 +43,10 @@ async function getUIDFast(url,api) {
     else return JSON.parse(data.body.toString()).id || "co cai nit huhu";
 }
 
+/**
+ * @param {any} url
+ * @param {any} api
+ */
 async function getUID(url,api) {
     var getUID = await getUIDFast(url,api);
         if (!isNaN(getUID) == true) return getUID;  

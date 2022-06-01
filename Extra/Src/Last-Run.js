@@ -5,10 +5,17 @@ var assert = require('assert');
 
 var runtimes = new WeakMap();
 
+/**
+ * @param {any} fn
+ */
 function isFunction(fn) {
   return typeof fn === 'function';
 }
 
+/**
+ * @param {object} fn
+ * @param {string} timeResolution
+ */
 function lastRun(fn, timeResolution) {
   assert(isFunction(fn), 'Only functions can check lastRun');
 
@@ -22,6 +29,10 @@ function lastRun(fn, timeResolution) {
   return time - (time % resolution);
 }
 
+/**
+ * @param {object} fn
+ * @param {number} timestamp
+ */
 function capture(fn, timestamp) {
   assert(isFunction(fn), 'Only functions can be captured');
 
@@ -30,10 +41,16 @@ function capture(fn, timestamp) {
   runtimes.set(fn, timestamp);
 }
 
+/**
+ * @param {object} name
+ */
 function has(name) {
   return runtimes.has(name);
 }
 
+/**
+ * @param {object} fn
+ */
 function release(fn) {
   assert(isFunction(fn), 'Only functions can be captured');
 

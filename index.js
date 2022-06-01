@@ -9,9 +9,11 @@
     ** If the grammar is wrong, please understand because I'm just a kid 🍵.
 */
 
+
 /!-[ Max Cpu Speed ]-!/
 
 process.env.UV_THREADPOOL_SIZE = require('os').cpus().length;
+process.env.Halzion = true; //💀
 
 /!-[ Global Set ]-!/
 
@@ -27,25 +29,30 @@ global.Fca = new Object({
         log: require("npmlog"),
         Fetch: require('got'),
         logger: require('./logger'),
-        NodeCache: require( "node-cache"),
-        Security: require("uuid-apikey")
+        Security: require("uuid-apikey"),
+        Database: require('./Extra/Database/index')
     }),
-    getText: function(...Data) {
+    getText: function(/** @type {any[]} */...Data) {
         var Main = (Data.splice(0,1)).toString();
-        for (let i = 0; i < Data.length; i++) Main = Main.replace(RegExp(`%${i + 1}`, 'g'), Data[i]);
+            for (let i = 0; i < Data.length; i++) Main = Main.replace(RegExp(`%${i + 1}`, 'g'), Data[i]);
         return Main;
     },
     Data: new Object({
         ObjFastConfig: {
             "Language": "vi",
             "PreKey": "",
+            "AutoUpdate": true,
             "MainColor": "#9900FF",
             "MainName": "[ FCA-HZI ]",
             "Uptime": false,
+            "Login2Fa": false,
+            "AutoLogin": false,
             "BroadCast": true,
             "EncryptFeature": true,
+            "ResetDataLogin": false,
             "AutoRestartMinutes": 0,
-            "HTML": {
+            "HTML": {   
+                "HTML": true,
                 "UserName": "Guest",
                 "MusicLink": "https://drive.google.com/uc?id=1zlAALlxk1TnO7jXtEP_O6yvemtzA2ukA&export=download"
             }
@@ -61,17 +68,65 @@ global.Fca = new Object({
             }
             return `${hours} Hours`;
         }
-    })
+    }),
+    AutoLogin: async function () {
+        var Database = global.Fca.Require.Database;
+        var logger = global.Fca.Require.logger;
+        var Email = (await global.Fca.Require.Database.get('Account')).replace(RegExp('"', 'g'), ''); //hmm IDK
+        var PassWord = (await global.Fca.Require.Database.get('Password')).replace(RegExp('"', 'g'), '');
+        login({ email: Email, password: PassWord},async (error, api) => {
+            if (error) {
+                logger.Error(JSON.stringify(error,null,2), function() { logger.Error("AutoLogin Failed!", function() { process.exit(0); }) });
+            }
+            switch (process.platform) {
+                case "android":
+                    case "win32": {
+                        try {
+                            Database.set("TempState", api.getAppState());
+                            break;
+                        }
+                        catch (e) {
+                            logger.Warning(global.Fca.Require.Language.ErrDataBase);
+                                logger.Error();
+                            process.exit(0);
+                        }
+                    }
+                    case "linux": {
+                        if (process.env["REPL_ID"] == undefined) {
+                            try {
+                                Database.set("TempState", api.getAppState());
+                                break;
+                            }
+                            catch (e) {
+                                logger.Warning(global.Fca.Require.Language.ErrDataBase);
+                                    logger.Error();
+                                process.exit(0);
+                            }
+                        }
+                        else {
+                            try {
+                                const client = new Client();
+                                    await client.set("TempState", api.getAppState());
+                                break;
+                            }
+                            catch (e) {
+                                logger.Warning(global.Fca.Require.Language.ErrDataBase);
+                            }
+                        }
+                    }
+                break;
+            }
+            process.exit(1);
+        });
+    }
 });
-
-/*
-global.Fca.Cache = new global.Fca.Require.NodeCache({ 
-    stdTTL: 5, 
-    checkperiod: 5 
-});
-*/
 
 /!-[ Check File To Run Process ]-!/
+
+let Boolean_Fca = ["AutoUpdate","Uptime","BroadCast","EncryptFeature","AutoLogin","ResetDataLogin","Login2Fa"];
+let String_Fca = ["MainName","PreKey","Language"]
+let Number_Fca = ["AutoRestartMinutes"];
+let All_Variable = Boolean_Fca.concat(String_Fca,Number_Fca);
 
 try {
     if (!global.Fca.Require.fs.existsSync('./FastConfigFca.json')) {
@@ -83,17 +138,20 @@ try {
     var DataLanguageSetting = require("../../FastConfigFca.json");
 }
 catch (e) {
-    global.Fca.Require.logger.Error('Detect Your FastConfigFca Settings Invalid!, carry out default restoration');
+    global.Fca.Require.logger.Error('Detect Your FastConfigFca Settings Invalid!, Carry out default restoration');
     global.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(global.Fca.Data.ObjFastConfig, null, "\t"));     
     process.exit(1)
 }
-
     if (global.Fca.Require.fs.existsSync('./FastConfigFca.json')) {
         try { 
-            if (!DataLanguageSetting.HTML || global.Fca.Require.utils.getType(DataLanguageSetting.HTML) != 'Object') {
-                    DataLanguageSetting.HTML = {
-                        UserName: "Guest",
-                        MusicLink: "https://drive.google.com/uc?id=1zlAALlxk1TnO7jXtEP_O6yvemtzA2ukA&export=download",
+            if (!DataLanguageSetting.AutoUpdate || global.Fca.Require.utils.getType(DataLanguageSetting.AutoUpdate) != 'Boolean') {
+                    DataLanguageSetting.AutoUpdate = true;
+                    DataLanguageSetting.AutoLogin = false;
+                    DataLanguageSetting.ResetDataLogin = false; // for account security ☕
+                    DataLanguageSetting.HTML.HTML = true;
+                    DataLanguageSetting.Login2Fa = false;
+                    if (DataLanguageSetting.PreKey == "") {
+                        DataLanguageSetting.PreKey = "Anniversary"; // giveaway free
                     }
                 global.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));        
             }
@@ -101,22 +159,34 @@ catch (e) {
         catch (e) {
             console.log(e);
         }
-        if (!global.Fca.Require.languageFile.some(i => i.Language == DataLanguageSetting.Language)) { 
-            global.Fca.Require.logger.Warning("Not Support Language: " + DataLanguageSetting.Language + " Only 'en' and 'vi'","[ FCA-HZI ]");
+        if (!global.Fca.Require.languageFile.some((/** @type {{ Language: string; }} */i) => i.Language == DataLanguageSetting.Language)) { 
+            global.Fca.Require.logger.Warning("Not Support Language: " + DataLanguageSetting.Language + " Only 'en' and 'vi'");
             process.exit(0); 
         }
-        var Language = global.Fca.Require.languageFile.find(i => i.Language == DataLanguageSetting.Language).Folder.Index;
-        global.Fca.Require.Language = global.Fca.Require.languageFile.find(i => i.Language == DataLanguageSetting.Language).Folder;
-    }
-    else process.exit(1);
-        if (global.Fca.Require.utils.getType(DataLanguageSetting.BroadCast) != "Boolean" && DataLanguageSetting.BroadCast != undefined) {
-            global.Fca.Require.log.warn("FastConfig-BroadCast", global.Fca.getText(Language.IsNotABoolean,DataLanguageSetting.BroadCast));
-            process.exit(0)
+        var Language = global.Fca.Require.languageFile.find((/** @type {{ Language: string; }} */i) => i.Language == DataLanguageSetting.Language).Folder.Index;
+        global.Fca.Require.Language = global.Fca.Require.languageFile.find((/** @type {{ Language: string; }} */i) => i.Language == DataLanguageSetting.Language).Folder;
+    } else process.exit(1);
+        for (let i in DataLanguageSetting) {
+            if (Boolean_Fca.includes(i)) {
+                if (global.Fca.Require.utils.getType(DataLanguageSetting[i]) != "Boolean") return logger.Error(i + " Is Not A Boolean, Need To Be true Or false !", function() { process.exit(0) });
+                else continue;
+            }
+            else if (String_Fca.includes(i)) {
+                if (global.Fca.Require.utils.getType(DataLanguageSetting[i]) != "String") return logger.Error(i + " Is Not A String, Need To Be String!", function() { process.exit(0) });
+                else continue;
+            }
+            else if (Number_Fca.includes(i)) {
+                if (global.Fca.Require.utils.getType(DataLanguageSetting[i]) != "Number") return logger.Error(i + " Is Not A Number, Need To Be Number !", function() { process.exit(0) });
+                else continue;
+            }
         }
-    else if (DataLanguageSetting.Uptime == undefined || DataLanguageSetting.AutoRestartMinutes == undefined) {
-        global.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(global.Fca.Data.ObjFastConfig, null, "\t"));
-        process.exit(1);
-    }
+        for (let i of All_Variable) {
+            if (!DataLanguageSetting[All_Variable[i]] == undefined) {
+                DataLanguageSetting[All_Variable[i]] = global.Fca.Data.ObjFastConfig[All_Variable[i]];
+                global.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));
+            }
+            else continue; 
+        }
     global.Fca.Require.FastConfig = DataLanguageSetting;
 }
 catch (e) {
@@ -132,27 +202,23 @@ var utils = global.Fca.Require.utils,
     getText = global.Fca.getText,
     log = global.Fca.Require.log,
     Fetch = global.Fca.Require.Fetch,
-    http = require("http"),
+    express = require("express")(),
     { join } = require('path'),
     cheerio = require("cheerio"),
     StateCrypt = require('./StateCrypt'),
     Client = require("@replit/database"),
     { readFileSync } = require('fs-extra'),
-    Database = require("./Extra/Database/index");
-    
+    Database = require("./Extra/Database/index"),
+    readline = require("readline"),
+    chalk = require("chalk"),
+    figlet = require("figlet"),
+    os = require("os");
 
 /!-[ Set Variable For Process ]-!/
 
 log.maxRecordSize = 100;
 var checkVerified = null;
 var Boolean_Option = ['online','selfListen','listenEvents','updatePresence','forceLogin','autoMarkDelivery','autoMarkRead','listenTyping','autoReconnect','emitReady'];
-
-/!-[ Premium Check ]-!/;
-
-(async () => {
-    var Premium = require("./Extra/Src/Premium");
-    global.Fca.Data.PremText = (await Premium(global.Fca.Require.Security.create().uuid) || " ");
-})();
 
 /!-[ Set And Check Template HTML ]-!/
 
@@ -161,7 +227,18 @@ var js = readFileSync(join(__dirname, 'Extra', 'Html', 'Classic', 'script.js'));
 
 /!-[ Function Generate HTML Template ]-!/
 
+/**
+ * @param {any} UserName
+ * @param {string} Type
+ * @param {any} link
+ */
+
 function ClassicHTML(UserName,Type,link) {
+    if (Type == "Free") {
+        DataLanguageSetting.PreKey = "Anniversary";
+        global.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));   
+        process.exit(1);     
+    }
     return `<!DOCTYPE html>
     <html lang="en" >
         <head>
@@ -178,7 +255,7 @@ function ClassicHTML(UserName,Type,link) {
             <script  src="./script.js"></script>
             <footer class="footer">
                 <div id="music">
-                    <audio autoplay="true" controls="true" loop="true" src="${link}" __idm_id__="5070849">Your browser does not support the audio element.</audio>
+                    <audio autoplay="false" controls="true" loop="true" src="${link}" __idm_id__="5070849">Your browser does not support the audio element.</audio>
                     <br><b>Session ID:</b> ${global.Fca.Require.Security.create().uuid}<br>
                     <br>Thanks For Using <b>Fca-Horizon-Remake</b> - From <b>Kanzu</b> <3<br>
                 </div>
@@ -189,19 +266,19 @@ function ClassicHTML(UserName,Type,link) {
     </body>`
 }
 
-
 /!-[ Stating Http Infomation ]-!/
 
-global.Fca.Require.Web = http.createServer(function (request, res) {
-    switch (request.url) {
-        case "/style.css": {
-            res.writeHead(200, "OK", { "Content-Type": "text/css" });
-                res.write(css);
+express.set('DFP', (process.env.PORT || process.env.port || 8888));
+express.use(function(req, res, next) {
+    switch (req.url) {
+        case '/script.js': {
+            res.writeHead(200, { 'Content-Type': 'text/javascript' });
+                res.write(js);
             break;
         }
-        case "/script.js": {
-            res.writeHead(200, "OK", { "Content-Type": "text/javascript" });
-                res.write(js);
+        case '/style.css': {
+            res.writeHead(200, { 'Content-Type': 'text/css' });
+                res.write(css);
             break;
         }
         default: {
@@ -209,10 +286,17 @@ global.Fca.Require.Web = http.createServer(function (request, res) {
             res.write(ClassicHTML(global.Fca.Require.FastConfig.HTML.UserName, global.Fca.Data.PremText.includes("Premium") ? "Premium": "Free", global.Fca.Require.FastConfig.HTML.MusicLink));
         }
     }
-    res.end()
-});
+    res.end();
+})
+
+global.Fca.Require.Web = express;
 
 /!-[ Function setOptions ]-!/
+
+/**
+ * @param {{ [x: string]: boolean; selfListen?: boolean; listenEvents?: boolean; listenTyping?: boolean; updatePresence?: boolean; forceLogin?: boolean; autoMarkDelivery?: boolean; autoMarkRead?: boolean; autoReconnect?: boolean; logRecordSize: any; online?: boolean; emitReady?: boolean; userAgent: any; logLevel?: any; pageID?: any; proxy?: any; }} globalOptions
+ * @param {{ [x: string]: any; logLevel?: any; forceLogin?: boolean; userAgent?: any; pauseLog?: any; logRecordSize?: any; pageID?: any; proxy?: any; }} options
+ */
 
 function setOptions(globalOptions, options) {
     Object.keys(options).map(function(key) {
@@ -269,8 +353,14 @@ function setOptions(globalOptions, options) {
 
 /!-[ Function BuildAPI ]-!/
 
+/**
+ * @param {any} globalOptions
+ * @param {string} html
+ * @param {{ getCookies: (arg0: string) => any[]; }} jar
+ */
+
 function buildAPI(globalOptions, html, jar) {
-    var maybeCookie = jar.getCookies("https://www.facebook.com").filter(function(val) { return val.cookieString().split("=")[0] === "c_user"; });
+    var maybeCookie = jar.getCookies("https://www.facebook.com").filter(function(/** @type {{ cookieString: () => string; }} */val) { return val.cookieString().split("=")[0] === "c_user"; });
 
     if (maybeCookie.length === 0) throw { error: Language.ErrAppState };
 
@@ -354,9 +444,7 @@ function buildAPI(globalOptions, html, jar) {
 
     var defaultFuncs = utils.makeDefaults(html, userID, ctx);
 
-    fs.readdirSync(__dirname + "/src")
-    .filter((File) => File.endsWith(".js") && !File.includes('Dev_'))
-    .map((File) => api[File.split('.').slice(0, -1).join('.')] = require('./src/' + File)(defaultFuncs, api, ctx));
+    fs.readdirSync(__dirname + "/src").filter((/** @type {string} */File) => File.endsWith(".js") && !File.includes('Dev_')).map((/** @type {string} */File) => api[File.split('.').slice(0, -1).join('.')] = require('./src/' + File)(defaultFuncs, api, ctx));
 
     return {
         ctx,
@@ -367,8 +455,17 @@ function buildAPI(globalOptions, html, jar) {
 
 /!-[ Function makeLogin ]-!/
 
+/**
+ * @param {{ setCookie: (arg0: any, arg1: string) => void; }} jar
+ * @param {any} email
+ * @param {any} password
+ * @param {{ forceLogin: any; }} loginOptions
+ * @param {(err: any, api: any) => any} callback
+ * @param {any} prCallback
+ */
+
 function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
-    return function(res) {
+    return function(/** @type {{ body: any; }} */res) {
         var html = res.body,$ = cheerio.load(html),arr = [];
 
         $("#login_form input").map((i, v) => arr.push({ val: $(v).val(), name: $(v).attr("name") }));
@@ -383,25 +480,11 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
             form.email = email;
             form.pass = password;
             form.default_persistent = '0';
-            form.lgnrnd = utils.getFrom(html, "name=\"lgnrnd\" value=\"", "\"");
-                switch (global.Fca.Require.FastConfig.Language) {
-                    case "en": {
-                        form.locale = 'en_US';
-                        break;
-                    }
-                    case "vi": {
-                        form.locale = 'vi_VN'; // locale vi_VN sẽ dành cho người việt de tranh bay acc
-                        break;
-                    }
-                    default: {
-                        form.locale = 'en_US';
-                        break;
-                    }
-                }
+            form.locale = 'en_US';     
             form.timezone = '240';
             form.lgnjs = ~~(Date.now() / 1000);
 
-        html.split("\"_js_").slice(1).map((val) => {
+        html.split("\"_js_").slice(1).map((/** @type {any} */val) => {
             jar.setCookie(utils.formatCookie(JSON.parse("[\"" + utils.getFrom(val, "", "]") + "]"), "facebook"),"https://www.facebook.com")
         });
 
@@ -409,7 +492,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
         return utils
             .post("https://www.facebook.com/login/device-based/regular/login/?login_attempt=1&lwv=110", jar, form, loginOptions)
             .then(utils.saveCookies(jar))
-            .then(function(res) {
+            .then(function(/** @type {{ headers: any; }} */res) {
                 var headers = res.headers;  
                 if (!headers.location) throw { error: Language.InvaildAccount };
 
@@ -421,14 +504,70 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                     return utils
                         .get(headers.location, jar, null, loginOptions)
                         .then(utils.saveCookies(jar))
-                        .then(function(res) {
+                        .then(async function(/** @type {{ body: any; }} */res) {
+
+                            switch (process.platform) {
+                                case "android": 
+                                    case "win32": {
+                                        if (!Database.get('ThroughAcc')) {
+                                            Database.set('ThroughAcc', email);
+                                        }
+                                        else {
+                                            var Dt = Database.get('ThroughAcc');
+                                            if (String(Dt).replace(RegExp('"','g'), '') != String(email).replace(RegExp('"','g'), '')) {
+                                                Database.set('ThroughAcc', email);
+                                                if (Database.get('Through2Fa')) {
+                                                    Database.delete('Through2Fa');
+                                                }
+                                            }
+                                        }            
+                                    }
+                                break;
+                                case "linux": {
+                                    if (process.env["REPL_ID"] == undefined) {
+                                        if (!Database.get('ThroughAcc')) {
+                                            Database.set('ThroughAcc', email);
+                                        }
+                                        else {
+                                            var Dt = Database.get('ThroughAcc');
+                                            if (String(Dt).replace(RegExp('"','g'), '') != String(email).replace(RegExp('"','g'), '')) {
+                                                Database.set('ThroughAcc', email);
+                                                if (Database.get('Through2Fa')) {
+                                                    Database.delete('Through2Fa');
+                                                }
+                                            }
+                                        }   
+                                    }
+                                    else {
+                                        try {
+                                            const client = new Client();
+                                                let key = await client.get("ThroughAcc");
+                                                    if (!key) {
+                                                        await client.set("ThroughAcc", email);
+                                                    }
+                                                    else {
+                                                        if (String(key).replace(RegExp('"','g'), '') != String(email).replace(RegExp('"','g'), '')) {
+                                                            await client.set("ThroughAcc", email);
+                                                        if (await client.get("Through2Fa")) {
+                                                            await client.delete("Through2Fa");
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        catch (e) {
+                                            logger.Error(e)
+                                            logger.Error();
+                                            process.exit(0)
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+
                             var html = res.body,$ = cheerio.load(html), arr = [];
-
                             $("form input").map((i, v) => arr.push({ val: $(v).val(), name: $(v).attr("name") }));
-
                             arr = arr.filter(v => { return v.val && v.val.length });
                             var form = utils.arrToForm(arr);
-
                             if (html.indexOf("checkpoint/?next") > -1) {
                                 setTimeout(() => {
                                     checkVerified = setInterval((_form) => {}, 5000, {
@@ -436,88 +575,434 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                         jazoest: form.jazoest,
                                         dpr: 1
                                     });
-                                }, 2500);
-
-                                throw {
-                                    error: 'login-approval',
-                                    continue: function submit2FA(code) {
-                                        form.approvals_code = code;
-                                        form['submit[Continue]'] = $("#checkpointSubmitButton").html(); //'Continue';
-                                        var prResolve,prReject;
-
-                                        var rtPromise = new Promise((resolve, reject) => { prResolve = resolve; prReject = reject; });
-
-                                        if (typeof code == "string") {
-                                            utils
-                                                .post(nextURL, jar, form, loginOptions)
-                                                .then(utils.saveCookies(jar))
-                                                .then(function(res) {
-                                                    var $ = cheerio.load(res.body);
-                                                    var error = $("#approvals_code").parent().attr("data-xui-error");
-                                                    if (error) {
-                                                        throw {
-                                                            error: 'login-approval',
-                                                            errordesc: Language.InvaildTwoAuthCode,
-                                                            lerror: error,
-                                                            continue: submit2FA
-                                                        };
-                                                    }
-                                                })
-
-                                                .then(function() {
-                                                    delete form.no_fido;delete form.approvals_code;
-
-                                                    form.name_action_selected = 'dont_save'; //'save_device' || 'dont_save;
-
-                                                    return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
-                                                })
-                                                .then(function(res) {
-                                                    var headers = res.headers;
-                                                    if (!headers.location && res.body.indexOf('Review Recent Login') > -1) throw { error: Language.ApprovalsErr };
-
-                                                    var appState = utils.getAppState(jar);
-
-                                                    if (callback === prCallback) {
-                                                        callback = function(err, api) {
-                                                            if (err) return prReject(err);
-                                                            return prResolve(api);
-                                                        };
-                                                    }
-
-                                                    return loginHelper(appState, email, password, loginOptions, callback);
-                                                })
-                                                .catch(function(err) {
-                                                    if (callback === prCallback) prReject(err);
-                                                    else callback(err);
+                                }, 2500);  
+                                switch (global.Fca.Require.FastConfig.Login2Fa) {
+                                    case true: {
+                                        try {
+                                            const question = question => {
+                                                const rl = readline.createInterface({
+                                                    input: process.stdin,
+                                                    output: process.stdout
                                                 });
-                                        } else {
-                                            utils
-                                                .post("https://www.facebook.com/checkpoint/?next=https%3A%2F%2Fwww.facebook.com%2Fhome.php", jar, form, loginOptions, null, { "Referer": "https://www.facebook.com/checkpoint/?next" })
-                                                .then(utils.saveCookies(jar))
-                                                .then(res => {
-                                                    try { 
-                                                        JSON.parse(res.body.replace(/for\s*\(\s*;\s*;\s*\)\s*;\s*/, ""));
-                                                    } catch (ex) {
-                                                        clearInterval(checkVerified);
-                                                        logger.Warning(Language.VerifiedCheck);
-                                                        if (callback === prCallback) {
-                                                            callback = function(err, api) {
-                                                                if (err) return prReject(err);
-                                                                return prResolve(api);
-                                                            };
+                                                return new Promise(resolve => {
+                                                    rl.question(question, answer => {
+                                                        rl.close();
+                                                        return resolve(answer);
+                                                    });
+                                                });
+                                            };
+                                            async function EnterSecurityCode() {
+                                                try {
+                                                    var Through2Fa;
+                                                    switch (process.platform) {
+                                                        case "android": 
+                                                            case "win32": {
+                                                                Through2Fa = Database.get('Through2Fa');
+                                                            }
+                                                        break;
+                                                        case "linux": {
+                                                            if (process.env["REPL_ID"] == undefined) {
+                                                                Through2Fa = Database.get('Through2Fa');
+                                                            }
+                                                            else {
+                                                                try {
+                                                                    const client = new Client();
+                                                                    Through2Fa = await client.get("Through2Fa");
+                                                                }
+                                                                catch (e) {
+                                                                    logger.Error(e)
+                                                                    logger.Error();
+                                                                    process.exit(0)
+                                                                }
+                                                            }
                                                         }
-                                                        return loginHelper(utils.getAppState(jar), email, password, loginOptions, callback);
+                                                        break;
                                                     }
-                                                })
-                                                .catch(ex => {
-                                                    log.error("login", ex);
-                                                    if (callback === prCallback) prReject(ex);
-                                                    else callback(ex);
-                                                });
+                                                    if (Through2Fa) {
+                                                        Through2Fa.map(function(/** @type {{ key: string; value: string; expires: string; domain: string; path: string; }} */c) {
+                                                            let str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
+                                                            jar.setCookie(str, "http://" + c.domain);
+                                                        })
+                                                        var from2 = utils.arrToForm(arr);
+                                                            from2.lsd = utils.getFrom(html, "[\"LSD\",[],{\"token\":\"", "\"}");
+                                                            from2.lgndim = Buffer.from("{\"w\":1440,\"h\":900,\"aw\":1440,\"ah\":834,\"c\":24}").toString('base64');
+                                                            from2.email = email;
+                                                            from2.pass = password;
+                                                            from2.default_persistent = '0';
+                                                            from2.locale = 'en_US';     
+                                                            from2.timezone = '240';
+                                                            from2.lgnjs = ~~(Date.now() / 1000);
+                                                        return utils
+                                                            .post("https://www.facebook.com/login/device-based/regular/login/?login_attempt=1&lwv=110", jar, from2, loginOptions)
+                                                            .then(utils.saveCookies(jar))
+                                                            .then(function(/** @type {{ headers: any; }} */res) {
+                                                        var headers = res.headers;  
+                                                        if (!headers['set-cookie'][0].includes('deleted')) {
+                                                            logger.Warning(Language.ErrThroughCookies, async function() { 
+                                                                switch (process.platform) {
+                                                                    case "android": 
+                                                                        case "win32": {
+                                                                            Database.delete('Through2Fa');
+                                                                        }
+                                                                    break;
+                                                                    case "linux": {
+                                                                        if (process.env["REPL_ID"] == undefined) {
+                                                                            Database.delete('Through2Fa');
+                                                                        }
+                                                                        else {
+                                                                            try {
+                                                                                const client = new Client();
+                                                                                await client.delete("Through2Fa");
+                                                                            }
+                                                                            catch (e) {
+                                                                                logger.Error(e)
+                                                                                logger.Error();
+                                                                                process.exit(0)
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    break;
+                                                                }
+                                                            });
+                                                            process.exit(1);
+                                                        }
+                                                            if (headers.location && headers.location.indexOf('https://www.facebook.com/checkpoint/') > -1) {
+                                                                return utils
+                                                                    .get(headers.location, jar, null, loginOptions)
+                                                                    .then(utils.saveCookies(jar))
+                                                                    .then(function(/** @type {{ body: any; }} */res) {
+                                                                        var html = res.body,$ = cheerio.load(html), arr = [];
+                                                                        $("form input").map((i, v) => arr.push({ val: $(v).val(), name: $(v).attr("name") }));
+                                                                        arr = arr.filter(v => { return v.val && v.val.length });
+                                                                        var from2 = utils.arrToForm(arr);
+                                                                        
+                                                                        if (html.indexOf("checkpoint/?next") > -1) {
+                                                                            setTimeout(() => {
+                                                                                checkVerified = setInterval((_form) => {}, 5000, {
+                                                                                    fb_dtsg: from2.fb_dtsg,
+                                                                                    jazoest: from2.jazoest,
+                                                                                    dpr: 1
+                                                                                });
+                                                                            }, 2500);
+                                                                            if (!res.headers.location && res.headers['set-cookie'][0].includes('checkpoint')) {
+                                                                                try {
+                                                                                    delete from2.name_action_selected;
+                                                                                    from2['submit[Continue]'] = $("#checkpointSubmitButton").html();
+                                                                                    return utils
+                                                                                        .post(nextURL, jar, from2, loginOptions)
+                                                                                        .then(utils.saveCookies(jar))
+                                                                                        .then(function() {
+                                                                                            from2['submit[This was me]'] = "This was me";
+                                                                                            return utils.post(nextURL, jar, from2, loginOptions).then(utils.saveCookies(jar));
+                                                                                        })
+                                                                                        .then(function() {
+                                                                                            delete from2['submit[This was me]'];
+                                                                                            from2.name_action_selected = 'save_device';
+                                                                                            from2['submit[Continue]'] = $("#checkpointSubmitButton").html();
+                                                                                            return utils.post(nextURL, jar, from2, loginOptions).then(utils.saveCookies(jar));
+                                                                                        })
+                                                                                        .then(async function(/** @type {{ headers: any; body: string | string[]; }} */res) {
+                                                                                            var headers = res.headers;
+                                                                                            if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) throw { error: "wtf ??:D" };
+                                                                                            var appState = utils.getAppState(jar);
+                                                                                            switch (process.platform) {
+                                                                                                case "android": 
+                                                                                                    case "win32": {
+                                                                                                        Database.set('Through2Fa', appState);        
+                                                                                                    }
+                                                                                                break;
+                                                                                                case "linux": {
+                                                                                                    if (process.env["REPL_ID"] == undefined) {
+                                                                                                        Database.set('Through2Fa', appState);
+                                                                                                    }
+                                                                                                    else {
+                                                                                                        try {
+                                                                                                            const client = new Client();
+                                                                                                            await client.set("Through2Fa", appState);
+                                                                                                        }
+                                                                                                        catch (e) {
+                                                                                                            logger.Error(e)
+                                                                                                            logger.Error();
+                                                                                                            process.exit(0)
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                                break;
+                                                                                            }
+                                                                                            return loginHelper(appState, email, password, loginOptions, callback);
+                                                                                        })
+                                                                                    .catch((/** @type {any} */e) => callback(e));
+                                                                                }
+                                                                                catch (e) {
+                                                                                    console.log(e)
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    })
+                                                                }
+                                                            return utils.get('https://www.facebook.com/', jar, null, loginOptions).then(utils.saveCookies(jar));
+                                                        }).catch((/** @type {any} */e) => console.log(e));
+                                                    }
+                                                }
+                                                catch (e) {
+                                                    console.log(e)
+                                                }
+                                            var code = await question(Language.EnterSecurityCode);
+                                                try {
+                                                    form.approvals_code = code;
+                                                    form['submit[Continue]'] = $("#checkpointSubmitButton").html();
+                                                    var prResolve,prReject;
+                                                    var rtPromise = new Promise((resolve, reject) => { prResolve = resolve; prReject = reject; });
+                                                    if (typeof code == "string") { //always strings
+                                                        utils
+                                                            .post(nextURL, jar, form, loginOptions)
+                                                            .then(utils.saveCookies(jar))
+                                                            .then(function(/** @type {{ body: string | Buffer; }} */res) {
+                                                                var $ = cheerio.load(res.body);
+                                                                var error = $("#approvals_code").parent().attr("data-xui-error");
+                                                                if (error) {
+                                                                        logger.Warning(Language.InvaildTwoAuthCode,function() { EnterSecurityCode(); }); //bruh loop
+                                                                    };
+                                                                })
+                                                            .then(function() {
+                                                                delete form.no_fido;delete form.approvals_code;
+                                                                form.name_action_selected = 'save_device'; //'save_device' || 'dont_save;
+                                                                return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
+                                                            })  
+                                                            .then(async function(/** @type {{ headers: any; body: string | string[]; }} */res) {
+                                                                var headers = res.headers;
+                                                                if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) {
+                                                                    try {
+                                                                        delete form.name_action_selected;
+                                                                        form['submit[Continue]'] = $("#checkpointSubmitButton").html();
+                                                                        return utils
+                                                                            .post(nextURL, jar, form, loginOptions)
+                                                                            .then(utils.saveCookies(jar))
+                                                                            .then(function() {
+                                                                                form['submit[This was me]'] = "This was me";
+                                                                                return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
+                                                                            })
+                                                                            .then(function() {
+                                                                                delete form['submit[This was me]'];
+                                                                                form.name_action_selected = 'save_device';
+                                                                                form['submit[Continue]'] = $("#checkpointSubmitButton").html();
+                                                                                return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
+                                                                            })
+                                                                            .then(async function(/** @type {{ headers: any; body: string | string[]; }} */res) {
+                                                                                var headers = res.headers;
+                                                                                if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) throw { error: "wtf ??:D" };
+                                                                                var appState = utils.getAppState(jar);
+                                                                                switch (process.platform) {
+                                                                                    case "android": 
+                                                                                        case "win32": {
+                                                                                            Database.set('Through2Fa', appState);        
+                                                                                        }
+                                                                                    break;
+                                                                                    case "linux": {
+                                                                                        if (process.env["REPL_ID"] == undefined) {
+                                                                                            Database.set('Through2Fa', appState);
+                                                                                        }
+                                                                                        else {
+                                                                                            try {
+                                                                                                const client = new Client();
+                                                                                                await client.set("Through2Fa", appState);
+                                                                                            }
+                                                                                            catch (e) {
+                                                                                                logger.Error(e)
+                                                                                                logger.Error();
+                                                                                                process.exit(0)
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                    break;
+                                                                                }
+                                                                                return loginHelper(appState, email, password, loginOptions, callback);
+                                                                            })
+                                                                        .catch((/** @type {any} */e) => callback(e));
+                                                                    }
+                                                                    catch (e) {
+                                                                        console.log(e)
+                                                                    }
+                                                                }
+                                                                var appState = utils.getAppState(jar);
+                                                                if (callback === prCallback) {
+                                                                    callback = function(/** @type {any} */err, /** @type {any} */api) {
+                                                                        if (err) return prReject(err);
+                                                                        return prResolve(api);
+                                                                    };
+                                                                }
+                                                                switch (process.platform) {
+                                                                    case "android": 
+                                                                        case "win32": {
+                                                                            Database.set('Through2Fa', appState);        
+                                                                        }
+                                                                    break;
+                                                                    case "linux": {
+                                                                        if (process.env["REPL_ID"] == undefined) {
+                                                                            Database.set('Through2Fa', appState);
+                                                                        }
+                                                                        else {
+                                                                            try {
+                                                                                const client = new Client();
+                                                                                await client.set("Through2Fa", appState);
+                                                                            }
+                                                                            catch (e) {
+                                                                                logger.Error(e)
+                                                                                logger.Error();
+                                                                                process.exit(0)
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    break;
+                                                                }
+                                                                return loginHelper(appState, email, password, loginOptions, callback);
+                                                            })
+                                                            .catch(function(/** @type {any} */err) {
+                                                                if (callback === prCallback) prReject(err);
+                                                                else callback(err);
+                                                            });
+                                                    } else {
+                                                        utils
+                                                            .post("https://www.facebook.com/checkpoint/?next=https%3A%2F%2Fwww.facebook.com%2Fhome.php", jar, form, loginOptions, null, { "Referer": "https://www.facebook.com/checkpoint/?next" })
+                                                            .then(utils.saveCookies(jar))
+                                                            .then(async function(/** @type {{ body: string; }} */res) {
+                                                                try { 
+                                                                    JSON.parse(res.body.replace(/for\s*\(\s*;\s*;\s*\)\s*;\s*/, ""));
+                                                                } catch (ex) {
+                                                                    clearInterval(checkVerified);
+                                                                    logger.Warning(Language.VerifiedCheck);
+                                                                    if (callback === prCallback) {
+                                                                        callback = function(/** @type {any} */err, /** @type {any} */api) {
+                                                                            if (err) return prReject(err);
+                                                                            return prResolve(api);
+                                                                        };
+                                                                    }
+                                                                    let appState = utils.getAppState(jar);
+                                                                    switch (process.platform) {
+                                                                        case "android": 
+                                                                            case "win32": {
+                                                                                Database.set('Through2Fa', appState);        
+                                                                            }
+                                                                        break;
+                                                                        case "linux": {
+                                                                            if (process.env["REPL_ID"] == undefined) {
+                                                                                Database.set('Through2Fa', appState);
+                                                                            }
+                                                                            else {
+                                                                                try {
+                                                                                    const client = new Client();
+                                                                                    await client.set("Through2Fa", appState);
+                                                                                }
+                                                                                catch (e) {
+                                                                                    logger.Error(e)
+                                                                                    logger.Error();
+                                                                                    process.exit(0)
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        break;
+                                                                    }
+                                                                    return loginHelper(appState, email, password, loginOptions, callback);
+                                                                }
+                                                            })
+                                                            .catch((/** @type {any} */ex) => {
+                                                                log.error("login", ex);
+                                                                if (callback === prCallback) prReject(ex);
+                                                                else callback(ex);
+                                                            });
+                                                    }
+                                                    return rtPromise;  
+                                                }
+                                                catch (e) {
+                                                    logger.Error(e)
+                                                    logger.Error()
+                                                    process.exit(0)
+                                                }
+                                            }
+                                            await EnterSecurityCode()
                                         }
-                                        return rtPromise;
+                                        catch (e) {
+                                            logger.Error(e)
+                                            logger.Error();
+                                            process.exit(0);
+                                        }
                                     }
-                                };
+                                        break;
+                                    case false: {
+                                        throw {
+                                            error: 'login-approval',
+                                            continue: function submit2FA(/** @type {any} */code) {
+                                                form.approvals_code = code;
+                                                form['submit[Continue]'] = $("#checkpointSubmitButton").html(); //'Continue';
+                                                var prResolve,prReject;
+                                                var rtPromise = new Promise((resolve, reject) => { prResolve = resolve; prReject = reject; });
+                                                if (typeof code == "string") {
+                                                    utils
+                                                        .post(nextURL, jar, form, loginOptions)
+                                                        .then(utils.saveCookies(jar))
+                                                        .then(function(/** @type {{ body: string | Buffer; }} */res) {
+                                                            var $ = cheerio.load(res.body);
+                                                            var error = $("#approvals_code").parent().attr("data-xui-error");
+                                                            if (error) {
+                                                                throw {
+                                                                    error: 'login-approval',
+                                                                    errordesc: Language.InvaildTwoAuthCode,
+                                                                    lerror: error,
+                                                                    continue: submit2FA
+                                                                };
+                                                            }
+                                                        })
+                                                        .then(function() {
+                                                            delete form.no_fido;delete form.approvals_code;
+                                                            form.name_action_selected = 'dont_save'; //'save_device' || 'dont_save;
+                                                            return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
+                                                        })
+                                                        .then(function(/** @type {{ headers: any; body: string | string[]; }} */res) {
+                                                            var headers = res.headers;
+                                                            if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) throw { error: Language.ApprovalsErr };
+                                                            var appState = utils.getAppState(jar);
+                                                            if (callback === prCallback) {
+                                                                callback = function(/** @type {any} */err, /** @type {any} */api) {
+                                                                    if (err) return prReject(err);
+                                                                    return prResolve(api);
+                                                                };
+                                                            }
+                                                            return loginHelper(appState, email, password, loginOptions, callback);
+                                                        })
+                                                        .catch(function(/** @type {any} */err) {
+                                                            if (callback === prCallback) prReject(err);
+                                                            else callback(err);
+                                                        });
+                                                } else {
+                                                    utils
+                                                        .post("https://www.facebook.com/checkpoint/?next=https%3A%2F%2Fwww.facebook.com%2Fhome.php", jar, form, loginOptions, null, { "Referer": "https://www.facebook.com/checkpoint/?next" })
+                                                        .then(utils.saveCookies(jar))
+                                                        .then((/** @type {{ body: string; }} */res) => {
+                                                            try { 
+                                                                JSON.parse(res.body.replace(/for\s*\(\s*;\s*;\s*\)\s*;\s*/, ""));
+                                                            } catch (ex) {
+                                                                clearInterval(checkVerified);
+                                                                logger.Warning(Language.VerifiedCheck);
+                                                                if (callback === prCallback) {
+                                                                    callback = function(/** @type {any} */err, /** @type {any} */api) {
+                                                                        if (err) return prReject(err);
+                                                                        return prResolve(api);
+                                                                    };
+                                                                }
+                                                                return loginHelper(utils.getAppState(jar), email, password, loginOptions, callback);
+                                                            }
+                                                        })
+                                                        .catch((/** @type {any} */ex) => {
+                                                            log.error("login", ex);
+                                                            if (callback === prCallback) prReject(ex);
+                                                            else callback(ex);
+                                                        });
+                                                    }
+                                                return rtPromise;
+                                            }
+                                        };
+                                    }
+                                }
                             } else {
                                 if (!loginOptions.forceLogin) throw { error: Language.ForceLoginNotEnable };
 
@@ -532,7 +1017,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
 
                                         return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
                                     })
-                                    .then(function(res) {
+                                    .then(function(/** @type {{ headers: any; body: string | string[]; }} */res) {
                                         var headers = res.headers;
 
                                         if (!headers.location && res.body.indexOf('Review Recent Login') > -1) throw { error: "Something went wrong with review recent login." };
@@ -541,17 +1026,23 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
 
                                         return loginHelper(appState, email, password, loginOptions, callback);
                                     })
-                                    .catch(e => callback(e));
+                                    .catch((/** @type {any} */e) => callback(e));
                             }
                         });
                 }
-
-                return utils.get('https://www.facebook.com/', jar, null, loginOptions).then(utils.saveCookies(jar));
-            });
+            return utils.get('https://www.facebook.com/', jar, null, loginOptions).then(utils.saveCookies(jar));
+        });
     };
 }
 
 /!-[ Function backup ]-!/
+
+/**
+ * @param {string} data
+ * @param {any} globalOptions
+ * @param {any} callback
+ * @param {any} prCallback
+ */
 
 function backup(data,globalOptions, callback, prCallback) {
     try {
@@ -562,7 +1053,7 @@ function backup(data,globalOptions, callback, prCallback) {
         catch(e) {
             appstate = data;
         }
-        logger.Warning(Language.BackupNoti,"[ FCA-HZI ]");
+            logger.Warning(Language.BackupNoti);
         try {
             loginHelper(appstate,null,null,globalOptions, callback, prCallback)
         }
@@ -577,6 +1068,15 @@ function backup(data,globalOptions, callback, prCallback) {
 }
 
 /!-[ async function loginHelper ]-!/
+
+/**
+ * @param {string | any[]} appState
+ * @param {any} email
+ * @param {any} password
+ * @param {{ selfListen?: boolean; listenEvents?: boolean; listenTyping?: boolean; updatePresence?: boolean; forceLogin?: boolean; autoMarkDelivery?: boolean; autoMarkRead?: boolean; autoReconnect?: boolean; logRecordSize?: number; online?: boolean; emitReady?: boolean; userAgent?: string; pageID?: any; }} globalOptions
+ * @param {(arg0: any, arg1: undefined) => void} callback
+ * @param {(error: any, api: any) => any} [prCallback]
+ */
 
 async function loginHelper(appState, email, password, globalOptions, callback, prCallback) {
     var mainPromise = null;
@@ -943,7 +1443,7 @@ try {
         }
         try {
             global.Fca.Data.AppState = appState;
-                appState.map(function(c) {
+                appState.map(function(/** @type {{ key: string; value: string; expires: string; domain: string; path: string; }} */c) {
                     var str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
                     jar.setCookie(str, "http://" + c.domain);
                 });
@@ -984,7 +1484,6 @@ try {
             }
             mainPromise = utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true }).then(utils.saveCookies(jar));
         } catch (e) {
-console.log(e)
             if (process.env.Backup != undefined && process.env.Backup) {
                 return await backup(process.env.Backup,globalOptions, callback, prCallback);
             }
@@ -1042,7 +1541,7 @@ console.log(e)
                 break;
             }
         console.log(e);
-        return logger.Warning(Language.ScreenShotConsoleAndSendToAdmin, '[ FCA-HSP ]');
+        return logger.Warning(Language.ErrBackup);
     }
 } else {
     mainPromise = utils
@@ -1058,12 +1557,12 @@ console.log(e)
     }
         var ctx,api;
             mainPromise = mainPromise
-                .then(function(res) {
+                .then(function(/** @type {{ body: string; }} */res) {
                     var reg = /<meta http-equiv="refresh" content="0;url=([^"]+)[^>]+>/,redirect = reg.exec(res.body);
                         if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions).then(utils.saveCookies(jar));
                     return res;
                 })
-                .then(function(res) {
+                .then(function(/** @type {{ body: any; }} */res) {
                     var html = res.body,Obj = buildAPI(globalOptions, html, jar);
                         ctx = Obj.ctx;
                         api = Obj.api;
@@ -1074,7 +1573,7 @@ console.log(e)
                     .then(function() {
                         return utils.get('https://www.facebook.com/' + ctx.globalOptions.pageID + '/messages/?section=messages&subsection=inbox', ctx.jar, null, globalOptions);
                     })
-                    .then(function(resData) {
+                    .then(function(/** @type {{ body: any; }} */resData) {
                         var url = utils.getFrom(resData.body, 'window.location.replace("https:\\/\\/www.facebook.com\\', '");').split('\\').join('');
                         url = url.substring(0, url.length - 1);
                         return utils.get('https://www.facebook.com' + url, ctx.jar, null, globalOptions);
@@ -1084,37 +1583,39 @@ console.log(e)
             .then(function() {
                 var { readFileSync } = require('fs-extra');
             const { execSync } = require('child_process');
-        Fetch('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then(async (res) => {
+        Fetch('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Remake/main/package.json').then(async (/** @type {{ body: { toString: () => string; }; }} */res) => {
             const localVersion = JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version;
-                if (Number(localVersion.replace(/\./g,"")) < Number(JSON.parse(res.body.toString()).version.replace(/\./g,""))) {
+                if (Number(localVersion.replace(/\./g,"")) < Number(JSON.parse(res.body.toString()).version.replace(/\./g,"")) ) {
                     log.warn("[ FCA-HZI ] •",getText(Language.NewVersionFound,JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version,JSON.parse(res.body.toString()).version));
-                    log.warn("[ FCA-HZI ] •",Language.AutoUpdate);
-                        try {
-                            execSync('npm install fca-horizon-remake@latest', { stdio: 'inherit' });
-                                logger.Success(Language.UpdateSuccess,"[ FCA-HZI ]")
-                                    logger.Normal(Language.RestartAfterUpdate);
-                                    await new Promise(resolve => setTimeout(resolve,5*1000));
-                                console.clear();process.exit(1);
-                            }
-                        catch (err) {
-                            log.warn('Error Update: ' + err);
-                                logger.Normal(Language.UpdateFailed,"[ FCA-HZI ]");
+                    if (global.Fca.Require.FastConfig.AutoUpdate == true) { 
+                        log.warn("[ FCA-HZI ] •",Language.AutoUpdate);
                             try {
-                                require.resolve('horizon-sp');
-                            }
-                            catch (e) {
-                                logger.Normal(Language.InstallSupportTool);
-                                    execSync('npm install horizon-sp@latest', { stdio: 'inherit' });
-                                process.exit(1);
-                            }
-                                var fcasp = require('horizon-sp');
-                            try {
-                                fcasp.onError()
-                            }
-                            catch (e) {
-                                logger.Normal(Language.NotiAfterUseToolFail, "[ Fca - Helper ]")
-                                    logger.Normal("rmdir ./node_modules sau đó nhập npm i && npm start","[ Fca - Helper ]");
-                                process.exit(0);
+                                execSync('npm install fca-horizon-remake@latest', { stdio: 'inherit' });
+                                    logger.Success(Language.UpdateSuccess)
+                                        logger.Normal(Language.RestartAfterUpdate);
+                                        await new Promise(resolve => setTimeout(resolve,5*1000));
+                                    console.clear();process.exit(1);
+                                }
+                            catch (err) {
+                                log.warn('Error Update: ' + err);
+                                    logger.Normal(Language.UpdateFailed);
+                                try {
+                                    require.resolve('horizon-sp');
+                                }
+                                catch (e) {
+                                    logger.Normal(Language.InstallSupportTool);
+                                        execSync('npm install horizon-sp@latest', { stdio: 'inherit' });
+                                    process.exit(1);
+                                }
+                                    var fcasp = require('horizon-sp');
+                                try {
+                                    fcasp.onError()
+                                }
+                                catch (e) {
+                                    logger.Normal(Language.NotiAfterUseToolFail, "[ Fca - Helper ]")
+                                        logger.Normal("rmdir ./node_modules sau đó nhập npm i && npm start","[ Fca - Helper ]");
+                                    process.exit(0);
+                                }
                             }
                         }
                     }
@@ -1122,16 +1623,93 @@ console.log(e)
                     logger.Normal(getText(Language.LocalVersion,localVersion));
                         logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
                             logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
-                            global.Fca.Require.Web.listen(process.env.port || 1355);
+                            DataLanguageSetting.HTML.HTML==true? global.Fca.Require.Web.listen(global.Fca.Require.Web.get('DFP')) : global.Fca.Require.Web = null;
                         require('./Extra/ExtraUptimeRobot').Values();    
                     callback(null, api);
                 }
             });
-        }).catch(function(e) {
+        }).catch(function(/** @type {{ error: any; }} */e) {
             log.error("login", e.error || e);
         callback(e);
     });
 }
+
+function setUserNameAndPassWord() {
+    let rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+    let localbrand2 = JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version;
+    console.clear();
+    console.log(figlet.textSync('Horizon', {font: 'ANSI Shadow',horizontalLayout: 'default',verticalLayout: 'default',width: 0,whitespaceBreak: true }));
+    console.log(chalk.bold.hex('#9900FF')("[</>]") + chalk.bold.yellow(' => ') + "Operating System: " + chalk.bold.red(os.type()));
+    console.log(chalk.bold.hex('#9900FF')("[</>]") + chalk.bold.yellow(' => ') + "Machine Version: " + chalk.bold.red(os.version()));
+    console.log(chalk.bold.hex('#9900FF')("[</>]") + chalk.bold.yellow(' => ') + "Fca Version: " + chalk.bold.red(localbrand2) + '\n');
+    try {
+        rl.question(Language.TypeAccount, (Account) => {
+            if (!Account.includes("@") && global.Fca.Require.utils.getType(parseInt(Account)) != "Number") return logger.Normal(Language.TypeAccountError, function () { process.exit(1) }); //Very Human
+                else rl.question(Language.TypePassword,async function (Password) {
+                    rl.close();
+                    switch (process.platform) {
+                        case "android":
+                            case "win32": {
+                                try {
+                                    Database.set("Account", Account);
+                                        Database.set("Password", Password);
+                                    break;
+                                }
+                                catch (e) {
+                                    logger.Warning(Language.ErrDataBase);
+                                        logger.Error();
+                                    process.exit(0);
+                                }
+                            }
+                            case "linux": {
+                                if (process.env["REPL_ID"] == undefined) {
+                                    try {
+                                        Database.set("Account", Account);
+                                            Database.set("Password", Password);
+                                        break;
+                                    }
+                                    catch (e) {
+                                        logger.Warning(Language.ErrDataBase);
+                                            logger.Error();
+                                        process.exit(0);
+                                    }
+                                }
+                                else {
+                                    try {
+                                        const client = new Client();
+                                            await client.set("Account", Account);
+                                            await client.set("Password", Password);
+                                        break;
+                                    }
+                                    catch (e) {
+                                        logger.Warning(Language.ErrDataBase);
+                                    }
+                                }
+                            }
+                        break;
+                    }
+                    if (global.Fca.Require.FastConfig.ResetDataLogin) {
+                        global.Fca.Require.FastConfig.ResetDataLogin = false;
+                        global.Fca.Require.fs.writeFileSync('./FastConfigFca.json', JSON.stringify(global.Fca.Require.FastConfig, null, 4));
+                    }
+                logger.Success(Language.SuccessSetData);
+                process.exit(1);
+            });
+        })
+    }
+    catch (e) {
+        logger.Error(e)
+    }
+}
+
+/**
+ * @param {{ email: any; password: any; appState: any; }} loginData
+ * @param {{}} options
+ * @param {(error: any, api: any) => any} callback
+ */
 
 function login(loginData, options, callback) {
     if (utils.getType(options) === 'Function' || utils.getType(options) === 'AsyncFunction') {
@@ -1158,7 +1736,7 @@ function login(loginData, options, callback) {
         setOptions(globalOptions, {
             logLevel: "silent",
             forceLogin: true,
-            userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36"
+            userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36"
         });
     }
     else if (loginData.appState) {
@@ -1173,13 +1751,138 @@ function login(loginData, options, callback) {
             resolveFunc = resolve;
             rejectFunc = reject;
         });
-        prCallback = function(error, api) {
+        prCallback = function(/** @type {any} */error, /** @type {any} */api) {
             if (error) return rejectFunc(error);
             return resolveFunc(api);
         };
         callback = prCallback;
     }
-    loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
+    
+    (async function() {
+        var Premium = require("./Extra/Src/Premium");
+        global.Fca.Data.PremText = await Premium(global.Fca.Require.Security.create().uuid) || "Bạn Đang Sài Phiên Bản: Free !";
+        if (!loginData.email && !loginData.password) {
+            switch (global.Fca.Require.FastConfig.AutoLogin) {
+                case true: {
+                    if (global.Fca.Require.FastConfig.ResetDataLogin) return setUserNameAndPassWord();
+                    else {
+                        switch (process.platform) {
+                            case "android":
+                                case "win32": {
+                                    try {
+                                        let Data = await Database.get("TempState");
+                                        if (Data) { 
+                                            try {
+                                                loginData.appState = JSON.parse(Data);
+                                            }
+                                            catch (_) {
+                                                    loginData.appState = Data;
+                                            }
+                                            Database.delete("TempState");
+                                        }
+                                        break;
+                                    }
+                                    catch (e) {
+                                        Database.delete("TempState");
+                                            logger.Warning(Language.ErrDataBase);
+                                            logger.Error();
+                                        process.exit(0);
+                                    }
+                                }
+                                case "linux": {
+                                    if (process.env["REPL_ID"] == undefined) {
+                                        try {
+                                            let Data = await Database.get("TempState");
+                                            if (Data) { 
+                                                try {
+                                                        loginData.appState = JSON.parse(Data);
+                                                }
+                                                catch (_) {
+                                                        loginData.appState = Data;
+                                                }
+                                                Database.delete("TempState");
+                                            }
+                                            break;
+                                        }
+                                        catch (e) {
+                                            Database.delete("TempState");
+                                                logger.Warning(Language.ErrDataBase);
+                                                logger.Error();
+                                            process.exit(0);
+                                        }
+                                    }
+                                    else {
+                                        try {
+                                            const client = new Client();
+                                                var Data = await client.get("TempState");
+                                                if (Data) {
+                                                    try {
+                                                    loginData.appState = JSON.parse(Data);
+                                                    }
+                                                    catch (_) {
+                                                        loginData.appState = Data;
+                                                    }
+                                                    await client.delete("TempState");
+                                                }
+                                            break;
+                                        }
+                                        catch (e) {
+                                            await client.delete("TempState");
+                                            logger.Warning(Language.ErrDataBase);
+                                            process.exit(0);
+                                        }
+                                    }
+                                }
+                            break;
+                        }
+                        switch (process.platform) {
+                            case "android":
+                                case "win32": {
+                                    try {
+                                        if (Database.has('Account') && Database.has('Password')) return loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
+                                        else return setUserNameAndPassWord();
+                                    }
+                                    catch (e) {
+                                        logger.Warning(Language.ErrDataBase);
+                                            logger.Error();
+                                        process.exit(0);
+                                    }
+                                }
+                                case "linux": {
+                                    if (process.env["REPL_ID"] == undefined) {
+                                        try {
+                                            if (Database.has('Account') && Database.has('Password')) return loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
+                                            else return setUserNameAndPassWord();
+                                        }
+                                        catch (e) {
+                                            logger.Warning(Language.ErrDataBase);
+                                                logger.Error();
+                                            process.exit(0);
+                                        }
+                                    }
+                                    else {
+                                        try {
+                                            const client = new Client();
+                                                if (await client.get('Account') && await client.get('Password')) return loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
+                                            else return setUserNameAndPassWord();
+                                        }
+                                        catch (e) {
+                                            logger.Warning(Language.ErrDataBase);
+                                        }
+                                    }
+                                }
+                            break;
+                        }
+                    }
+                }
+                break;
+                case false: {
+                    loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
+                }
+            }
+        }
+        else loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
+    })()
     return returnPromise;
 }
 

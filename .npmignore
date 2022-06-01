@@ -9,3 +9,5 @@ Extra/Database/test
 node_modules
 *.sqlite
 CountTime.json
+test.*
+*.env
