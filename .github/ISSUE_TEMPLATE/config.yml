@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: KanzuWakazaki Suppor
+    url: https://github.com/HarryWakazaki
+    about: Please ask and answer questions here.
+  - name: Fca-Horizon-Remake Bug 
+    url: https://github.com/HarryWakazaki/Fca-Horizon-Remake/issues
+    about: Please report security vulnerabilities here.
