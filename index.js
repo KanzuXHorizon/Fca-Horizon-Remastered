@@ -164,9 +164,6 @@ catch (e) {
                     DataLanguageSetting.ResetDataLogin = false; // for account security ☕
                     DataLanguageSetting.HTML.HTML = true;
                     DataLanguageSetting.Login2Fa = false;
-                    if (DataLanguageSetting.PreKey == "") {
-                        DataLanguageSetting.PreKey = "Anniversary"; // giveaway free
-                    }
                 global.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));        
             }
         }
@@ -247,11 +244,6 @@ var js = readFileSync(join(__dirname, 'Extra', 'Html', 'Classic', 'script.js'));
  */
 
 function ClassicHTML(UserName,Type,link) {
-    if (Type == "Free") {
-        DataLanguageSetting.PreKey = "Anniversary";
-        global.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));   
-        process.exit(1);     
-    }
     return `<!DOCTYPE html>
     <html lang="en" >
         <head>
@@ -261,7 +253,7 @@ function ClassicHTML(UserName,Type,link) {
     </head>
     <body>
         <center>
-            <marquee><b>On May 30, 2022 We will be handing out gifts on fca-horizon-remake anniversary!</b></marquee>
+            <marquee><b>go go go brr!</b></marquee>
             <h2>Horizon User Infomation</h2>
             <h3>UserName: ${UserName} | Type: ${Type}</h3>
             <canvas id="myCanvas"></canvas>

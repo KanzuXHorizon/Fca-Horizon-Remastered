@@ -99,12 +99,17 @@ console._collect = function(type, data, args) {
             stack.push(stackParts[i].trim())
         }
     }
-
+    try {
+        data = data.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,'')
+    }
+    catch (e) {
+        data = data;
+    }
     // Add the log to our history.
     console.history.push({
         type: type,
         timestamp: time,
-        message: data.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,''),
+        message: data,
         stack: stack
     })
 }
