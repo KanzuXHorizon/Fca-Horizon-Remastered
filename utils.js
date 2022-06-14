@@ -35,7 +35,8 @@ function getHeaders(url, options, ctx, customHeader) {
         Origin: "https://www.facebook.com",
         "user-agent": options.userAgent,
         Connection: "keep-alive",
-        "sec-fetch-site": 'same-origin'
+        "sec-fetch-site": 'same-origin',
+        "sec-fetch-mode": 'cors'
     };
     if (customHeader) Object.assign(headers, customHeader);
     if (ctx && ctx.region) headers["X-MSGR-Region"] = ctx.region;
@@ -1428,7 +1429,7 @@ function parseAndCheckLogin(ctx, defaultFuncs, retryCount) {
                         break;
                     }
                     case false: {
-                        throw { error: "Chưa Đăng Nhập Được - Appstate Đã Bị Lỗi" };
+                        throw { error: global.Fca.Require.Language.Index.ErrAppState };
                         
                     }
                 }
@@ -1625,7 +1626,7 @@ function decodeClientPayload(payload) {
  * @param {{ getCookies: (arg0: string) => string | any[]; }} jar
  */
 
-function getAppState(jar) {
+function getAppState(jar, enc) {
     var prettyMilliseconds = require('pretty-ms')
     var getText = global.Fca.getText;
     var StateCrypt = require('./StateCrypt');
@@ -1635,7 +1636,8 @@ function getAppState(jar) {
     var data;
         switch (require("../../FastConfigFca.json").EncryptFeature) {
             case true: {
-                if (process.env['FBKEY'] != undefined) {
+                if (enc == undefined) enc = true;
+                if (process.env['FBKEY'] != undefined && enc) {
                     if(!global.Fca.Setting.get('getAppState')) {
                         logger.Normal(Language.EncryptSuccess);
                     }

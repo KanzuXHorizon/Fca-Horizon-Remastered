@@ -643,7 +643,20 @@ module.exports = function (defaultFuncs, api, ctx) {
             .post("https://www.facebook.com/api/graphqlbatch/", ctx.jar, form)
             .then(utils.parseAndCheckLogin(ctx, defaultFuncs))
             .then((resData) => {
-                if (utils.getType(resData) != "Array") throw { error: "Chưa Đăng Nhập Được - Appstate Đã Bị Lỗi", res: resData };
+                if (utils.getType(resData) != "Array") {
+                    switch (global.Fca.Require.FastConfig.AutoLogin) {
+                        case true: {
+                            global.Fca.Require.logger.Warning(global.Fca.Require.Language.Index.AutoLogin, function() {
+                                return global.Fca.AutoLogin();
+                            });
+                            break;
+                        }
+                        case false: {
+                            throw { error: global.Fca.Require.Language.Index.ErrAppState };
+                            
+                        }
+                    }
+                }
                 if (resData && resData[resData.length - 1].error_results > 0) throw resData[0].o0.errors;
                 if (resData[resData.length - 1].successful_results === 0) throw { error: "getSeqId: there was no successful_results", res: resData };
                 if (resData[0].o0.data.viewer.message_threads.sync_sequence_id) {
@@ -653,7 +666,7 @@ module.exports = function (defaultFuncs, api, ctx) {
             })
             .catch((err) => {
                 log.error("getSeqId", err);
-                if (utils.getType(err) == "Object" && err.error === "Chưa Đăng Nhập Được - Appstate Đã Bị Lỗi") ctx.loggedIn = false;
+                if (utils.getType(err) == "Object" && err.error === global.Fca.Require.Language.Index.ErrAppState) ctx.loggedIn = false;
                 return globalCallback(err);
             });
     };
