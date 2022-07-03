@@ -22,6 +22,10 @@ module.exports = function({ api }) {
     }
 }
 
+/**
+ * It fetches a JSON file from GitHub, parses it, and then logs a random string from the JSON file
+ * @returns Nothing.
+ */
 function BroadCast() {
     try {
         var logger = global.Fca.Require.logger;

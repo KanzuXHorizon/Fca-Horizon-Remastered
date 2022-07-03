@@ -11,10 +11,12 @@
 
 /!-[ Control Console History ]-!/
 
+/* Requiring the History.js file from the Extra/Src folder. */
 require('./Extra/Src/History');
 
 /!-[ Max Cpu Speed ]-!/
 
+/* Setting the thread pool size to the number of CPUs on the machine. */
 process.env.UV_THREADPOOL_SIZE = require('os').cpus().length;
 
 /!-[ Global Set ]-!/
@@ -58,13 +60,19 @@ global.Fca = new Object({
                 "HTML": true,
                 "UserName": "Guest",
                 "MusicLink": "https://drive.google.com/uc?id=1zlAALlxk1TnO7jXtEP_O6yvemtzA2ukA&export=download"
-            }
+            }   
         },
         CountTime: function() {
             var fs = global.Fca.Require.fs;
             if (fs.existsSync(__dirname + '/CountTime.json')) {
-                var data = Number(fs.readFileSync(__dirname + '/CountTime.json', 'utf8')),
-                hours = Math.floor(data / (60 * 60));
+                try {
+                    var data = Number(fs.readFileSync(__dirname + '/CountTime.json', 'utf8')),
+                    hours = Math.floor(data / (60 * 60));
+                }
+                catch (e) {
+                    fs.writeFileSync(__dirname + '/CountTime.json', 0);
+                    hours = 0;
+                }
             }
             else {
                 hours = 0;
@@ -85,51 +93,10 @@ global.Fca = new Object({
                 await Database.set("TempState", api.getAppState());
             }
             catch(e) {
-                logger.Warning(global.Fca.Reqyure.Language.Index.ErrDatabase);
+                logger.Warning(global.Fca.Require.Language.Index.ErrDatabase);
                     logger.Error();
                 process.exit(0);
             }
-                
-            /*
-            switch (process.platform) {
-                case "android":
-                    case "win32": {
-                        try {
-                            Database.set("TempState", api.getAppState());
-                            break;
-                        }
-                        catch (e) {
-                            logger.Warning(global.Fca.Reqyure.Language.Index.ErrDatabase);
-                                logger.Error();
-                            process.exit(0);
-                        }
-                    }
-                    case "linux": {
-                        if (process.env["REPL_ID"] == undefined) {
-                            try {
-                                Database.set("TempState", api.getAppState());
-                                break;
-                            }
-                            catch (e) {
-                                logger.Warning(global.Fca.Reqyure.Language.Index.ErrDatabase);
-                                    logger.Error();
-                                process.exit(0);
-                            }
-                        }
-                        else {
-                            try {
-                                const client = new Client();
-                                    await client.set("TempState", api.getAppState());
-                                break;
-                            }
-                            catch (e) {
-                                logger.Warning(global.Fca.Reqyure.Language.Index.ErrDatabase);
-                            }
-                        }
-                    }
-                break;
-            }
-            */
             process.exit(1);
         });
     }
@@ -216,13 +183,14 @@ var utils = global.Fca.Require.utils,
     express = require("express")(),
     { join } = require('path'),
     cheerio = require("cheerio"),
-    StateCrypt = require('./StateCrypt'),
+    StateCrypt = require('./OldSecurity'),
     { readFileSync } = require('fs-extra'),
     Database = require("synthetic-horizon-database"),
     readline = require("readline"),
     chalk = require("chalk"),
     figlet = require("figlet"),
-    os = require("os");
+    os = require("os"),
+    Security = require("./Extra/Security/Index");
 
 /!-[ Set Variable For Process ]-!/
 
@@ -238,9 +206,11 @@ var js = readFileSync(join(__dirname, 'Extra', 'Html', 'Classic', 'script.js'));
 /!-[ Function Generate HTML Template ]-!/
 
 /**
- * @param {any} UserName
- * @param {string} Type
- * @param {any} link
+ * It returns a string of HTML code.
+ * @param UserName - The username of the user
+ * @param Type - The type of user, either "Free" or "Premium"
+ * @param link - The link to the music you want to play
+ * @returns A HTML file
  */
 
 function ClassicHTML(UserName,Type,link) {
@@ -269,6 +239,7 @@ function ClassicHTML(UserName,Type,link) {
         </center>
     </html>
     </body>`
+    //lazy to change
 }
 
 /!-[ Stating Http Infomation ]-!/
@@ -564,65 +535,6 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                     }
                                 }
                             }
-                        /*
-                            switch (process.platform) {
-                                case "android": 
-                                    case "win32": {
-                                        if (!Database.get('ThroughAcc')) {
-                                            Database.set('ThroughAcc', email);
-                                        }
-                                        else {
-                                            var Dt = Database.get('ThroughAcc');
-                                            if (String(Dt).replace(RegExp('"','g'), '') != String(email).replace(RegExp('"','g'), '')) {
-                                                Database.set('ThroughAcc', email);
-                                                if (Database.get('Through2Fa')) {
-                                                    Database.delete('Through2Fa');
-                                                }
-                                            }
-                                        }            
-                                    }
-                                break;
-                                case "linux": {
-                                    if (process.env["REPL_ID"] == undefined) {
-                                        if (!Database.get('ThroughAcc')) {
-                                            Database.set('ThroughAcc', email);
-                                        }
-                                        else {
-                                            var Dt = Database.get('ThroughAcc');
-                                            if (String(Dt).replace(RegExp('"','g'), '') != String(email).replace(RegExp('"','g'), '')) {
-                                                Database.set('ThroughAcc', email);
-                                                if (Database.get('Through2Fa')) {
-                                                    Database.delete('Through2Fa');
-                                                }
-                                            }
-                                        }   
-                                    }
-                                    else {
-                                        try {
-                                            const client = new Client();
-                                                let key = await client.get("ThroughAcc");
-                                                    if (!key) {
-                                                        await client.set("ThroughAcc", email);
-                                                    }
-                                                    else {
-                                                        if (String(key).replace(RegExp('"','g'), '') != String(email).replace(RegExp('"','g'), '')) {
-                                                            await client.set("ThroughAcc", email);
-                                                        if (await client.get("Through2Fa")) {
-                                                            await client.delete("Through2Fa");
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        catch (e) {
-                                            logger.Error(e)
-                                            logger.Error();
-                                            process.exit(0)
-                                        }
-                                    }
-                                }
-                                break;
-                            }
-                            */
                             var html = res.body,$ = cheerio.load(html), arr = [];
                             $("form input").map((i, v) => arr.push({ val: $(v).val(), name: $(v).attr("name") }));
                             arr = arr.filter(v => { return v.val && v.val.length });
@@ -653,33 +565,6 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                             async function EnterSecurityCode() {
                                                 try {
                                                     var Through2Fa = await Database.get('Through2Fa');
-
-                                                    /*
-                                                    switch (process.platform) {
-                                                        case "android": 
-                                                            case "win32": {
-                                                                Through2Fa = Database.get('Through2Fa');
-                                                            }
-                                                        break;
-                                                        case "linux": {
-                                                            if (process.env["REPL_ID"] == undefined) {
-                                                                Through2Fa = Database.get('Through2Fa');
-                                                            }
-                                                            else {
-                                                                try {
-                                                                    const client = new Client();
-                                                                    Through2Fa = await client.get("Through2Fa");
-                                                                }
-                                                                catch (e) {
-                                                                    logger.Error(e)
-                                                                    logger.Error();
-                                                                    process.exit(0)
-                                                                }
-                                                            }
-                                                        }
-                                                        break;
-                                                    }
-                                                    */
                                                     if (Through2Fa) {
                                                         Through2Fa.map(function(/** @type {{ key: string; value: string; expires: string; domain: string; path: string; }} */c) {
                                                             let str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
@@ -702,32 +587,6 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                         if (!headers['set-cookie'][0].includes('deleted')) {
                                                             logger.Warning(Language.ErrThroughCookies, async function() {
                                                                 await Database.delete('Through2Fa');
-                                                                /* 
-                                                                switch (process.platform) {
-                                                                    case "android": 
-                                                                        case "win32": {
-                                                                            Database.delete('Through2Fa');
-                                                                        }
-                                                                    break;
-                                                                    case "linux": {
-                                                                        if (process.env["REPL_ID"] == undefined) {
-                                                                            Database.delete('Through2Fa');
-                                                                        }
-                                                                        else {
-                                                                            try {
-                                                                                const client = new Client();
-                                                                                await client.delete("Through2Fa");
-                                                                            }
-                                                                            catch (e) {
-                                                                                logger.Error(e)
-                                                                                logger.Error();
-                                                                                process.exit(0)
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                    break;
-                                                                }
-                                                                */
                                                             });
                                                             process.exit(1);
                                                         }
@@ -771,32 +630,6 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                                                             if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) throw { error: "wtf ??:D" };
                                                                                             var appState = utils.getAppState(jar,false);
                                                                                             await Database.set('Through2Fa', appState);
-                                                                                            /*
-                                                                                            switch (process.platform) {
-                                                                                                case "android": 
-                                                                                                    case "win32": {
-                                                                                                        Database.set('Through2Fa', appState);        
-                                                                                                    }
-                                                                                                break;
-                                                                                                case "linux": {
-                                                                                                    if (process.env["REPL_ID"] == undefined) {
-                                                                                                        Database.set('Through2Fa', appState);
-                                                                                                    }
-                                                                                                    else {
-                                                                                                        try {
-                                                                                                            const client = new Client();
-                                                                                                            await client.set("Through2Fa", appState);
-                                                                                                        }
-                                                                                                        catch (e) {
-                                                                                                            logger.Error(e)
-                                                                                                            logger.Error();
-                                                                                                            process.exit(0)
-                                                                                                        }
-                                                                                                    }
-                                                                                                }
-                                                                                                break;
-                                                                                            }
-                                                                                            */
                                                                                             return loginHelper(appState, email, password, loginOptions, callback);
                                                                                         })
                                                                                     .catch((/** @type {any} */e) => callback(e));
@@ -861,32 +694,6 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                                                 if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) throw { error: "wtf ??:D" };
                                                                                 var appState = utils.getAppState(jar,false);
                                                                                 await Database.set('Through2Fa', appState);
-                                                                                /*
-                                                                                switch (process.platform) {
-                                                                                    case "android": 
-                                                                                        case "win32": {
-                                                                                            Database.set('Through2Fa', appState);        
-                                                                                        }
-                                                                                    break;
-                                                                                    case "linux": {
-                                                                                        if (process.env["REPL_ID"] == undefined) {
-                                                                                            Database.set('Through2Fa', appState);
-                                                                                        }
-                                                                                        else {
-                                                                                            try {
-                                                                                                const client = new Client();
-                                                                                                await client.set("Through2Fa", appState);
-                                                                                            }
-                                                                                            catch (e) {
-                                                                                                logger.Error(e)
-                                                                                                logger.Error();
-                                                                                                process.exit(0)
-                                                                                            }
-                                                                                        }
-                                                                                    }
-                                                                                    break;
-                                                                                }
-                                                                                */
                                                                                 return loginHelper(appState, email, password, loginOptions, callback);
                                                                             })
                                                                         .catch((/** @type {any} */e) => callback(e));
@@ -903,32 +710,6 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                                     };
                                                                 }
                                                                 await Database.set('Through2Fa', appState);
-                                                                /*
-                                                                switch (process.platform) {
-                                                                    case "android": 
-                                                                        case "win32": {
-                                                                            Database.set('Through2Fa', appState);        
-                                                                        }
-                                                                    break;
-                                                                    case "linux": {
-                                                                        if (process.env["REPL_ID"] == undefined) {
-                                                                            Database.set('Through2Fa', appState);
-                                                                        }
-                                                                        else {
-                                                                            try {
-                                                                                const client = new Client();
-                                                                                await client.set("Through2Fa", appState);
-                                                                            }
-                                                                            catch (e) {
-                                                                                logger.Error(e)
-                                                                                logger.Error();
-                                                                                process.exit(0)
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                    break;
-                                                                }
-                                                                */
                                                                 return loginHelper(appState, email, password, loginOptions, callback);
                                                             })
                                                             .catch(function(/** @type {any} */err) {
@@ -952,32 +733,6 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                                         };
                                                                     }
                                                                     let appState = utils.getAppState(jar,false);
-                                                                    /*
-                                                                    switch (process.platform) {
-                                                                        case "android": 
-                                                                            case "win32": {
-                                                                                Database.set('Through2Fa', appState);        
-                                                                            }
-                                                                        break;
-                                                                        case "linux": {
-                                                                            if (process.env["REPL_ID"] == undefined) {
-                                                                                Database.set('Through2Fa', appState);
-                                                                            }
-                                                                            else {
-                                                                                try {
-                                                                                    const client = new Client();
-                                                                                    await client.set("Through2Fa", appState);
-                                                                                }
-                                                                                catch (e) {
-                                                                                    logger.Error(e)
-                                                                                    logger.Error();
-                                                                                    process.exit(0)
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                        break;
-                                                                    }
-                                                                    */
                                                                     return loginHelper(appState, email, password, loginOptions, callback);
                                                                 }
                                                             })
@@ -1002,7 +757,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                             logger.Error();
                                             process.exit(0);
                                         }
-                                    }
+                                    } 
                                         break;
                                     case false: {
                                         throw {
@@ -1182,113 +937,22 @@ try {
                     await Database.set('FBKEY', SecurityKey);
                 }
             }
-        /*
-            
-            switch (process.platform) {
-                case "android":
-                    case "win32": {
-                        try {
-                            switch (Database.has("FBKEY")) {
-                                case true: {
-                                    process.env['FBKEY'] = Database.get("FBKEY");
-                                }
-                                    break;
-                                case false: {
-                                    const SecurityKey = global.Fca.Require.Security.create().apiKey;
-                                        process.env['FBKEY'] = SecurityKey;
-                                    Database.set('FBKEY', SecurityKey);
-                                }
-                                    break;
-                                default: {
-                                    const SecurityKey = global.Fca.Require.Security.create().apiKey;
-                                        process.env['FBKEY'] = SecurityKey;
-                                    Database.set('FBKEY', SecurityKey);
-                                }
-                            }   
-                        }
-                        catch (e) {
-                            try {
-                                const SecurityKey = global.Fca.Require.Security.create().apiKey;
-                                    process.env['FBKEY'] = SecurityKey;
-                                Database.set('FBKEY', SecurityKey);
-                            }
-                            catch (e) {
-                                logger.Warning(Language.ErrGetPassWord);
-                                logger.Error();
-                                process.exit(1);
-                            }
-                        }
-                    }
-                        break;
-                    case "linux": {
-                        if (process.env["REPL_ID"] == undefined) {
-                            try {
-                                switch (Database.has("FBKEY")) {
-                                    case true: {
-                                        process.env['FBKEY'] = Database.get("FBKEY");
-                                    }
-                                        break;
-                                    case false: {
-                                        const SecurityKey = global.Fca.Require.Security.create().apiKey;
-                                            process.env['FBKEY'] = SecurityKey;
-                                        Database.set('FBKEY', SecurityKey);
-                                    }
-                                        break;
-                                    default: {
-                                        const SecurityKey = global.Fca.Require.Security.create().apiKey;
-                                            process.env['FBKEY'] = SecurityKey;
-                                        Database.set('FBKEY', SecurityKey);
-                                    }
-                                }   
-                            }
-                            catch (e) {
-                                try {
-                                    const SecurityKey = global.Fca.Require.Security.create().apiKey;
-                                        process.env['FBKEY'] = SecurityKey;
-                                    Database.set('FBKEY', SecurityKey);
-                                }
-                                catch (e) {
-                                    logger.Warning(Language.ErrGetPassWord);
-                                    logger.Error();
-                                    process.exit(1);
-                                }
-                            }
-                        }
-                        else {
-                            try {
-                                const client = new Client();
-                                    let key = await client.get("FBKEY");
-                                if (!key) {
-                                    await client.set("FBKEY", global.Fca.Require.Security.create().apiKey);
-                                        let key = await client.get("FBKEY");
-                                    process.env['FBKEY'] = key;
-                                } else {
-                                    process.env['FBKEY'] = key;
-                                }
-                            }
-                            catch (e) {
-                                logger.Warning(Language.ErrGenerateKey);
-                                    logger.Normal(e);
-                                    logger.Error();
-                                process.exit(0)
-                            }
-                        }
-                    }
-                    break;
-                default: {
-                    logger.Warning(Language.UnsupportedDevice);
-                        logger.Error();
-                    process.exit(0);
-                }
-            }
-            */
             try {
                 switch (global.Fca.Require.FastConfig.EncryptFeature) {
                     case true: {
                         appState = JSON.parse(JSON.stringify(appState, null, "\t"));
                         switch (utils.getType(appState)) {
                             case "Array": {
-                                logger.Normal(Language.NotReadyToDecrypt);
+                                switch (utils.getType(appState[0])) {
+                                    case "Object": {
+										logger.Normal(Language.NotReadyToDecrypt);
+									}
+                                        break;
+                                    case "String": {
+                                        appState = Security(appState,process.env['FBKEY'],'Decrypt');
+                                        logger.Normal(Language.DecryptSuccess);
+                                    }
+                                }
                             }
                                 break;
                             case "Object": {
@@ -1316,62 +980,6 @@ try {
                                         process.exit(0);
                                     }
                                 }
-                                /*
-                                switch (process.platform) {
-                                    case "android":
-                                        case "win32": {
-                                            try {
-                                                if (await Database.has('Backup')) {
-                                                    return await backup(await Database.get('Backup'),globalOptions, callback, prCallback);
-                                                }
-                                                else {
-                                                    logger.Normal(Language.ErrBackup);
-                                                    process.exit(0);
-                                                }
-                                            }
-                                            catch (e) {
-                                                logger.Warning(Language.ErrBackup);
-                                                logger.Error();
-                                                process.exit(0);
-                                            }
-                                        }
-                                            break;
-                                        case "linux": {
-                                            if (process.env["REPL_ID"] == undefined) {
-                                                try {
-                                                    if (await Database.has('Backup')) {
-                                                        return await backup(await Database.get('Backup'),globalOptions, callback, prCallback);
-                                                    }
-                                                    else {
-                                                        logger.Normal(Language.ErrBackup);
-                                                        process.exit(0);
-                                                    }
-                                                }
-                                                catch (e) {
-                                                    logger.Warning(Language.ErrBackup);
-                                                    logger.Error();
-                                                    process.exit(0);
-                                                }
-                                            }
-                                            else {
-                                                try {
-                                                    const client = new Client();
-                                                    let Data = await client.get("Backup");
-                                                    if (Data) {
-                                                        return await backup(JSON.stringify(Data),globalOptions, callback, prCallback);
-                                                    }
-                                                    else {
-                                                        logger.Normal(Language.ErrBackup);
-                                                    }
-                                                }
-                                                catch (e) {
-                                                    logger.Warning(Language.ErrBackup);
-                                                }
-                                            }
-                                        }
-                                    break;
-                                }
-                                */
                                     logger.Warning(Language.DecryptFailed);
                                     return logger.Error();
                                 }
@@ -1402,62 +1010,6 @@ try {
                                         process.exit(0);
                                     }
                                 }
-                                /*
-                                switch (process.platform) {
-                                    case "android":
-                                        case "win32": {
-                                            try {
-                                                if (await Database.has('Backup')) {
-                                                    return await backup(await Database.get('Backup'),globalOptions, callback, prCallback);
-                                                }
-                                                else {
-                                                    logger.Normal(Language.ErrBackup);
-                                                    process.exit(0);
-                                                }
-                                            }
-                                            catch (e) {
-                                                logger.Warning(Language.ErrBackup);
-                                                logger.Error();
-                                                process.exit(0);
-                                            }
-                                        }
-                                            break;
-                                        case "linux": {
-                                            if (process.env["REPL_ID"] == undefined) {
-                                                try {
-                                                    if (await Database.has('Backup')) {
-                                                        return await backup(await Database.get('Backup'),globalOptions, callback, prCallback);
-                                                    }
-                                                    else {
-                                                        logger.Normal(Language.ErrBackup);
-                                                        process.exit(0);
-                                                    }
-                                                }
-                                                catch (e) {
-                                                    logger.Warning(Language.ErrBackup);
-                                                    logger.Error();
-                                                    process.exit(0);
-                                                }
-                                            }
-                                            else {
-                                                try {
-                                                    const client = new Client();
-                                                    let Data = await client.get("Backup");
-                                                    if (Data) {
-                                                        return await backup(JSON.stringify(Data),globalOptions, callback, prCallback);
-                                                    }
-                                                    else {
-                                                        logger.Normal(Language.ErrBackup);
-                                                    }
-                                                }
-                                                catch (e) {
-                                                    logger.Warning(Language.ErrBackup);
-                                                }
-                                            }
-                                        }
-                                    break;
-                                }
-                                */
                                     logger.Warning(Language.DecryptFailed);
                                     return logger.Error();
                                 } 
@@ -1502,62 +1054,6 @@ try {
                                         process.exit(0);
                                     }
                                 }
-                                /*
-                                switch (process.platform) {
-                                    case "android":
-                                        case "win32": {
-                                            try {
-                                                if (await Database.has('Backup')) {
-                                                    return await backup(await Database.get('Backup'),globalOptions, callback, prCallback);
-                                                }
-                                                else {
-                                                    logger.Normal(Language.ErrBackup);
-                                                    process.exit(0);
-                                                }
-                                            }
-                                            catch (e) {
-                                                logger.Warning(Language.ErrBackup);
-                                                logger.Error();
-                                                process.exit(0);
-                                            }
-                                        }
-                                            break;
-                                        case "linux": {
-                                            if (process.env["REPL_ID"] == undefined) {
-                                                try {
-                                                    if (await Database.has('Backup')) {
-                                                        return await backup(await Database.get('Backup'),globalOptions, callback, prCallback);
-                                                    }
-                                                    else {
-                                                        logger.Normal(Language.ErrBackup);
-                                                        process.exit(0);
-                                                    }
-                                                }
-                                                catch (e) {
-                                                    logger.Warning(Language.ErrBackup);
-                                                    logger.Error();
-                                                    process.exit(0);
-                                                }
-                                            }
-                                            else {
-                                                try {
-                                                    const client = new Client();
-                                                    let Data = await client.get("Backup");
-                                                    if (Data) {
-                                                        return await backup(JSON.stringify(Data),globalOptions, callback, prCallback);
-                                                    }
-                                                    else {
-                                                        logger.Normal(Language.ErrBackup);
-                                                    }
-                                                }
-                                                catch (e) {
-                                                    logger.Warning(Language.ErrBackup);
-                                                }
-                                            }
-                                        }
-                                    break;
-                                }
-                                */
                                     logger.Warning(Language.DecryptFailed);
                                     return logger.Error();
                                 }
@@ -1597,45 +1093,7 @@ try {
                     var str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
                     jar.setCookie(str, "http://" + c.domain);
                 });
-                process.env.Backup = JSON.stringify(appState);
                 await Database.set('Backup', appState);
-                /*
-            switch (process.platform) {
-                case "android":
-                    case "win32": {
-                        try {
-                            process.env.Backup = JSON.stringify(appState, null, "\t");
-                            Database.set('Backup', appState);
-                        }
-                        catch (e) {
-                            logger.Warning(Language.BackupFailed);
-                        }
-                    }
-                        break;
-                    case "linux": {
-                        if (process.env["REPL_ID"] == undefined) {
-                            try {
-                                process.env.Backup = JSON.stringify(appState, null, "\t");
-                                Database.set('Backup', appState);
-                            }
-                            catch (e) {
-                                logger.Warning(Language.BackupFailed);
-                            }
-                        }
-                        else {
-                            try {
-                                const client = new Client();
-                                    await client.set("Backup", appState);
-                                process.env.Backup = JSON.stringify(appState, null, "\t");
-                            }
-                            catch (e) {
-                                logger.Warning(Language.BackupFailed);
-                            }
-                        }
-                    }
-                break;
-            }
-            */
             mainPromise = utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true }).then(utils.saveCookies(jar));
         } catch (e) {
             if (process.env.Backup != undefined && process.env.Backup) {
@@ -1655,62 +1113,7 @@ try {
                 logger.Error();
                 process.exit(0);
             }
-            /*
-            switch (process.platform) {
-                case "android":
-                    case "win32": {
-                        try {
-                            if (await Database.has('Backup')) {
-                                return await backup(await Database.get('Backup'),globalOptions, callback, prCallback);
-                            }
-                            else {
-                                logger.Warning(Language.ErrBackup);
-                                process.exit(0);
-                            }
-                        }
-                        catch (e) {
-                            logger.Warning(Language.ErrBackup);
-                                logger.Error();
-                            process.exit(0);
-                        }
-                    }
-                    case "linux": {
-                        if (process.env["REPL_ID"] == undefined) {
-                            try {
-                                if (await Database.has('Backup')) {
-                                    return await backup(await Database.get('Backup'),globalOptions, callback, prCallback);
-                                }
-                                else {
-                                    logger.Warning(Language.ErrBackup);
-                                    process.exit(0);
-                                }
-                            }
-                            catch (e) {
-                                logger.Warning(Language.ErrBackup);
-                                    logger.Error();
-                                process.exit(0);
-                            }
-                        }
-                        else {
-                            try {
-                                const client = new Client();
-                                    let Data = await client.get("Backup");
-                                if (Data) {
-                                    return await backup(JSON.stringify(Data),globalOptions, callback, prCallback);
-                                }
-                                else {
-                                    logger.Warning(Language.ErrBackup);
-                                }
-                            }
-                            catch (e) {
-                                logger.Warning(Language.ErrBackup);
-                            }
-                        }
-                    }
-                break;
-            }
-            */
-        return logger.Warning(Language.ErrBackup);
+        return logger.Warning(Language.ErrBackup); // unreachable 👑 
     }
 } else {
     mainPromise = utils
@@ -1782,7 +1185,7 @@ try {
                                 }
                                 catch (e) {
                                     logger.Normal(Language.NotiAfterUseToolFail, "[ Fca - Helper ]")
-                                        logger.Normal("rmdir ./node_modules sau đó nhập npm i && npm start","[ Fca - Helper ]");
+                                        logger.Normal("rmdir ./node_modules after type npm i && npm start","[ Fca - Helper ]");
                                     process.exit(0);
                                 }
                             }
@@ -1792,8 +1195,8 @@ try {
                     logger.Normal(getText(Language.LocalVersion,localVersion));
                         logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
                             logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
-                            DataLanguageSetting.HTML.HTML==true? global.Fca.Require.Web.listen(global.Fca.Require.Web.get('DFP')) : global.Fca.Require.Web = null;
-                        require('./Extra/ExtraUptimeRobot').Values();    
+                            require('./Extra/ExtraUptimeRobot')();    
+                        DataLanguageSetting.HTML.HTML==true? global.Fca.Require.Web.listen(global.Fca.Require.Web.get('DFP')) : global.Fca.Require.Web = null;
                     callback(null, api);
                 }
             });
@@ -1802,6 +1205,10 @@ try {
         callback(e);
     });
 }
+
+/**
+ * It asks the user for their account and password, and then saves it to the database.
+ */
 
 function setUserNameAndPassWord() {
     let rl = readline.createInterface({
@@ -1828,49 +1235,6 @@ function setUserNameAndPassWord() {
                             logger.Error();
                         process.exit(0);
                     }
-                    /*
-                    switch (process.platform) {
-                        case "android":
-                            case "win32": {
-                                try {
-                                    Database.set("Account", Account);
-                                        Database.set("Password", Password);
-                                    break;
-                                }
-                                catch (e) {
-                                    logger.Warning(Language.ErrDataBase);
-                                        logger.Error();
-                                    process.exit(0);
-                                }
-                            }
-                            case "linux": {
-                                if (process.env["REPL_ID"] == undefined) {
-                                    try {
-                                        Database.set("Account", Account);
-                                            Database.set("Password", Password);
-                                        break;
-                                    }
-                                    catch (e) {
-                                        logger.Warning(Language.ErrDataBase);
-                                            logger.Error();
-                                        process.exit(0);
-                                    }
-                                }
-                                else {
-                                    try {
-                                        const client = new Client();
-                                            await client.set("Account", Account);
-                                            await client.set("Password", Password);
-                                        break;
-                                    }
-                                    catch (e) {
-                                        logger.Warning(Language.ErrDataBase);
-                                    }
-                                }
-                            }
-                        break;
-                    }
-                    */
                     if (global.Fca.Require.FastConfig.ResetDataLogin) {
                         global.Fca.Require.FastConfig.ResetDataLogin = false;
                         global.Fca.Require.fs.writeFileSync('./FastConfigFca.json', JSON.stringify(global.Fca.Require.FastConfig, null, 4));
@@ -1930,7 +1294,7 @@ function login(loginData, options, callback) {
         var returnPromise = new Promise(function(resolve, reject) {
             resolveFunc = resolve;
             rejectFunc = reject;
-        });
+        }); 
         prCallback = function(/** @type {any} */error, /** @type {any} */api) {
             if (error) return rejectFunc(error);
             return resolveFunc(api);
@@ -1964,77 +1328,6 @@ function login(loginData, options, callback) {
                                 logger.Error();
                             process.exit(0);
                         }
-                        /*
-                        switch (process.platform) {
-                            case "android":
-                                case "win32": {
-                                    try {
-                                        let Data = await Database.get("TempState");
-                                        if (Data) { 
-                                            try {
-                                                loginData.appState = JSON.parse(Data);
-                                            }
-                                            catch (_) {
-                                                    loginData.appState = Data;
-                                            }
-                                            Database.delete("TempState");
-                                        }
-                                        break;
-                                    }
-                                    catch (e) {
-                                        Database.delete("TempState");
-                                            logger.Warning(Language.ErrDataBase);
-                                            logger.Error();
-                                        process.exit(0);
-                                    }
-                                }
-                                case "linux": {
-                                    if (process.env["REPL_ID"] == undefined) {
-                                        try {
-                                            let Data = await Database.get("TempState");
-                                            if (Data) { 
-                                                try {
-                                                        loginData.appState = JSON.parse(Data);
-                                                }
-                                                catch (_) {
-                                                        loginData.appState = Data;
-                                                }
-                                                Database.delete("TempState");
-                                            }
-                                            break;
-                                        }
-                                        catch (e) {
-                                            Database.delete("TempState");
-                                                logger.Warning(Language.ErrDataBase);
-                                                logger.Error();
-                                            process.exit(0);
-                                        }
-                                    }
-                                    else {
-                                        try {
-                                            const client = new Client();
-                                                var Data = await client.get("TempState");
-                                                if (Data) {
-                                                    try {
-                                                    loginData.appState = JSON.parse(Data);
-                                                    }
-                                                    catch (_) {
-                                                        loginData.appState = Data;
-                                                    }
-                                                    await client.delete("TempState");
-                                                }
-                                            break;
-                                        }
-                                        catch (e) {
-                                            await client.delete("TempState");
-                                            logger.Warning(Language.ErrDataBase);
-                                            process.exit(0);
-                                        }
-                                    }
-                                }
-                            break;
-                        }
-                        */
                         try {
                             if (await Database.has('Account') && await Database.has('Password')) return loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
                             else return setUserNameAndPassWord();
@@ -2044,46 +1337,6 @@ function login(loginData, options, callback) {
                                 logger.Error();
                             process.exit(0);
                         }
-                        /*
-                        switch (process.platform) {
-                            case "android":
-                                case "win32": {
-                                    try {
-                                        if (Database.has('Account') && Database.has('Password')) return loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
-                                        else return setUserNameAndPassWord();
-                                    }
-                                    catch (e) {
-                                        logger.Warning(Language.ErrDataBase);
-                                            logger.Error();
-                                        process.exit(0);
-                                    }
-                                }
-                                case "linux": {
-                                    if (process.env["REPL_ID"] == undefined) {
-                                        try {
-                                            if (Database.has('Account') && Database.has('Password')) return loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
-                                            else return setUserNameAndPassWord();
-                                        }
-                                        catch (e) {
-                                            logger.Warning(Language.ErrDataBase);
-                                                logger.Error();
-                                            process.exit(0);
-                                        }
-                                    }
-                                    else {
-                                        try {
-                                            const client = new Client();
-                                                if (await client.get('Account') && await client.get('Password')) return loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
-                                            else return setUserNameAndPassWord();
-                                        }
-                                        catch (e) {
-                                            logger.Warning(Language.ErrDataBase);
-                                        }
-                                    }
-                                }
-                            break;
-                        }
-                        */
                     }
                 }
                 case false: {

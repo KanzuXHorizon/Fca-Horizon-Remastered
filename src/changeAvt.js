@@ -2,11 +2,21 @@
 
 var utils = require("../utils");
 var log = require("npmlog");
+/**
+ * It posts an image to a Facebook profile
+ * @param Api - The API object
+ * @param BotID - The ID of the bot you want to post the image to.
+ * @param form - The form data that you want to send.
+ * @returns The JSON.parse(Data.split("for (;;);")[1]); is returning the following:
+ * {"__ar":1,"payload":null,"jsmods":{"require":[["ImageUploader","uploadPhoto",[{"__m":"__elem_0"},{"__m":"__elem_1"},{"__m":"__elem_2"},{"__m":"__
+ */
 async function postImage(Api,BotID,form) {
     var Data = await Api.httpPostFormData(`https://www.facebook.com/profile/picture/upload/?profile_id=${BotID}&photo_source=57&av=${BotID}`, form);
     return JSON.parse(Data.split("for (;;);")[1]);
 }
+
 module.exports = function(defaultFuncs, api, ctx) {
+/* Changing the profile picture of the bot. */
     return function changeAvt(link, caption, callback) {
         var resolveFunc = function() {};
         var rejectFunc = function() {};

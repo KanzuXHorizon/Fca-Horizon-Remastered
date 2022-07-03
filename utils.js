@@ -1626,22 +1626,26 @@ function decodeClientPayload(payload) {
  * @param {{ getCookies: (arg0: string) => string | any[]; }} jar
  */
 
-function getAppState(jar, enc) {
+function getAppState(jar, Encode) {
     var prettyMilliseconds = require('pretty-ms')
     var getText = global.Fca.getText;
-    var StateCrypt = require('./StateCrypt');
+    var Security = require('./Extra/Security/Index');
     var appstate = jar.getCookies("https://www.facebook.com").concat(jar.getCookies("https://facebook.com")).concat(jar.getCookies("https://www.messenger.com"))
     var logger = require('./logger'),languageFile = require('./Language/index.json');
     var Language = languageFile.find(i => i.Language == global.Fca.Require.FastConfig.Language).Folder.Index;
     var data;
         switch (require("../../FastConfigFca.json").EncryptFeature) {
             case true: {
-                if (enc == undefined) enc = true;
-                if (process.env['FBKEY'] != undefined && enc) {
+                if (Encode == undefined) Encode = true;
+                if (process.env['FBKEY'] != undefined && Encode) {
                     if(!global.Fca.Setting.get('getAppState')) {
                         logger.Normal(Language.EncryptSuccess);
+                        data = Security(JSON.stringify(appstate),process.env['FBKEY'],"Encrypt");
+                        global.Fca.Setting.set('AppState', data);
                     }
-                    data = StateCrypt.encryptState(JSON.stringify(appstate),process.env['FBKEY']);
+                    else {
+                        data = global.Fca.Setting.get('AppState');
+                    }
                 }
                 else return appstate;
             }

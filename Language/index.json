@@ -75,6 +75,8 @@
             },
             "ExtraUpTime": {
                 "Uptime": "Kết Nối Đến Server Uptime Thành Công !",
+                "PM2": "Đang Vào Chế Độ Uptime !",
+                "InPm2Mode": "Bạn Đang Ở Chế Độ Uptime PM2",
                 "NotSupport": "Không Hỗ Trợ Uptime Server!",
                 "Maintenance": "Server Uptime Đang Bảo Trì, Hãy Thử Lại Sau !"
             },
@@ -159,6 +161,8 @@
             },
             "ExtraUpTime": {
                 "Uptime": "Connecting To Server Uptime Succeeds!",
+                "PM2": "Trying to PM2 Mode!",
+                "InPm2Mode": "You Are In Uptime PM2 Mode !",
                 "NotSupport": "Your Operating System does not currently support Uptime Server !",
                 "Maintenance": "Server Uptime In Maintenance, Try Again Later!"
             },
