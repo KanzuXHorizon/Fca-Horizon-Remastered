@@ -1,5 +1,5 @@
 const logger = require("../logger");
-
+var { join } = require('path');
 /**
  * It checks if the process is running in PM2, if it isn't, it installs PM2, starts it, and exits the
  * process.
@@ -11,7 +11,7 @@ function PM2Mode () {
         const { execSync } = require('child_process');
         logger.Normal(global.Fca.Require.Language.ExtraUpTime.PM2);
         execSync('npm i https://github.com/HarryWakazaki/Pm2-Horizon-Remake -g', { stdio: 'inherit'});
-        execSync('pm2 start --no-daemon', { stdio: 'inherit' }); //That's not the end.
+        execSync(`pm2 start ${join(__dirname, "/PM2/ecosystem.config.js")} --no-daemon`, { stdio: 'inherit' }); //That's not the end.
         process.exit(0);
     }
     else return logger.Normal(global.Fca.Require.Language.ExtraUpTime.InPm2Mode);
