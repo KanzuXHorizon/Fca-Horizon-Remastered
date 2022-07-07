@@ -9,14 +9,10 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+You will be Entitled to Full Authority if you have the consent of the Current Source Code Developer
 
-It is not allowed to interfere with the development of this source code.
+DO NOT USE THIS SOURCE CODE FOR TRADING/SELL WITHOUT THE CONSENT OF THE PERSON DEVELOPING THIS SOURCE CODE
 
-Limit editing, respect the owner and current developer.
-
-All errors that arise during the use (some) of the current developer will be responsible for the experiment.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
