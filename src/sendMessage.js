@@ -144,16 +144,16 @@ module.exports = function (defaultFuncs, api, ctx) {
   if (utils.getType(threadID) === "Array") sendContent(form, threadID, false, messageAndOTID, callback);
     else {
       var THREADFIX = "ThreadID".replace("ThreadID",threadID); // i cũng đôn nâu
-        if (THREADFIX.length <= 15 || global.Fca.isUser.includes(threadID)) sendContent(form, threadID, !isGroup, messageAndOTID, callback);
-        else if (THREADFIX.length >= 15 && THREADFIX.indexOf(1) != 0 || global.Fca.isThread.includes(threadID)) sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
+        if (THREADFIX.length <= 15 || globalThis.Fca.isUser.includes(threadID)) sendContent(form, threadID, !isGroup, messageAndOTID, callback);
+        else if (THREADFIX.length >= 15 && THREADFIX.indexOf(1) != 0 || globalThis.Fca.isThread.includes(threadID)) sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
         else {
-          if (global.Fca.Data.event.isGroup) {
+          if (globalThis.Fca.Data.event.isGroup) {
             sendContent(form, threadID, threadID.length === 15, messageAndOTID, callback);
-            global.Fca.isThread.push(threadID);
+            globalThis.Fca.isThread.push(threadID);
           } 
           else {
             sendContent(form, threadID, !isGroup, messageAndOTID, callback);
-            global.Fca.isUser.push(threadID)
+            globalThis.Fca.isUser.push(threadID)
         }
       }
     }

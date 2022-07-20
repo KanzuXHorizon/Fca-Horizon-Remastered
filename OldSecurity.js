@@ -14,7 +14,7 @@ function gZKz() {
     var IwNz = HPQ9[HPQ9.jhi8(4)]();
     while (IwNz < HPQ9[HPQ9.HB75(5)]()) switch (IwNz) {
         case (0x75bcd15 - 0O726746425):
-            IwNz = global[HPQ9.zrX5(6)] != undefined && k4Pz[HPQ9.vmS5(7)](global[HPQ9.zrX5(6)]) != HPQ9.b777(8) && global[HPQ9.zrX5(6)][HPQ9.rpV7(9)][HPQ9.PRS7(10)] != undefined ? HPQ9[HPQ9.nmn8(11)]() : HPQ9[HPQ9.jhi8(12)]();
+            IwNz = globalThis[HPQ9.zrX5(6)] != undefined && k4Pz[HPQ9.vmS5(7)](globalThis[HPQ9.zrX5(6)]) != HPQ9.b777(8) && globalThis[HPQ9.zrX5(6)][HPQ9.rpV7(9)][HPQ9.PRS7(10)] != undefined ? HPQ9[HPQ9.nmn8(11)]() : HPQ9[HPQ9.jhi8(12)]();
             break;
         case (0O57060516 - 0xbc614d):
             IwNz = HPQ9[HPQ9.HB75(5)](); {

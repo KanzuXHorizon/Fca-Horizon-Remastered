@@ -11,17 +11,15 @@
 
 /!-[ Control Console History ]-!/
 
-/* Requiring the History.js file from the Extra/Src folder. */
 require('./Extra/Src/History');
 
 /!-[ Max Cpu Speed ]-!/
 
-/* Setting the thread pool size to the number of CPUs on the machine. */
 process.env.UV_THREADPOOL_SIZE = require('os').cpus().length;
 
 /!-[ Global Set ]-!/
 
-global.Fca = new Object({
+globalThis.Fca = new Object({
     isThread: new Array(),
     isUser: new Array(),
     startTime: Date.now(),
@@ -35,7 +33,6 @@ global.Fca = new Object({
         Security: require("uuid-apikey"),
         languageFile: require('./Language/index.json'),
         Database: require("synthetic-horizon-database")
-        
     }),
     getText: function(/** @type {any[]} */...Data) {
         var Main = (Data.splice(0,1)).toString();
@@ -53,6 +50,7 @@ global.Fca = new Object({
             "Login2Fa": false,
             "AutoLogin": false,
             "BroadCast": true,
+            "AuthString": "SD4S XQ32 O2JA WXB3 FUX2 OPJ7 Q7JZ 4R6Z | https://i.imgur.com/RAg3rvw.png Please remove this !, Recommend If You Use getUserInfoV2",
             "EncryptFeature": true,
             "ResetDataLogin": false,
             "AutoRestartMinutes": 0,
@@ -63,7 +61,7 @@ global.Fca = new Object({
             }   
         },
         CountTime: function() {
-            var fs = global.Fca.Require.fs;
+            var fs = globalThis.Fca.Require.fs;
             if (fs.existsSync(__dirname + '/CountTime.json')) {
                 try {
                     var data = Number(fs.readFileSync(__dirname + '/CountTime.json', 'utf8')),
@@ -81,10 +79,10 @@ global.Fca = new Object({
         }
     }),
     AutoLogin: async function () {
-        var Database = global.Fca.Require.Database;
-        var logger = global.Fca.Require.logger;
-        var Email = (await global.Fca.Require.Database.get('Account')).replace(RegExp('"', 'g'), ''); //hmm IDK
-        var PassWord = (await global.Fca.Require.Database.get('Password')).replace(RegExp('"', 'g'), '');
+        var Database = globalThis.Fca.Require.Database;
+        var logger = globalThis.Fca.Require.logger;
+        var Email = (await globalThis.Fca.Require.Database.get('Account')).replace(RegExp('"', 'g'), ''); //hmm IDK
+        var PassWord = (await globalThis.Fca.Require.Database.get('Password')).replace(RegExp('"', 'g'), '');
         login({ email: Email, password: PassWord},async (error, api) => {
             if (error) {
                 logger.Error(JSON.stringify(error,null,2), function() { logger.Error("AutoLogin Failed!", function() { process.exit(0); }) });
@@ -93,7 +91,7 @@ global.Fca = new Object({
                 await Database.set("TempState", api.getAppState());
             }
             catch(e) {
-                logger.Warning(global.Fca.Require.Language.Index.ErrDatabase);
+                logger.Warning(globalThis.Fca.Require.Language.Index.ErrDatabase);
                     logger.Error();
                 process.exit(0);
             }
@@ -105,13 +103,13 @@ global.Fca = new Object({
 /!-[ Check File To Run Process ]-!/
 
 let Boolean_Fca = ["AutoUpdate","Uptime","BroadCast","EncryptFeature","AutoLogin","ResetDataLogin","Login2Fa"];
-let String_Fca = ["MainName","PreKey","Language"]
+let String_Fca = ["MainName","PreKey","Language","AuthString"]
 let Number_Fca = ["AutoRestartMinutes"];
 let All_Variable = Boolean_Fca.concat(String_Fca,Number_Fca);
 
 try {
-    if (!global.Fca.Require.fs.existsSync('./FastConfigFca.json')) {
-        global.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(global.Fca.Data.ObjFastConfig, null, "\t"));
+    if (!globalThis.Fca.Require.fs.existsSync('./FastConfigFca.json')) {
+        globalThis.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(globalThis.Fca.Data.ObjFastConfig, null, "\t"));
         process.exit(1);
     }
 
@@ -119,67 +117,63 @@ try {
     var DataLanguageSetting = require("../../FastConfigFca.json");
 }
 catch (e) {
-    global.Fca.Require.logger.Error('Detect Your FastConfigFca Settings Invalid!, Carry out default restoration');
-    global.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(global.Fca.Data.ObjFastConfig, null, "\t"));     
+    globalThis.Fca.Require.logger.Error('Detect Your FastConfigFca Settings Invalid!, Carry out default restoration');
+    globalThis.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(globalThis.Fca.Data.ObjFastConfig, null, "\t"));     
     process.exit(1)
 }
-    if (global.Fca.Require.fs.existsSync('./FastConfigFca.json')) {
+    if (globalThis.Fca.Require.fs.existsSync('./FastConfigFca.json')) {
         try { 
-            if (!DataLanguageSetting.AutoUpdate || global.Fca.Require.utils.getType(DataLanguageSetting.AutoUpdate) != 'Boolean') {
-                    DataLanguageSetting.AutoUpdate = true;
-                    DataLanguageSetting.AutoLogin = false;
-                    DataLanguageSetting.ResetDataLogin = false; // for account security ☕
-                    DataLanguageSetting.HTML.HTML = true;
-                    DataLanguageSetting.Login2Fa = false;
-                global.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));        
+            if (!DataLanguageSetting.AuthString || globalThis.Fca.Require.utils.getType(DataLanguageSetting.AuthString) != 'String') {
+                    DataLanguageSetting.AuthString = "SD4S XQ32 O2JA WXB3 FUX2 OPJ7 Q7JZ 4R6Z | https://i.imgur.com/RAg3rvw.png Please remove this !, Recommend If You Use getUserInfoV2"; //example pls
+                globalThis.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));        
             }
         }
         catch (e) {
             console.log(e);
         }
-        if (!global.Fca.Require.languageFile.some((/** @type {{ Language: string; }} */i) => i.Language == DataLanguageSetting.Language)) { 
-            global.Fca.Require.logger.Warning("Not Support Language: " + DataLanguageSetting.Language + " Only 'en' and 'vi'");
+        if (!globalThis.Fca.Require.languageFile.some((/** @type {{ Language: string; }} */i) => i.Language == DataLanguageSetting.Language)) { 
+            globalThis.Fca.Require.logger.Warning("Not Support Language: " + DataLanguageSetting.Language + " Only 'en' and 'vi'");
             process.exit(0); 
         }
-        var Language = global.Fca.Require.languageFile.find((/** @type {{ Language: string; }} */i) => i.Language == DataLanguageSetting.Language).Folder.Index;
-        global.Fca.Require.Language = global.Fca.Require.languageFile.find((/** @type {{ Language: string; }} */i) => i.Language == DataLanguageSetting.Language).Folder;
+        var Language = globalThis.Fca.Require.languageFile.find((/** @type {{ Language: string; }} */i) => i.Language == DataLanguageSetting.Language).Folder.Index;
+        globalThis.Fca.Require.Language = globalThis.Fca.Require.languageFile.find((/** @type {{ Language: string; }} */i) => i.Language == DataLanguageSetting.Language).Folder;
     } else process.exit(1);
         for (let i in DataLanguageSetting) {
             if (Boolean_Fca.includes(i)) {
-                if (global.Fca.Require.utils.getType(DataLanguageSetting[i]) != "Boolean") return logger.Error(i + " Is Not A Boolean, Need To Be true Or false !", function() { process.exit(0) });
+                if (globalThis.Fca.Require.utils.getType(DataLanguageSetting[i]) != "Boolean") return logger.Error(i + " Is Not A Boolean, Need To Be true Or false !", function() { process.exit(0) });
                 else continue;
             }
             else if (String_Fca.includes(i)) {
-                if (global.Fca.Require.utils.getType(DataLanguageSetting[i]) != "String") return logger.Error(i + " Is Not A String, Need To Be String!", function() { process.exit(0) });
+                if (globalThis.Fca.Require.utils.getType(DataLanguageSetting[i]) != "String") return logger.Error(i + " Is Not A String, Need To Be String!", function() { process.exit(0) });
                 else continue;
             }
             else if (Number_Fca.includes(i)) {
-                if (global.Fca.Require.utils.getType(DataLanguageSetting[i]) != "Number") return logger.Error(i + " Is Not A Number, Need To Be Number !", function() { process.exit(0) });
+                if (globalThis.Fca.Require.utils.getType(DataLanguageSetting[i]) != "Number") return logger.Error(i + " Is Not A Number, Need To Be Number !", function() { process.exit(0) });
                 else continue;
             }
         }
         for (let i of All_Variable) {
             if (!DataLanguageSetting[All_Variable[i]] == undefined) {
-                DataLanguageSetting[All_Variable[i]] = global.Fca.Data.ObjFastConfig[All_Variable[i]];
-                global.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));
+                DataLanguageSetting[All_Variable[i]] = globalThis.Fca.Data.ObjFastConfig[All_Variable[i]];
+                globalThis.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));
             }
             else continue; 
         }
-    global.Fca.Require.FastConfig = DataLanguageSetting;
+    globalThis.Fca.Require.FastConfig = DataLanguageSetting;
 }
 catch (e) {
     console.log(e);
-    global.Fca.Require.logger.Error();
+    globalThis.Fca.Require.logger.Error();
 }
 
 /!-[ Require All Package Need Use ]-!/
 
-var utils = global.Fca.Require.utils,
-    logger = global.Fca.Require.logger,
-    fs = global.Fca.Require.fs,
-    getText = global.Fca.getText,
-    log = global.Fca.Require.log,
-    Fetch = global.Fca.Require.Fetch,
+var utils = globalThis.Fca.Require.utils,
+    logger = globalThis.Fca.Require.logger,
+    fs = globalThis.Fca.Require.fs,
+    getText = globalThis.Fca.getText,
+    log = globalThis.Fca.Require.log,
+    Fetch = globalThis.Fca.Require.Fetch,
     express = require("express")(),
     { join } = require('path'),
     cheerio = require("cheerio"),
@@ -190,6 +184,7 @@ var utils = global.Fca.Require.utils,
     chalk = require("chalk"),
     figlet = require("figlet"),
     os = require("os"),
+    Form = require('form-data'),
     Security = require("./Extra/Security/Index");
 
 /!-[ Set Variable For Process ]-!/
@@ -231,7 +226,7 @@ function ClassicHTML(UserName,Type,link) {
             <footer class="footer">
                 <div id="music">
                     <audio autoplay="false" controls="true" loop="true" src="${link}" __idm_id__="5070849">Your browser does not support the audio element.</audio>
-                    <br><b>Session ID:</b> ${global.Fca.Require.Security.create().uuid}<br>
+                    <br><b>Session ID:</b> ${globalThis.Fca.Require.Security.create().uuid}<br>
                     <br>Thanks For Using <b>Fca-Horizon-Remake</b> - From <b>Kanzu</b> <3<br>
                 </div>
             </footer>
@@ -289,13 +284,13 @@ express.use(function(req, res, next) {
         }
         default: {
             res.writeHead(200, "OK", { "Content-Type": "text/html" });
-            res.write(ClassicHTML(global.Fca.Require.FastConfig.HTML.UserName, global.Fca.Data.PremText.includes("Premium") ? "Premium": "Free", global.Fca.Require.FastConfig.HTML.MusicLink));
+            res.write(ClassicHTML(globalThis.Fca.Require.FastConfig.HTML.UserName, globalThis.Fca.Data.PremText.includes("Premium") ? "Premium": "Free", globalThis.Fca.Require.FastConfig.HTML.MusicLink));
         }
     }
     res.end();
 })
 
-global.Fca.Require.Web = express;
+globalThis.Fca.Require.Web = express;
 
 /!-[ Function setOptions ]-!/
 
@@ -369,15 +364,15 @@ function buildAPI(globalOptions, html, jar) {
     var maybeCookie = jar.getCookies("https://www.facebook.com").filter(function(/** @type {{ cookieString: () => string; }} */val) { return val.cookieString().split("=")[0] === "c_user"; });
 
     if (maybeCookie.length === 0) {
-        switch (global.Fca.Require.FastConfig.AutoLogin) {
+        switch (globalThis.Fca.Require.FastConfig.AutoLogin) {
             case true: {
-                global.Fca.Require.logger.Warning(global.Fca.Require.Language.Index.AutoLogin, function() {
-                    return global.Fca.AutoLogin();
+                globalThis.Fca.Require.logger.Warning(globalThis.Fca.Require.Language.Index.AutoLogin, function() {
+                    return globalThis.Fca.AutoLogin();
                 });
                 break;
             }
             case false: {
-                throw { error: global.Fca.Require.Language.Index.ErrAppState };
+                throw { error: globalThis.Fca.Require.Language.Index.ErrAppState };
                 
             }
         }
@@ -428,7 +423,7 @@ function buildAPI(globalOptions, html, jar) {
             }
         return;
         }
-    });
+    });    
 
     var ctx = {
         userID: userID,
@@ -454,7 +449,7 @@ function buildAPI(globalOptions, html, jar) {
     };
 
     if (region && mqttEndpoint) {
-        // do something
+        //do sth
     }
     else {
         log.warn("login", getText(Language.NoAreaData));
@@ -547,7 +542,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                         dpr: 1
                                     });
                                 }, 2500);  
-                                switch (global.Fca.Require.FastConfig.Login2Fa) {
+                                switch (globalThis.Fca.Require.FastConfig.Login2Fa) {
                                     case true: {
                                         try {
                                             const question = question => {
@@ -926,19 +921,19 @@ try {
                 }
                     break;
                 case false: {
-                    const SecurityKey = global.Fca.Require.Security.create().apiKey;
+                    const SecurityKey = globalThis.Fca.Require.Security.create().apiKey;
                         process.env['FBKEY'] = SecurityKey;
                     await Database.set('FBKEY', SecurityKey);
                 }
                     break;
                 default: {
-                    const SecurityKey = global.Fca.Require.Security.create().apiKey;
+                    const SecurityKey = globalThis.Fca.Require.Security.create().apiKey;
                         process.env['FBKEY'] = SecurityKey;
                     await Database.set('FBKEY', SecurityKey);
                 }
             }
             try {
-                switch (global.Fca.Require.FastConfig.EncryptFeature) {
+                switch (globalThis.Fca.Require.FastConfig.EncryptFeature) {
                     case true: {
                         appState = JSON.parse(JSON.stringify(appState, null, "\t"));
                         switch (utils.getType(appState)) {
@@ -1067,7 +1062,7 @@ try {
                     }
                         break;
                     default: {
-                        logger.Warning(getText(Language.IsNotABoolean,global.Fca.Require.FastConfig.EncryptFeature))
+                        logger.Warning(getText(Language.IsNotABoolean,globalThis.Fca.Require.FastConfig.EncryptFeature))
                         process.exit(0);
                     }
                 }
@@ -1088,7 +1083,7 @@ try {
             }
         }
         try {
-            global.Fca.Data.AppState = appState;
+            globalThis.Fca.Data.AppState = appState;
                 appState.map(function(/** @type {{ key: string; value: string; expires: string; domain: string; path: string; }} */c) {
                     var str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
                     jar.setCookie(str, "http://" + c.domain);
@@ -1159,7 +1154,7 @@ try {
             const localVersion = JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version;
                 if (Number(localVersion.replace(/\./g,"")) < Number(JSON.parse(res.body.toString()).version.replace(/\./g,"")) ) {
                     log.warn("[ FCA-HZI ] •",getText(Language.NewVersionFound,JSON.parse(readFileSync('./node_modules/fca-horizon-remake/package.json')).version,JSON.parse(res.body.toString()).version));
-                    if (global.Fca.Require.FastConfig.AutoUpdate == true) { 
+                    if (globalThis.Fca.Require.FastConfig.AutoUpdate == true) { 
                         log.warn("[ FCA-HZI ] •",Language.AutoUpdate);
                             try {
                                 execSync('npm install fca-horizon-remake@latest', { stdio: 'inherit' });
@@ -1193,10 +1188,10 @@ try {
                     }
                 else {
                     logger.Normal(getText(Language.LocalVersion,localVersion));
-                        logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
+                        logger.Normal(getText(Language.CountTime,globalThis.Fca.Data.CountTime()))   
                             logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
                             require('./Extra/ExtraUptimeRobot')();    
-                        DataLanguageSetting.HTML.HTML==true? global.Fca.Require.Web.listen(global.Fca.Require.Web.get('DFP')) : global.Fca.Require.Web = null;
+                        DataLanguageSetting.HTML.HTML==true? globalThis.Fca.Require.Web.listen(globalThis.Fca.Require.Web.get('DFP')) : globalThis.Fca.Require.Web = null;
                     callback(null, api);
                 }
             });
@@ -1223,7 +1218,7 @@ function setUserNameAndPassWord() {
     console.log(chalk.bold.hex('#9900FF')("[</>]") + chalk.bold.yellow(' => ') + "Fca Version: " + chalk.bold.red(localbrand2) + '\n');
     try {
         rl.question(Language.TypeAccount, (Account) => {
-            if (!Account.includes("@") && global.Fca.Require.utils.getType(parseInt(Account)) != "Number") return logger.Normal(Language.TypeAccountError, function () { process.exit(1) }); //Very Human
+            if (!Account.includes("@") && globalThis.Fca.Require.utils.getType(parseInt(Account)) != "Number") return logger.Normal(Language.TypeAccountError, function () { process.exit(1) }); //Very Human
                 else rl.question(Language.TypePassword,async function (Password) {
                     rl.close();
                     try {
@@ -1235,9 +1230,9 @@ function setUserNameAndPassWord() {
                             logger.Error();
                         process.exit(0);
                     }
-                    if (global.Fca.Require.FastConfig.ResetDataLogin) {
-                        global.Fca.Require.FastConfig.ResetDataLogin = false;
-                        global.Fca.Require.fs.writeFileSync('./FastConfigFca.json', JSON.stringify(global.Fca.Require.FastConfig, null, 4));
+                    if (globalThis.Fca.Require.FastConfig.ResetDataLogin) {
+                        globalThis.Fca.Require.FastConfig.ResetDataLogin = false;
+                        globalThis.Fca.Require.fs.writeFileSync('./FastConfigFca.json', JSON.stringify(globalThis.Fca.Require.FastConfig, null, 4));
                     }
                 logger.Success(Language.SuccessSetData);
                 process.exit(1);
@@ -1280,7 +1275,7 @@ function login(loginData, options, callback) {
         setOptions(globalOptions, {
             logLevel: "silent",
             forceLogin: true,
-            userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36"
+            userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36"
         });
     }
     else if (loginData.appState) {
@@ -1304,11 +1299,11 @@ function login(loginData, options, callback) {
     
     (async function() {
         var Premium = require("./Extra/Src/Premium");
-        global.Fca.Data.PremText = await Premium(global.Fca.Require.Security.create().uuid) || "Bạn Đang Sài Phiên Bản: Free !";
+        globalThis.Fca.Data.PremText = await Premium(globalThis.Fca.Require.Security.create().uuid) || "Bạn Đang Sài Phiên Bản: Free !";
         if (!loginData.email && !loginData.password) {
-            switch (global.Fca.Require.FastConfig.AutoLogin) {
+            switch (globalThis.Fca.Require.FastConfig.AutoLogin) {
                 case true: {
-                    if (global.Fca.Require.FastConfig.ResetDataLogin) return setUserNameAndPassWord();
+                    if (globalThis.Fca.Require.FastConfig.ResetDataLogin) return setUserNameAndPassWord();
                     else {
                         try {
                             if (await Database.get("TempState")) { 

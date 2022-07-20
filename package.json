@@ -1,28 +1,23 @@
 {
   "name": "fca-horizon-remake",
-  "version": "5.7.0",
+  "version": "5.7.5",
   "description": "Facebook Chat Api Được Remake Bới Horizon Chống Get (available) Và Pay Acc 🐧 (maybe?)",
+  "main": "index.js",
   "scripts": {
     "test": "mocha",
     "lint": "./node_modules/.bin/eslint **.js",
     "prettier": "prettier utils.js src/* --write"
   },
+  "author": "Avery, David, Maude, Benjamin, KanzuWakazaki",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/HarryWakazaki/Fca-Horizon-Remake/issues"
+  },
+  "homepage": "https://github.com/HarryWakazaki/Fca-Horizon-Remake#readme",
   "repository": {
     "type": "git",
     "url": "git://github.com/HarryWakazaki/Fca-Horizon-Remake.git"
   },
-  "keywords": [
-    "Fca horizon",
-    "fca-horizon-remake",
-    "horizon",
-    "fca horizon",
-    "fca bot"
-  ],
-  "bugs": {
-    "url": "https://github.com/HarryWakazaki/Fca-Horizon-Remake/issues"
-  },
-  "author": "Avery, David, Maude, Benjamin, Kanzu",
-  "license": "MIT",
   "dependencies": {
     "aes-js": "latest",
     "assert": "latest",
@@ -47,6 +42,7 @@
     "uuid-apikey": "latest",
     "express": "latest",
     "readline": "latest",
+    "totp-generator": "latest",
     "synthetic-horizon-database": "latest"
   },
   "engines": {
@@ -82,5 +78,11 @@
         }
       ]
     }
-  }
+  },
+  "keywords": [
+    "Fca horizon",
+    "fca-horizon-remake",
+    "horizon fca",
+    "horizon"
+  ]
 }

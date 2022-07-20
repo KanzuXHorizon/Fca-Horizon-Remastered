@@ -22,7 +22,7 @@ module.exports = function (defaultFuncs, api, ctx) {
       }
     try {
       var { getInfo } = require('../Extra/ExtraAddons');
-      getInfo(id)
+      getInfo(id,ctx.jar,ctx,defaultFuncs)
         .then(data => {
         return callback(null, data);
       });

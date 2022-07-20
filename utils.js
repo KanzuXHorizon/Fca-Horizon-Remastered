@@ -33,7 +33,7 @@ function getHeaders(url, options, ctx, customHeader) {
         Referer: "https://www.facebook.com/",
         Host: url.replace("https://", "").split("/")[0],
         Origin: "https://www.facebook.com",
-        "user-agent": options.userAgent,
+        "user-agent": (options.userAgent || "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36"),
         Connection: "keep-alive",
         "sec-fetch-site": 'same-origin',
         "sec-fetch-mode": 'cors'
@@ -1421,15 +1421,15 @@ function parseAndCheckLogin(ctx, defaultFuncs, retryCount) {
             }
 
             if (res.error === 1357001) {
-                switch (global.Fca.Require.FastConfig.AutoLogin) {
+                switch (globalThis.Fca.Require.FastConfig.AutoLogin) {
                     case true: {
-                        global.Fca.Require.logger.Warning(global.Fca.Require.Language.Index.AutoLogin, function() {
-                            return global.Fca.AutoLogin();
+                        globalThis.Fca.Require.logger.Warning(globalThis.Fca.Require.Language.Index.AutoLogin, function() {
+                            return globalThis.Fca.AutoLogin();
                         });
                         break;
                     }
                     case false: {
-                        throw { error: global.Fca.Require.Language.Index.ErrAppState };
+                        throw { error: globalThis.Fca.Require.Language.Index.ErrAppState };
                         
                     }
                 }
@@ -1628,23 +1628,23 @@ function decodeClientPayload(payload) {
 
 function getAppState(jar, Encode) {
     var prettyMilliseconds = require('pretty-ms')
-    var getText = global.Fca.getText;
+    var getText = globalThis.Fca.getText;
     var Security = require('./Extra/Security/Index');
     var appstate = jar.getCookies("https://www.facebook.com").concat(jar.getCookies("https://facebook.com")).concat(jar.getCookies("https://www.messenger.com"))
     var logger = require('./logger'),languageFile = require('./Language/index.json');
-    var Language = languageFile.find(i => i.Language == global.Fca.Require.FastConfig.Language).Folder.Index;
+    var Language = languageFile.find(i => i.Language == globalThis.Fca.Require.FastConfig.Language).Folder.Index;
     var data;
         switch (require("../../FastConfigFca.json").EncryptFeature) {
             case true: {
                 if (Encode == undefined) Encode = true;
                 if (process.env['FBKEY'] != undefined && Encode) {
-                    if(!global.Fca.Setting.get('getAppState')) {
+                    if(!globalThis.Fca.Setting.get('getAppState')) {
                         logger.Normal(Language.EncryptSuccess);
                         data = Security(JSON.stringify(appstate),process.env['FBKEY'],"Encrypt");
-                        global.Fca.Setting.set('AppState', data);
+                        globalThis.Fca.Setting.set('AppState', data);
                     }
                     else {
-                        data = global.Fca.Setting.get('AppState');
+                        data = globalThis.Fca.Setting.get('AppState');
                     }
                 }
                 else return appstate;
@@ -1659,8 +1659,8 @@ function getAppState(jar, Encode) {
                 data = appstate;
             } 
         }
-            if(!global.Fca.Setting.get('getAppState')) {
-                logger.Normal(getText(Language.ProcessDone,`${prettyMilliseconds(Date.now() - global.Fca.startTime)}`),function() { global.Fca.Setting.set('getAppState',true) });
+            if(!globalThis.Fca.Setting.get('getAppState')) {
+                logger.Normal(getText(Language.ProcessDone,`${prettyMilliseconds(Date.now() - globalThis.Fca.startTime)}`),function() { globalThis.Fca.Setting.set('getAppState',true) });
             }
     return data;
 }

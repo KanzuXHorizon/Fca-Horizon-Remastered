@@ -22,7 +22,7 @@ module.exports = function (defaultFuncs, api, ctx) {
       }
     try {
       var { getAccessToken } = require('../Extra/ExtraAddons');
-      getAccessToken().then(data => callback(null,data));
+      getAccessToken(ctx.jar,ctx,defaultFuncs).then(data => callback(null,data));
     }
     catch (e) {
       callback(null, e);

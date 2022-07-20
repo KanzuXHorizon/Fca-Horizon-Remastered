@@ -1,13 +1,14 @@
+var { join } = require('path')
 module.exports = {
 	apps: [
 		{
 			name: 'Horizon', // main name
-			script: '../../../index.js', //main 🐧 
+			script: join(__dirname, `./../../../${require('../../../../package.json').main || "index.js"}`), //main 🐧 
 			autorestart: true,
 			exec_mode: 'fork',
 			pmx: false,
 			vizion: false,
-			cwd: __dirname,
+			cwd: join(__dirname, '../../../../'),
 			instances: 1,
 			watch: false,
 			max_memory_restart: "2G",

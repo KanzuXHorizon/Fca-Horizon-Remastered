@@ -55,6 +55,7 @@
                 "TypeAccountError": "Tài Khoản Cần Là ID Hoặc Số Điện Thoại Hay Là Gmail !",
                 "ErrDataBase": "Lỗi Khi Đặt Dữ Liệu Auto Login !",
                 "SuccessSetData": "Đã Đặt Dữ Liệu Auto Login Thành Công !",
+                "Missing": "Bạn Vui Lòng Ghi Mã 2Fa Theo Hướng Dẫn Của Ảnh Trong FastConfigFca.json Dòng AuthString !",
 
                 "EnterSecurityCode": "Hãy Nhập Mã Xác Thực 2 Yếu Tố Của Bạn: ",
                 "ErrThroughCookies": "Đã Xảy Ra Lỗi Khi Xuyên 2Fa, Hãy Nhập Mã 2Fa Lại !",
@@ -63,7 +64,7 @@
                     "Chúc Bạn Một Ngày Tốt Lành Nhé !",
                     "Hãy Báo Cáo Với Admin Khi Có Lỗi Fca Nhé !",
                     "Cảm Ơn Đã Sử Dụng Fca Của Horizon !",
-                    "Donate Tại: Momo: 0396301843, MBank: 0396301843"
+                    "Donate Tại: Momo: 0946838477"
                 ]
             },
             "ExtraGetThread": {
@@ -142,7 +143,7 @@
                 "TypeAccountError": "The account needs to be an ID or Phone number or Gmail!",
                 "ErrDataBase": "Error When Setting Auto Login Data !",
                 "SuccessSetData": "Auto Login Data Set Successfully !",
-
+                "Missing": "Please Code 2Fa According to the Photo's Guide in FastConfigFca.json Series AuthString!",
                 "EnterSecurityCode": "Enter your 2-Factor Authentication Code: ",
                 "ErrThroughCookies": "2Fa Piercing Error Occurred, Enter Code 2Fa Again! ",
 

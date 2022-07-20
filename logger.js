@@ -16,10 +16,10 @@ function getType(obj) {
 
 module.exports = {
 	Normal: function(/** @type {string} */ Str, /** @type {() => any} */ Data ,/** @type {() => void} */ Callback) {
-		if (isHexcolor(global.Fca.Require.FastConfig.MainColor) != true) {
-			this.Warning(getText(global.Fca.Require.Language.Index.InvaildMainColor,global.Fca.Require.FastConfig.MainColor),process.exit(0));
+		if (isHexcolor(globalThis.Fca.Require.FastConfig.MainColor) != true) {
+			this.Warning(getText(globalThis.Fca.Require.Language.Index.InvaildMainColor,globalThis.Fca.Require.FastConfig.MainColor),process.exit(0));
 		}
-		else console.log(chalk.hex(global.Fca.Require.FastConfig.MainColor).bold(`${global.Fca.Require.FastConfig.MainName || '[ FCA-HZI ]'} > `) + Str);
+		else console.log(chalk.hex(globalThis.Fca.Require.FastConfig.MainColor).bold(`${globalThis.Fca.Require.FastConfig.MainName || '[ FCA-HZI ]'} > `) + Str);
 		if (getType(Data) == 'Function' || getType(Data) == 'AsyncFunction') {
 			return Data()
 		}
@@ -49,14 +49,14 @@ module.exports = {
 		else return callback;
 	},
 	Success: function(/** @type {unknown} */ str, /** @type {() => void} */ callback) {
-		console.log(chalk.hex('#9900FF').bold(`${global.Fca.Require.FastConfig.MainName || '[ FCA-HZI ]'} > `) + chalk.green(str));
+		console.log(chalk.hex('#9900FF').bold(`${globalThis.Fca.Require.FastConfig.MainName || '[ FCA-HZI ]'} > `) + chalk.green(str));
 		if (getType(callback) == 'Function' || getType(callback) == 'AsyncFunction') {
 			callback();
 		}
 		else return callback;
 	},
 	Info: function(/** @type {unknown} */ str, /** @type {() => void} */ callback) {
-		console.log(chalk.hex('#9900FF').bold(`${global.Fca.Require.FastConfig.MainName || '[ FCA-HZI ]'} > `) + chalk.blue(str));
+		console.log(chalk.hex('#9900FF').bold(`${globalThis.Fca.Require.FastConfig.MainName || '[ FCA-HZI ]'} > `) + chalk.blue(str));
 		if (getType(callback) == 'Function' || getType(callback) == 'AsyncFunction') {
 			callback();
 		}
