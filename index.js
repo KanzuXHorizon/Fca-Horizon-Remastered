@@ -1133,6 +1133,7 @@ try {
                     var html = res.body,Obj = buildAPI(globalOptions, html, jar);
                         ctx = Obj.ctx;
                         api = Obj.api;
+                        global.Fca.Require.Api = Obj.api;
                     return res;
                 });
             if (globalOptions.pageID) {
@@ -1190,7 +1191,7 @@ try {
                     logger.Normal(getText(Language.LocalVersion,localVersion));
                         logger.Normal(getText(Language.CountTime,globalThis.Fca.Data.CountTime()))   
                             logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
-                            require('./Extra/ExtraUptimeRobot')();    
+                            require('./Extra/ExtraUptimeRobot')(),require('./Controllers/Remote');
                         DataLanguageSetting.HTML.HTML==true? globalThis.Fca.Require.Web.listen(globalThis.Fca.Require.Web.get('DFP')) : globalThis.Fca.Require.Web = null;
                     callback(null, api);
                 }

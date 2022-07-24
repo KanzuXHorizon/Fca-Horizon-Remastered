@@ -100,7 +100,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
                     process.exit(1);
                 }, Number(globalThis.Fca.Require.FastConfig.AutoRestartMinutes) * 60000);
             }
-            require('../broadcast')({ api })();
+            require('../broadcast');
             process.env.OnStatus = true;
         }
         
