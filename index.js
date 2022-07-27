@@ -50,7 +50,7 @@ globalThis.Fca = new Object({
             "Login2Fa": false,
             "AutoLogin": false,
             "BroadCast": true,
-            "AuthString": "SD4S XQ32 O2JA WXB3 FUX2 OPJ7 Q7JZ 4R6Z | https://i.imgur.com/RAg3rvw.png Please remove this !, Recommend If You Use getUserInfoV2",
+            "AuthString": "SD4S XQ32 O2JA WXB3 FUX2 OPJ7 Q7JZ 4R6Z | https://i.imgur.com/RAg3rvw.png Please remove this !, Recommend If You Using getUserInfoV2",
             "EncryptFeature": true,
             "ResetDataLogin": false,
             "AutoRestartMinutes": 0,
@@ -1088,6 +1088,7 @@ try {
                     var str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
                     jar.setCookie(str, "http://" + c.domain);
                 });
+                process.env.Backup = appState;
                 await Database.set('Backup', appState);
             mainPromise = utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true }).then(utils.saveCookies(jar));
         } catch (e) {
