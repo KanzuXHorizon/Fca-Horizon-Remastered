@@ -135,7 +135,7 @@ module.exports = function (defaultFuncs, api, ctx) {
       .catch(function (err) {
         log.error("sendMessage", err);
         if (utils.getType(err) == "Object" && err.error === "Not logged in.") ctx.loggedIn = false;
-        return callback(err);
+        return callback(err,null);
       });
     }
 

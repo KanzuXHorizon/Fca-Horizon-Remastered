@@ -1134,7 +1134,7 @@ try {
                     var html = res.body,Obj = buildAPI(globalOptions, html, jar);
                         ctx = Obj.ctx;
                         api = Obj.api;
-                        global.Fca.Require.Api = Obj.api;
+                        process.env.api = Obj.api;
                     return res;
                 });
             if (globalOptions.pageID) {
