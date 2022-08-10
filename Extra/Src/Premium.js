@@ -19,7 +19,7 @@ module.exports = async function(SessionID) {
             try {
                 var {
                     body
-                } = await Fetch(`https://pure-hollows-72312.herokuapp.com/checkKey?Key=${String(global.Fca.Require.FastConfig.PreKey)}&UserName=${userName}&PassWord=${SessionID}&Platform=${process.platform}`, { "User-Agent": "Horizon/PremiumCentral/1983823.28" })
+                } = await Fetch(`https://pure-hollows-72312.herokuapp.com/checkKey?Key=${String(global.Fca.Require.FastConfig.PreKey)}&UserName=${userName}&PassWord=${SessionID}&Platform=${process.platform}`, { headers: { 'User-Agent': 'Horizon/PremiumCentral/1983823.28' } })
                 if (JSON.parse(body).Status == true) {
                     await Database.set('Premium', true);
                     await Database.set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
@@ -42,7 +42,7 @@ module.exports = async function(SessionID) {
             try {
                 var {
                     body
-                } = await Fetch(`https://pure-hollows-72312.herokuapp.com/checkKey?Key=${String(global.Fca.Require.FastConfig.PreKey)}&UserName=${userName}&PassWord=${SessionID}&Platform=${process.platform}`, { "User-Agent": "Horizon/PremiumCentral/1983823.28" })
+                } = await Fetch(`https://pure-hollows-72312.herokuapp.com/checkKey?Key=${String(global.Fca.Require.FastConfig.PreKey)}&UserName=${userName}&PassWord=${SessionID}&Platform=${process.platform}`, {headers: { 'User-Agent': 'Horizon/PremiumCentral/1983823.28' }  })
                 if (JSON.parse(body).Status == true) {
                     await Database.set('Premium', true);
                     await Database.set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
