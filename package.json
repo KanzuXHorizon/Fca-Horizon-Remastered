@@ -1,6 +1,6 @@
 {
   "name": "fca-horizon-remake",
-  "version": "5.9.0",
+  "version": "10.0.0",
   "description": "Facebook Chat Api Được Remake Bới Horizon Chống Get (available) Và Pay Acc (maybe?)",
   "main": "index.js",
   "scripts": {
