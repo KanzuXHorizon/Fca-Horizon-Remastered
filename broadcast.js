@@ -1,9 +1,10 @@
-switch (globalThis.Fca.Require.FastConfig.BroadCast) {
+switch (global.Fca.Require.FastConfig.BroadCast) {
     case true: {
         try {
-            var logger = globalThis.Fca.Require.logger;
-                var Fetch = globalThis.Fca.Require.Fetch;
+            var logger = global.Fca.Require.logger;
+                var Fetch = global.Fca.Require.Fetch;
                     Fetch.get("https://raw.githubusercontent.com/HarryWakazaki/Global-Horizon/main/FcaCast.json").then(async (/** @type {{ body: { toString: () => string; }; }} */ res) => {
+                        global.Fca.Data.BroadCast = JSON.parse(res.body.toString())
                     var random = JSON.parse(res.body.toString())[Math.floor(Math.random() * JSON.parse(res.body.toString()).length)] || "Ae Zui Zẻ Nhé !";
                 logger.Normal(random);
             }); 
@@ -14,12 +15,9 @@ switch (globalThis.Fca.Require.FastConfig.BroadCast) {
         return setInterval(() => { 
             try {
                 try {
-                    var logger = globalThis.Fca.Require.logger;
-                        var Fetch = globalThis.Fca.Require.Fetch;
-                            Fetch.get("https://raw.githubusercontent.com/HarryWakazaki/Global-Horizon/main/FcaCast.json").then(async (/** @type {{ body: { toString: () => string; }; }} */ res) => {
-                            var random = JSON.parse(res.body.toString())[Math.floor(Math.random() * JSON.parse(res.body.toString()).length)] || "Ae Zui Zẻ Nhé !";
-                        logger.Normal(random);
-                    }); 
+                    var logger = global.Fca.Require.logger;
+                        var random = global.Fca.Data.BroadCast[Math.floor(Math.random() * global.Fca.Data.BroadCast.length)] || "Ae Zui Zẻ Nhé !";
+                    logger.Normal(random);
                 }	
                 catch (e) {
                     console.log(e);

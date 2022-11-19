@@ -9,7 +9,7 @@ module.exports = function (defaultFuncs, api, ctx) {
         let New1 = [];
         if (!Args.New || utils.getType(Args.New) !== "Array") { 
             New1 = Recommend;
-            log.Normal("Không Có Adding Thêm, Tiến Hành Sử Dụng Theo Hệ Thống Al Chỉ Định !");
+            log.Normal("Không Có Adding Thêm, Tiến Hành Sử Dụng Theo Hệ Thống Chỉ Định !");
         }
         else {
             for (let i = 0; i < Args.New.length; i++) {

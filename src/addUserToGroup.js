@@ -20,8 +20,9 @@ module.exports = function (defaultFuncs, api, ctx) {
         resolveFunc();
       };
     }
-
+    
     if (utils.getType(threadID) !== "Number" && utils.getType(threadID) !== "String") throw { error: "ThreadID should be of type Number or String and not " + utils.getType(threadID) + "." };
+
 
     if (utils.getType(userID) !== "Array") userID = [userID];
 

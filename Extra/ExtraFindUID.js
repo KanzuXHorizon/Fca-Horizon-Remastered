@@ -1,4 +1,4 @@
-const got = globalThis.Fca.Require.Fetch;
+const got = global.Fca.Require.Fetch;
 
 /**
  * @param {string | URL} url
@@ -15,10 +15,10 @@ async function getUIDSlow(url,api) {
             userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.79 Safari/537.36'
         })
 	} catch (e) {
-        console.log(globalThis.Fca.Data.event.threadID,e)
-        return api.sendMessage("Lỗi: " + e.message,globalThis.Fca.Data.event.threadID);
+        console.log(global.Fca.Data.event.threadID,e)
+        return api.sendMessage("Lỗi: " + e.message,global.Fca.Data.event.threadID);
 	}
-    if (JSON.parse(data.body.toString()).status != 200) return api.sendMessage('Đã bị lỗi !',globalThis.Fca.Data.event.threadID)
+    if (JSON.parse(data.body.toString()).status != 200) return api.sendMessage('Đã bị lỗi !',global.Fca.Data.event.threadID)
     if (typeof JSON.parse(data.body.toString()).error === 'string') return "errr"
     else return JSON.parse(data.body.toString()).data.id || "nịt";
 }
@@ -37,9 +37,9 @@ async function getUIDFast(url,api) {
             body: Form
         })
 	} catch (e) {
-        return api.sendMessage("Lỗi: " + e.message,globalThis.Fca.Data.event.threadID,globalThis.Fca.Data.event.messageID);
+        return api.sendMessage("Lỗi: " + e.message,global.Fca.Data.event.threadID,global.Fca.Data.event.messageID);
 	}
-    if (JSON.parse(data.body.toString()).error) return api.sendMessage(JSON.parse(data.body.toString()).error,globalThis.Fca.Data.event.threadID,globalThis.Fca.Data.event.messageID);
+    if (JSON.parse(data.body.toString()).error) return api.sendMessage(JSON.parse(data.body.toString()).error,global.Fca.Data.event.threadID,global.Fca.Data.event.messageID);
     else return JSON.parse(data.body.toString()).id || "co cai nit huhu";
 }
 

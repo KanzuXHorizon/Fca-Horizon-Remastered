@@ -51,7 +51,7 @@ module.exports.getAccessToken = async function (jar, ctx,defaultFuncs) {
                 }
             }
             catch (_) {
-                if (global.Fca.Require.FastConfig.AuthString.includes('|')) return logger.Error(globalThis.Fca.Require.Language.Index.Missing)
+                if (global.Fca.Require.FastConfig.AuthString.includes('|')) return logger.Error(global.Fca.Require.Language.Index.Missing)
                 var OPTCODE = global.Fca.Require.FastConfig.AuthString.includes(" ") ? global.Fca.Require.FastConfig.AuthString.replace(RegExp(" ", 'g'), "") : global.Fca.Require.FastConfig.AuthString;
                 var Form = { 
                     approvals_code: OTP(String(OPTCODE)),

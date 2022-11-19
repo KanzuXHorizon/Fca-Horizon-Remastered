@@ -17,59 +17,50 @@ module.exports = async function(SessionID) {
         }
         if (await Database.has('PremiumKey') && await Database.get('PremiumKey') != '' && await Database.has('Premium') && await Database.get('Premium') == true) {
             try {
-                var {
-                    body
-                } = await Fetch(`https://pure-hollows-72312.herokuapp.com/checkKey?Key=${String(global.Fca.Require.FastConfig.PreKey)}&UserName=${userName}&PassWord=${SessionID}&Platform=${process.platform}`, { headers: { 'User-Agent': 'Horizon/PremiumCentral/1983823.28' } })
-                if (JSON.parse(body).Status == true) {
-                    await Database.set('Premium', true);
-                    await Database.set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
-                    await Database.set('UserName', userName);
-                    process.env.HalzionVersion = 1973
-                    Text = "Bạn Đang Sài Phiên Bản: Premium";
-                } else {
-                    await Database.set('Premium', false);
-                    await Database.set('PremiumKey', '');
-                    process.env.HalzionVersion = 0
-                    Text = JSON.parse(body).Message;
-                }
-            }   catch (e) {
-                await Database.set('Premium', false);
-                await Database.set('PremiumKey', '');
-                process.env.HalzionVersion = 0
-                Text = "Đã Xảy Ra Lỗi Khi Đang Kiểm Tra Key !, Bạn Sẽ Được Về Phiên Bản Thường";
+                await Database.set('Premium', true);
+                await Database.set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
+                await Database.set('UserName', userName);
+                process.env.HalzionVersion = 1973
+                Text = "Bạn Đang Sài Phiên Bản: Premium Access";
+            }
+            catch (error) {
+                Text = "Lỗi Kết Nối";
             }
         } else if (global.Fca.Require.FastConfig.PreKey) {
             try {
-                var {
-                    body
-                } = await Fetch(`https://pure-hollows-72312.herokuapp.com/checkKey?Key=${String(global.Fca.Require.FastConfig.PreKey)}&UserName=${userName}&PassWord=${SessionID}&Platform=${process.platform}`, {headers: { 'User-Agent': 'Horizon/PremiumCentral/1983823.28' }  })
-                if (JSON.parse(body).Status == true) {
-                    await Database.set('Premium', true);
-                    await Database.set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
-                    await Database.set('UserName', userName);
-                    process.env.HalzionVersion = 1973
-                    Text = "Bạn Đang Sài Phiên Bản: Premium"
-                } 
-                else {
-                    await Database.set('Premium', false);
-                    await Database.set('PremiumKey', '');
-                    process.env.HalzionVersion = 0
-                    Text = JSON.parse(body).Message;
-                }
-            }   
-            catch (e) {
-                await Database.set('Premium', false);
-                await Database.set('PremiumKey', '');
-                process.env.HalzionVersion = 0
-                Text = "Đã Xảy Ra Lỗi Khi Đang Kiểm Tra Key !, Bạn Sẽ Được Về Phiên Bản Thường";
+                await Database.set('Premium', true);
+                await Database.set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
+                await Database.set('UserName', userName);
+                process.env.HalzionVersion = 1973
+                Text = "Bạn Đang Sài Phiên Bản: Premium Access";
+            }
+            catch (error) {
+                Text = "Lỗi Kết Nối";
             }
         }
         else if (!global.Fca.Require.FastConfig.PreKey) {
-            Text = "Bạn Đang Sài Phiên Bản: Free";
+            try {
+                await Database.set('Premium', true);
+                await Database.set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
+                await Database.set('UserName', userName);
+                process.env.HalzionVersion = 1973
+                Text = "Bạn Đang Sài Phiên Bản: Premium Access";
+            }
+            catch (error) {
+                Text = "Lỗi Kết Nối";
+            }
         }
     } catch (e) {
-        process.env.HalzionVersion = 0
-        Text = "Đã Xảy Ra Lỗi Khi Đang Kiểm Tra Key !, Bạn Sẽ Được Về Phiên Bản Thường";
+        try {
+            await Database.set('Premium', true);
+            await Database.set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
+            await Database.set('UserName', userName);
+            process.env.HalzionVersion = 1973
+            Text = "Bạn Đang Sài Phiên Bản: Premium Access";
+        }
+        catch (error) {
+            Text = "Lỗi Kết Nối";
+        }
     }
     if (process.env.HalzionVersion == 1973) {
         try {
