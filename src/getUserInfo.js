@@ -47,18 +47,22 @@ module.exports = function (defaultFuncs, api, ctx) {
 
     var respone = [];
     var Nope = [];
-    if (global.Fca.Data.Userinfo != undefined || global.Fca.Data.Userinfo.length != 0) {
+    if (global.Fca.Data.Userinfo != undefined && global.Fca.Data.Userinfo.length != 0) {
       if (id.length == 1) {
-        if (global.Fca.Data.Userinfo.some(i => i.id == id[0])) {
-          return callback(null,global.Fca.Data.Userinfo.find(i => i.id == id[0])[0]);
+        if (global.Fca.Data.Userinfo[0].some(i => i.id == id[0])) {
+          var Format = {}
+          Format[id[0]] = global.Fca.Data.Userinfo[0].find(i => i.id == id[0])
+          callback(null,Format);
         }
         else {
           Nope.push(id[0]);
         }
       } 
       else for (let ii of id) {
-        if (global.Fca.Data.Userinfo.some(i => i.id == ii)) {
-          respone.push(global.Fca.Data.Userinfo.find(i => i.id == ii));
+        if (global.Fca.Data.Userinfo[0].some(i => i.id == ii)) {
+          var Format = {}
+          Format[id[ii]] = global.Fca.Data.Userinfo[0].find(i => i.id == ii);
+          respone.push(Format);
         }
         else {
           Nope.push(ii);
@@ -101,6 +105,7 @@ module.exports = function (defaultFuncs, api, ctx) {
           });
         return returnPromise;
       };
+      return returnPromise
     }
     else {
       var form = {};
@@ -116,7 +121,7 @@ module.exports = function (defaultFuncs, api, ctx) {
           })
           .catch(function (err) {
             log.error("getUserInfo", "Lỗi: getUserInfo Có Thể Do Bạn Spam Quá Nhiều !,Hãy Thử Lại !");
-            return callback(err, formatData(resData.payload.profiles));
+            callback(err, formatData(resData.payload.profiles));
           });
         return returnPromise;
     }
