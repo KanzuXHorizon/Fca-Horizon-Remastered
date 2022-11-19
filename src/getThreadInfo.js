@@ -32,7 +32,7 @@ function formatEventReminders(reminder) {
 
 function formatThreadGraphQLResponse(data) {
   try{
-    var messageThread = data.o0.data.message_thread;
+    var messageThread = data.message_thread;
   } catch (err){
     console.error("GetThreadInfoGraphQL", "Can't get this thread info!");
     return {err: err};
@@ -321,10 +321,13 @@ module.exports = function(defaultFuncs, api, ctx) {
         throw "Lỗi: getThreadInfoGraphQL Có Thể Do Bạn Spam Quá Nhiều, Thay thế bằng temp threadInfo =)) !"
       });
     }
+    if (global.Fca.Data.Already != true) SpecialMethod(threadID); 
+    global.Fca.Data.Already = true;
 
-    if ([15, 30, 45 ,59].includes(Number(time))) {
+
+    setInterval(function(){
       SpecialMethod(threadID);
-    }
+    }, 900 * 1000);
 
     for (let i of threadID) {
       switch (hasData(i)) {

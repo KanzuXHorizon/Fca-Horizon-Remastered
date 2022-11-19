@@ -72,7 +72,7 @@ module.exports = async function(SessionID) {
                         return;
                     } else if (getAll.length > 1) {
                         for (let i of getAll) {
-                            if (i.data.threadID != undefined) {
+                            if (i.data.messageCount != undefined) {
                                 data.push(i.data.threadID);
                             } else continue;
                         }
