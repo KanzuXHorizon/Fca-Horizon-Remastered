@@ -23,10 +23,16 @@ module.exports = function (_defaultFuncs, api, _ctx) {
         if (Link.includes('facebook.com') || Link.includes('Facebook.com') || Link.includes('fb')) {
             var LinkSplit = Link.split('/');
             if (LinkSplit.indexOf("https:") == 0) {
-              if (!isNaN(LinkSplit[3])) {
+              if (!isNaN(LinkSplit[3]) && !Link.split('=')[1]  && !isNaN(Link.split('=')[1])) {
                 api.sendMessage('Sai Link, Link Cần Có Định Dạng Như Sau: facebook.com/Lazic.Kanzu',global.Fca.Data.event.threadID,global.Fca.Data.event.messageID);
                 callback(null, String(4));
               }
+              else if (!isNaN(Link.split('=')[1]) && Link.split('=')[1]) {
+                var Format = `https://www.facebook.com/profile.php?id=${Link.split('=')[1]}`;
+                FindUID(Format,api).then(function (data) {
+                  callback(null, data);
+                });
+              } 
               else {
                 FindUID(Link,api).then(function (data) {
                   callback(null, data);

@@ -54,6 +54,7 @@ module.exports = function (defaultFuncs, api, ctx) {
                 log.Normal('Thành Công Clear ' + New1.length + ' Loại File !');
                 callback(null, 'Thành Công Clear ' + New1.length + ' Loại File !');
             }
+            break;
             default: {
                 return log.Error('Not Supported');
             }

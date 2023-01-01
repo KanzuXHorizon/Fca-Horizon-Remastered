@@ -43,6 +43,7 @@ global.Fca = new Object({
             "MainColor": "#9900FF",
             "MainName": "[ FCA-HZI ]",
             "Uptime": false,
+            "Config": "default",
             "Login2Fa": false,
             "AutoLogin": false,
             "BroadCast": true,
@@ -99,7 +100,7 @@ global.Fca = new Object({
 /!-[ Check File To Run Process ]-!/
 
 let Boolean_Fca = ["AutoUpdate","Uptime","BroadCast","EncryptFeature","AutoLogin","ResetDataLogin","Login2Fa"];
-let String_Fca = ["MainName","PreKey","Language","AuthString"]
+let String_Fca = ["MainName","PreKey","Language","AuthString","Config"]
 let Number_Fca = ["AutoRestartMinutes"];
 let All_Variable = Boolean_Fca.concat(String_Fca,Number_Fca);
 
@@ -119,8 +120,8 @@ catch (e) {
 }
     if (global.Fca.Require.fs.existsSync('./FastConfigFca.json')) {
         try { 
-            if (!DataLanguageSetting.AuthString || global.Fca.Require.utils.getType(DataLanguageSetting.AuthString) != 'String') {
-                    DataLanguageSetting.AuthString = "SD4S XQ32 O2JA WXB3 FUX2 OPJ7 Q7JZ 4R6Z | https://i.imgur.com/RAg3rvw.png Please remove this !, Recommend If You Use getUserInfoV2"; //example pls
+            if (!DataLanguageSetting.Config || global.Fca.Require.utils.getType(DataLanguageSetting.Config) != 'String') {
+                    DataLanguageSetting.Config = "default"
                 global.Fca.Require.fs.writeFileSync("./FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));        
             }
         }
@@ -160,6 +161,12 @@ catch (e) {
 catch (e) {
     console.log(e);
     global.Fca.Require.logger.Error();
+}
+
+/!-[ Require config and use ]-!/
+
+if (global.Fca.Require.FastConfig.Config != 'default') {
+    //do ssth
 }
 
 /!-[ Require All Package Need Use ]-!/
