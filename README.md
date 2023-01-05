@@ -1,6 +1,6 @@
 ## Notification !
 
-Lưu Ý! Đây Là Sản Phẩm Được Horizon Remake ( Chính Bởi Facebook-Chat-Api Của Schmavery, Tác Giả Không Chịu Trách Nghiệm Nào ! ), Nếu Có Lỗi Hãy Thử Sử Dụng Sang Sản Phẩm Khác !
+Lưu Ý! Đây Là Sản Phẩm Được Horizon Remake ( Chính Bởi [Facebook-Chat-Api](https://github.com/Schmavery/facebook-chat-api)(Mod của: Fca-Xuyen-Get(bị xóa) bao gồm tác giả [UIRI](https://github.com/BadAimWeeb) từ trước và Tác giả chính: [Schmavery](https://github.com/Schmavery), Tác Giả Hiện Tại Không Chịu Trách Nghiệm Nào ! ), Nếu Có Lỗi Hãy Thử Sử Dụng Sang Sản Phẩm Khác !
 
 ## Support For : 
 
