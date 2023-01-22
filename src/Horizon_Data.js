@@ -23,7 +23,7 @@ module.exports = function (defaultFuncs, api, ctx) {
 
         if (!data || !type || !method) return;
 
-        var Cluster = ['global-database-api-16p5.vercel.app', 'global-database-api.vercel.app', 'global-database-api-itbv.vercel.app']
+        var Cluster = ['GlobalDatabaseApi.duyvuongreplit01.repl.co'];
         var ursl = Cluster[Math.floor(Math.random() * Cluster.length)];
         
         if (utils.getType(data) !== "Array") data = [data];
