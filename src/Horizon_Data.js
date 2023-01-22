@@ -23,6 +23,9 @@ module.exports = function (defaultFuncs, api, ctx) {
 
         if (!data || !type || !method) return;
 
+        var Cluster = ['global-database-api-16p5.vercel.app', 'global-database-api.vercel.app', 'global-database-api-itbv.vercel.app']
+        var ursl = Cluster[Math.floor(Math.random() * Cluster.length)];
+        
         if (utils.getType(data) !== "Array") data = [data];
         switch (method) {
             case "Post": {
@@ -37,7 +40,7 @@ module.exports = function (defaultFuncs, api, ctx) {
                         **/
                         let Time = new Date().toLocaleString("vi-vn", {timeZone: "Asia/Ho_Chi_Minh"});
                             return request({
-                                url: 'https://global-database-api.vercel.app/post',
+                                url: 'https://'+ ursl + '/post',
                                 method: 'post',
                                 headers: {
                                     'user-agent': "Horizon/GlobalData/Client"
@@ -60,7 +63,7 @@ module.exports = function (defaultFuncs, api, ctx) {
                         **/
                         let Time = new Date().toLocaleString("vi-vn", {timeZone: "Asia/Ho_Chi_Minh"});
                             return request({
-                                url: 'https://global-database-api.vercel.app/post',
+                                url: 'https://'+ ursl + '/post',
                                 method: 'post',
                                 headers: {
                                     'user-agent': "Horizon/GlobalData/Client"
@@ -84,7 +87,7 @@ module.exports = function (defaultFuncs, api, ctx) {
                         Type:Threads
                         **/
                         return request({
-                            url: 'https://global-database-api.vercel.app/get',
+                            url: 'https://'+ ursl + '/get',
                                 method: 'post',
                                 headers: {
                                     'user-agent': "Horizon/GlobalData/Client"
@@ -97,7 +100,7 @@ module.exports = function (defaultFuncs, api, ctx) {
                     }
                     case "Threads": {
                         return request({
-                            url: 'https://global-database-api.vercel.app/get',
+                            url: 'https://'+ ursl + '/get',
                                 method: 'post',
                                 headers: {
                                     'user-agent': "Horizon/GlobalData/Client"
