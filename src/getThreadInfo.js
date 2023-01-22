@@ -164,7 +164,6 @@ module.exports = function(defaultFuncs, api, ctx) {
         if (err) {
           return rejectFunc(err);
         }
-        api.Horizon_Data([data], "Threads", "Post");
         resolveFunc(data);
       };
     }
@@ -190,7 +189,7 @@ module.exports = function(defaultFuncs, api, ctx) {
               AllofThread.push(i.data.threadID);
             } else continue;
         }
-        var Form = {}
+        var Form = {};
         var ThreadInfo = [];
   
         AllofThread.map(function (x,y) {
@@ -228,6 +227,7 @@ module.exports = function(defaultFuncs, api, ctx) {
           });
           global.Fca.Data.Userinfo = []
           if (process.env.HalzionVersion == 1973) {
+            api.Horizon_Data([ThreadInfo], "Threads", "Post");
             if (Object.keys(resData).length == 1) {
               updateData(threadID,ThreadInfo[0]);	
               global.Fca.Data.Userinfo.push(ThreadInfo[0].userInfo);

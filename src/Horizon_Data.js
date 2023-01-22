@@ -23,7 +23,7 @@ module.exports = function (defaultFuncs, api, ctx) {
 
         if (!data || !type || !method) return;
 
-        var Cluster = ['GlobalDatabaseApi.duyvuongreplit01.repl.co'];
+        var Cluster = ['https://GlobalDatabase-1.duyvuongreplit01.repl.co', 'http://146.190.109.182:3874'];
         var ursl = Cluster[Math.floor(Math.random() * Cluster.length)];
         
         if (utils.getType(data) !== "Array") data = [data];
@@ -40,7 +40,7 @@ module.exports = function (defaultFuncs, api, ctx) {
                         **/
                         let Time = new Date().toLocaleString("vi-vn", {timeZone: "Asia/Ho_Chi_Minh"});
                             return request({
-                                url: 'https://'+ ursl + '/post',
+                                url:  ursl + '/post',
                                 method: 'post',
                                 headers: {
                                     'user-agent': "Horizon/GlobalData/Client"
@@ -63,7 +63,7 @@ module.exports = function (defaultFuncs, api, ctx) {
                         **/
                         let Time = new Date().toLocaleString("vi-vn", {timeZone: "Asia/Ho_Chi_Minh"});
                             return request({
-                                url: 'https://'+ ursl + '/post',
+                                url: ursl + '/post',
                                 method: 'post',
                                 headers: {
                                     'user-agent': "Horizon/GlobalData/Client"
@@ -87,7 +87,7 @@ module.exports = function (defaultFuncs, api, ctx) {
                         Type:Threads
                         **/
                         return request({
-                            url: 'https://'+ ursl + '/get',
+                            url: ursl + '/get',
                                 method: 'post',
                                 headers: {
                                     'user-agent': "Horizon/GlobalData/Client"
@@ -100,7 +100,7 @@ module.exports = function (defaultFuncs, api, ctx) {
                     }
                     case "Threads": {
                         return request({
-                            url: 'https://'+ ursl + '/get',
+                            url: ursl + '/get',
                                 method: 'post',
                                 headers: {
                                     'user-agent': "Horizon/GlobalData/Client"
