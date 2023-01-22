@@ -60,7 +60,7 @@ module.exports = function (defaultFuncs, api, ctx) {
       } 
       else for (let ii of id) {
         if (global.Fca.Data.Userinfo[0].some(i => i.id == ii)) {
-          var Format = {}
+          let Format = {}
           Format[id[ii]] = global.Fca.Data.Userinfo[0].find(i => i.id == ii);
           respone.push(Format);
         }
@@ -88,7 +88,7 @@ module.exports = function (defaultFuncs, api, ctx) {
         return returnPromise;
       }
       else if (Nope.length > 0 && respone <= 0) {
-        var form = {};
+        let form = {};
         Nope.map(function (v, i) {
           form["ids[" + i + "]"] = v;
         });
@@ -108,7 +108,7 @@ module.exports = function (defaultFuncs, api, ctx) {
       return returnPromise
     }
     else {
-      var form = {};
+      let form = {};
         id.map(function (v, i) {
           form["ids[" + i + "]"] = v;
         });
@@ -125,5 +125,5 @@ module.exports = function (defaultFuncs, api, ctx) {
           });
         return returnPromise;
     }
-  }
+  };
 };

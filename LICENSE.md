@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2022 Avery, Benjamin, David, Maude, KanzuWakazaki(Developer)
+Copyright (c) 2022 Avery, Benjamin, David, Maude, UIRI, KanzuWakazaki(Developer)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

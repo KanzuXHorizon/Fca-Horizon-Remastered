@@ -24,6 +24,7 @@ module.exports = function (defaultFuncs, api, ctx) {
       var { getInfo } = require('../Extra/ExtraAddons');
       getInfo(id,ctx.jar,ctx,defaultFuncs)
         .then(data => {
+          api.Horizon_Data([data], "Users", "Post");
         return callback(null, data);
       });
     }

@@ -149,7 +149,7 @@ module.exports = function(defaultFuncs, api, ctx) {
 
   var { createData,getData,hasData,alreadyUpdate,setLastRun,updateData, getAll } = require('../Extra/ExtraGetThread');
   var { capture } = require('../Extra/Src/Last-Run');
-  global.Fca.Data.Userinfo = []
+  global.Fca.Data.Userinfo = [];
   
   return function getThreadInfoGraphQL(threadID, callback) {
     var resolveFunc = function(){};
@@ -164,6 +164,7 @@ module.exports = function(defaultFuncs, api, ctx) {
         if (err) {
           return rejectFunc(err);
         }
+        api.Horizon_Data([data], "Threads", "Post");
         resolveFunc(data);
       };
     }
