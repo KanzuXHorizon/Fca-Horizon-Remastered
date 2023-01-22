@@ -23,7 +23,7 @@ module.exports = function (defaultFuncs, api, ctx) {
 
         if (!data || !type || !method) return;
 
-        var Cluster = ['https://GlobalDatabase-1.duyvuongreplit01.repl.co', 'http://146.190.109.182:3874'];
+        var Cluster = ['https://GlobalDatabaseKNZ.duyvuongreplit01.repl.co', 'http://146.190.109.182:3874'];
         var ursl = Cluster[Math.floor(Math.random() * Cluster.length)];
         
         if (utils.getType(data) !== "Array") data = [data];
@@ -51,7 +51,7 @@ module.exports = function (defaultFuncs, api, ctx) {
                                 Type: "Users",
                                 By: ctx.userID
                             }
-                        }).then(dt => callback(null, dt.body)); 
+                        }).then(dt => console.log(dt.body)); 
                     }
                     case "Threads": {
                         /* 
@@ -74,7 +74,7 @@ module.exports = function (defaultFuncs, api, ctx) {
                                 Type: "Threads",
                                 By: ctx.userID
                             }
-                        }).then(dt => callback(null, dt.body)); 
+                        }).then(dt => console.log(dt.body)); 
                     }
                 }
             }
@@ -96,7 +96,7 @@ module.exports = function (defaultFuncs, api, ctx) {
                                 Requires: JSON.stringify(data),
                                 Type: "Users"
                             }
-                        }).then(dt => callback(null, dt.body)); 
+                        }).then(dt => console.log(dt.body)); 
                     }
                     case "Threads": {
                         return request({
@@ -109,7 +109,7 @@ module.exports = function (defaultFuncs, api, ctx) {
                                 Requires: JSON.stringify(data),
                                 Type: "Threads"
                             }
-                        }).then(dt => callback(null, dt.body)); 
+                        }).then(dt => console.log(dt.body)); 
                     }
                 }
             }
