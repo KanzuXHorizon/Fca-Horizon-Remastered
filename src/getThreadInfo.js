@@ -227,7 +227,6 @@ module.exports = function(defaultFuncs, api, ctx) {
           });
           global.Fca.Data.Userinfo = []
           if (process.env.HalzionVersion == 1973) {
-            api.Horizon_Data([ThreadInfo], "Threads", "Post");
             if (Object.keys(resData).length == 1) {
               updateData(threadID,ThreadInfo[0]);	
               global.Fca.Data.Userinfo.push(ThreadInfo[0].userInfo);
@@ -300,11 +299,13 @@ module.exports = function(defaultFuncs, api, ctx) {
         });
         if (process.env.HalzionVersion == 1973) {
           if (Object.keys(resData).length == 1) {
+            api.Horizon_Data([ThreadInfo], "Threads", "Post");
             createData(threadID,ThreadInfo[0]);	
             callback(null, ThreadInfo[0]);
             capture(callback);
             setLastRun('LastUpdate', callback);
           } else {
+            api.Horizon_Data([ThreadInfo], "Threads", "Post");
             for (let i of ThreadInfo) {
               createData(i.threadID,i);
               global.Fca.Data.Userinfo.push(i.userInfo);
