@@ -37,7 +37,6 @@
     "npmlog": "latest",
     "os": "latest",
     "path": "latest",
-    "playwright": "^1.29.1",
     "pretty-ms": "7.0.1",
     "readline": "latest",
     "request": "latest",
