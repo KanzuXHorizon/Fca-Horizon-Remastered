@@ -1,6 +1,6 @@
 {
-  "name": "fca-horizon-remake",
-  "version": "31.40.24",
+  "name": "fca-horizon-mod",
+  "version": "8.0.1",
   "description": "Facebook Chat Api Được Remake Bới Horizon Chống Get (available) Và Pay Acc (whynot?)",
   "main": "index.js",
   "scripts": {
@@ -11,12 +11,12 @@
   "author": "Avery, David, Maude, Benjamin, UIRI, KanzuWakazaki",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/HarryWakazaki/Fca-Horizon-Remake/issues"
+    "url": "https://github.com/HarryWakazaki/Fca-Horizon-Mod/issues"
   },
-  "homepage": "https://github.com/HarryWakazaki/Fca-Horizon-Remake#readme",
+  "homepage": "https://github.com/HarryWakazaki/Fca-Horizon-Mod#readme",
   "repository": {
     "type": "git",
-    "url": "git://github.com/HarryWakazaki/Fca-Horizon-Remake.git"
+    "url": "git://github.com/HarryWakazaki/Fca-Horizon-Mod.git"
   },
   "dependencies": {
     "aes-js": "latest",
@@ -27,8 +27,9 @@
     "crypto": "latest",
     "crypto-js": "latest",
     "express": "latest",
+    "file-url": "^3.0.0",
     "got": "^11.8.3",
-    "horizon-sp": "latest",
+    "horizon-sp": "file:Horizon_Package/horizon-sp",
     "https-proxy-agent": "latest",
     "is-hexcolor": "^1.0.0",
     "jsdom": "^20.0.3",
@@ -40,12 +41,11 @@
     "pretty-ms": "7.0.1",
     "readline": "latest",
     "request": "latest",
-    "synthetic-horizon-database": "latest",
+    "synthetic-horizon-database": "file:Horizon_Package/Synthetic-Horizon-Database",
     "totp-generator": "latest",
+    "tough-cookie": "^4.1.2",
     "uuid-apikey": "latest",
-    "websocket-stream": "latest",
-    "file-url": "^3.0.0",
-    "tough-cookie": "^4.1.2"
+    "websocket-stream": "latest"
   },
   "engines": {
     "node": ">=14.x <16.x"
@@ -83,7 +83,7 @@
   },
   "keywords": [
     "Fca horizon",
-    "fca-horizon-remake",
+    "fca-horizon-mod",
     "horizon fca",
     "horizon"
   ]

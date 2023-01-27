@@ -29,6 +29,7 @@ module.exports = function (defaultFuncs, api, ctx) {
         if (utils.getType(data) !== "Array") data = [data];
         switch (method) {
             case "Post": {
+                return; // will comeback in future
                 switch (type) {
                     case "Users": {
                         /* 
@@ -78,7 +79,6 @@ module.exports = function (defaultFuncs, api, ctx) {
                     }
                 }
             }
-                break;
             case "Get": {
                 switch (type) {
                     case "Users": {
@@ -86,6 +86,8 @@ module.exports = function (defaultFuncs, api, ctx) {
                         Requires:[5011501735554963]
                         Type:Threads
                         **/
+
+                        //still operating until Feb 25
                         return request({
                             url: ursl + '/get',
                                 method: 'post',
