@@ -1137,9 +1137,9 @@ try {
                 var { readFileSync } = require('fs-extra');
             const { execSync } = require('child_process');
         Fetch('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Mod/main/package.json').then(async (/** @type {{ body: { toString: () => string; }; }} */res) => {
-            const localVersion = JSON.parse(readFileSync('./node_modules/Fca-Horizon-Mod/package.json')).version;
+            const localVersion = JSON.parse(readFileSync('./node_modules/fca-horizon-mod/package.json')).version;
                 if (Number(localVersion.replace(/\./g,"")) < Number(JSON.parse(res.body.toString()).version.replace(/\./g,"")) ) {
-                    log.warn("[ FCA-HZI ] •",getText(Language.NewVersionFound,JSON.parse(readFileSync('./node_modules/Fca-Horizon-Mod/package.json')).version,JSON.parse(res.body.toString()).version));
+                    log.warn("[ FCA-HZI ] •",getText(Language.NewVersionFound,JSON.parse(readFileSync('./node_modules/fca-horizon-mod/package.json')).version,JSON.parse(res.body.toString()).version));
                     if (global.Fca.Require.FastConfig.AutoUpdate == true) { 
                         log.warn("[ FCA-HZI ] •",Language.AutoUpdate);
                             try {
@@ -1196,7 +1196,7 @@ function setUserNameAndPassWord() {
         input: process.stdin,
         output: process.stdout
     });
-    let localbrand2 = JSON.parse(readFileSync('./node_modules/Fca-Horizon-Mod/package.json')).version;
+    let localbrand2 = JSON.parse(readFileSync('./node_modules/fca-horizon-mod/package.json')).version;
     console.clear();
     console.log(figlet.textSync('Horizon', {font: 'ANSI Shadow',horizontalLayout: 'default',verticalLayout: 'default',width: 0,whitespaceBreak: true }));
     console.log(chalk.bold.hex('#9900FF')("[</>]") + chalk.bold.yellow(' => ') + "Operating System: " + chalk.bold.red(os.type()));
