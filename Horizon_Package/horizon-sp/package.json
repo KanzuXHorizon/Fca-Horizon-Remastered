@@ -10,7 +10,7 @@
   "keywords": [
     "Fca-sp"
   ],
-  "license": "ISC",
+  "license": "ISC", 
   "main": "index.js",
   "name": "horizon-sp",
   "scripts": {
