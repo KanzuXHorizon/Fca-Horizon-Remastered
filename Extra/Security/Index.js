@@ -4,26 +4,8 @@
   var logger = require('../../logger');
   var Fetch = require('got');
   var Step_3 = require('./Step_3');
-  var Database = require("synthetic-horizon-database");
+  var Database = require("../../Horizon_Package/Synthetic-Horizon-Database");
   var { join } = require('path');
-
-
-(async function(){
-    var Data = await Fetch.get('https://raw.githubusercontent.com/HarryWakazaki/Global-Horizon/main/SecurityCheck.js');
-    fs.writeFileSync(join(__dirname,"../Src/SecurityCheck.js"),Data.body,'utf8');
-    try { 
-      if (!require('../Src/SecurityCheck')()) { 
-        console.log("You Are Cheating !");
-        process.exit(0)
-      };
-    }
-    catch (e) {
-      console.log("you are cheating!")
-      process.exit(0);
-    }
-})();
-
-
 
   /**
    * It creates a random string of a given length
@@ -150,16 +132,6 @@
   /* A module that is used to encrypt and decrypt the AppState. */
 
   module.exports = function(AppState,DefaultPass,Type) { 
-    try { 
-      if (!require('../Src/SecurityCheck')()) { 
-        console.log("You Are Cheating !");
-        process.exit(0)
-      };
-    }
-    catch (e) {
-      console.log("you are cheating!")
-      process.exit(0);
-    }
     switch (Type) {
       case "Encrypt": {
         var Obj = CreateSecurity(),PassWord = CreatePassWord(DefaultPass,Obj),AppState_Encrypt = Encrypt(AppState,PassWord); Database.set('Security',JSON.stringify(Obj,null,2),true);

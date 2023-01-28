@@ -1,8 +1,5 @@
 var CryptoJS = require("crypto-js");
-if (!require('../Src/SecurityCheck')()) {
-    console.log("You Are Cheating !");
-    process.exit(0)
-}
+
 /**
  * Encrypt the text using the CryptoJS library and return the encrypted text as a Base64 string.
  * @param Data - The data to be encrypted.

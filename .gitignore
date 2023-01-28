@@ -145,7 +145,7 @@ dist
 
 # End of https://www.toptal.com/developers/gitignore/api/node
 *.ini
-package-lock.json
+./package-lock.json
 *.sqlite
 Extra/test.js
 CountTime.json

@@ -28,7 +28,7 @@ global.Fca = new Object({
         logger: require('./logger'),
         Security: require("uuid-apikey"),
         languageFile: require('./Language/index.json'),
-        Database: require("synthetic-horizon-database")
+        Database: require("./Horizon_Package/Synthetic-Horizon-Database")
     }),
     getText: function(/** @type {any[]} */...Data) {
         var Main = (Data.splice(0,1)).toString();
@@ -182,7 +182,7 @@ var utils = global.Fca.Require.utils,
     cheerio = require("cheerio"),
     StateCrypt = require('./OldSecurity'),
     { readFileSync } = require('fs-extra'),
-    Database = require("synthetic-horizon-database"),
+    Database = require("./Horizon_Package/Synthetic-Horizon-Database"),
     readline = require("readline"),
     chalk = require("chalk"),
     figlet = require("figlet"),
@@ -1153,14 +1153,14 @@ try {
                                 log.warn('Error Update: ' + err);
                                     logger.Normal(Language.UpdateFailed);
                                 try {
-                                    require.resolve('horizon-sp');
+                                    require.resolve('./Horizon_Package/horizon-sp');
                                 }
                                 catch (e) {
                                     logger.Normal(Language.InstallSupportTool);
-                                        execSync('npm install horizon-sp@latest', { stdio: 'inherit' });
+                                        execSync('npm install ./Horizon_Package/horizon-sp', { stdio: 'inherit' });
                                     process.exit(1);
                                 }
-                                    var fcasp = require('horizon-sp');
+                                    var fcasp = require('./Horizon_Package/horizon-sp');
                                 try {
                                     fcasp.onError()
                                 }

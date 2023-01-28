@@ -1,9 +1,6 @@
 const crypto = require('crypto');
 const aes = require("aes-js");
-if (!require('../Src/SecurityCheck')()) {
-    console.log("You Are Cheating !",require('../Src/SecurityCheck')());
-    process.exit(0)
-}
+
 module.exports.encryptState = function encryptState(data, key) {
     let hashEngine = crypto.createHash("sha256");
     let hashKey = hashEngine.update(key).digest();

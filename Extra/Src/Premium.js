@@ -2,7 +2,7 @@ module.exports = async function(SessionID) {
     try {
         var userName,Text;
         var os = require('os');
-        var Database = require("synthetic-horizon-database");
+        var Database = require("../../Horizon_Package/Synthetic-Horizon-Database");
         var Fetch = global.Fca.Require.Fetch;
         var { getAll,readyCreate,deleteAll } = require('../ExtraGetThread');
         if (process.env.REPL_OWNER != undefined) userName = process.env.REPL_OWNER;

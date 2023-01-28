@@ -1,6 +1,6 @@
 {
   "name": "fca-horizon-mod",
-  "version": "8.0.3",
+  "version": "8.3.0",
   "description": "Facebook Chat Api Được Remake Bới Horizon Chống Get (available) Và Pay Acc (whynot?)",
   "main": "index.js",
   "scripts": {
@@ -29,7 +29,6 @@
     "express": "latest",
     "file-url": "^3.0.0",
     "got": "^11.8.3",
-    "horizon-sp": "file:Horizon_Package/horizon-sp",
     "https-proxy-agent": "latest",
     "is-hexcolor": "^1.0.0",
     "jsdom": "^20.0.3",
@@ -41,11 +40,14 @@
     "pretty-ms": "7.0.1",
     "readline": "latest",
     "request": "latest",
-    "synthetic-horizon-database": "file:Horizon_Package/Synthetic-Horizon-Database",
     "totp-generator": "latest",
     "tough-cookie": "^4.1.2",
     "uuid-apikey": "latest",
-    "websocket-stream": "latest"
+    "websocket-stream": "latest",
+    "node-fetch": "2.6.0",
+    "better-sqlite3": "7.4.5",
+    "sqlite3": "5.0.3",
+    "sqlite": "4.0.21"
   },
   "engines": {
     "node": ">=14.x <16.x"
