@@ -1,5 +1,8 @@
 ## Notification !
 
++ Important: We will switching to DHF-Horizon-Synthesis, we will have Example Video on Channel "Nguyễn Thái Hảo Official"
++ DHF-Horizon-Synthesis: https://github.com/orgs/DHF-Horizon-Directory/repositories
+
 Original Project: https://github.com/Schmavery/facebook-chat-api(Deprecated)
 
 Package được remake bởi KanzuWakazaki và Một Số Thành Viên HZI, Package này "Không bao gồm tác giả UIRI"
