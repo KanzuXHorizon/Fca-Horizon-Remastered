@@ -1,6 +1,14 @@
 ## Notification !
 
-Lưu Ý! Đây Là Sản Phẩm Được Horizon Remake Chính Bởi [Facebook-Chat-Api](https://github.com/Schmavery/facebook-chat-api)(Mod của: Fca-Xuyen-Get(bị xóa) bao gồm tác giả [UIRI](https://github.com/BadAimWeeb) từ trước và Tác giả chính: [Schmavery](https://github.com/Schmavery), Tác Giả Hiện Tại Không Chịu Trách Nghiệm Nào ! ), Nếu Có Lỗi Hãy Thử Sử Dụng Sang Sản Phẩm Khác !
+Original Project: https://github.com/Schmavery/facebook-chat-api(Deprecated)
+
+Package được remake bởi KanzuWakazaki và Một Số Thành Viên HZI, Package này "Không bao gồm tác giả UIRI"
+Tác giả UIRI đã tự khẳng định những điều đó qua những hành động ghen ăn tức ở của mình
+HZI Team Không chấp những chuyện đó nên cứ Lofi
+
+Chúc các bạn một ngày tốt lành!, cảm ơn vì đã sài Sản phẩm của HZI, thân ái
+
+KANZUWAKAZAKI(03/02/2023)
 
 ## Support For : 
 

@@ -1,14 +1,14 @@
 {
   "name": "fca-horizon-mod",
   "version": "8.4.0",
-  "description": "Facebook Chat Api Được Remake Bới Horizon Chống Get (available) Và Pay Acc (whynot?)",
+  "description": "Facebook-chat-api protect and deploy by Kanzu and HZI Team",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
     "lint": "./node_modules/.bin/eslint **.js",
     "prettier": "prettier utils.js src/* --write"
   },
-  "author": "Avery, David, Maude, Benjamin, UIRI, KanzuWakazaki",
+  "author": "Avery, David, Maude, Benjamin, KanzuWakazaki",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/HarryWakazaki/Fca-Horizon-Mod/issues"

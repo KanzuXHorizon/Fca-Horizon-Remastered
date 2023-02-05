@@ -1134,53 +1134,12 @@ try {
             }
         mainPromise
             .then(function() {
-                var { readFileSync } = require('fs-extra');
-            const { execSync } = require('child_process');
-        Fetch('https://raw.githubusercontent.com/HarryWakazaki/Fca-Horizon-Mod/main/package.json').then(async (/** @type {{ body: { toString: () => string; }; }} */res) => {
-            const localVersion = JSON.parse(readFileSync('./node_modules/fca-horizon-mod/package.json')).version;
-                if (Number(localVersion.replace(/\./g,"")) < Number(JSON.parse(res.body.toString()).version.replace(/\./g,"")) ) {
-                    log.warn("[ FCA-HZI ] •",getText(Language.NewVersionFound,JSON.parse(readFileSync('./node_modules/fca-horizon-mod/package.json')).version,JSON.parse(res.body.toString()).version));
-                    if (global.Fca.Require.FastConfig.AutoUpdate == true) { 
-                        log.warn("[ FCA-HZI ] •",Language.AutoUpdate);
-                            try {
-                                execSync('npm install Fca-Horizon-Mod@latest', { stdio: 'inherit' });
-                                    logger.Success(Language.UpdateSuccess)
-                                        logger.Normal(Language.RestartAfterUpdate);
-                                        await new Promise(resolve => setTimeout(resolve,5*1000));
-                                    console.clear();process.exit(1);
-                                }
-                            catch (err) {
-                                log.warn('Error Update: ' + err);
-                                    logger.Normal(Language.UpdateFailed);
-                                try {
-                                    require.resolve('./Horizon_Package/horizon-sp');
-                                }
-                                catch (e) {
-                                    logger.Normal(Language.InstallSupportTool);
-                                        execSync('npm install ./Horizon_Package/horizon-sp', { stdio: 'inherit' });
-                                    process.exit(1);
-                                }
-                                    var fcasp = require('./Horizon_Package/horizon-sp');
-                                try {
-                                    fcasp.onError()
-                                }
-                                catch (e) {
-                                    logger.Normal(Language.NotiAfterUseToolFail, "[ Fca - Helper ]")
-                                        logger.Normal("rmdir ./node_modules after type npm i && npm start","[ Fca - Helper ]");
-                                    process.exit(0);
-                                }
-                            }
-                        }
-                    }
-                else {
-                    logger.Normal(getText(Language.LocalVersion,localVersion));
-                        logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
-                            logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
-                            require('./Extra/ExtraUptimeRobot')();
-                        DataLanguageSetting.HTML.HTML==true? global.Fca.Require.Web.listen(global.Fca.Require.Web.get('DFP')) : global.Fca.Require.Web = null;
-                    callback(null, api);
-                }
-            });
+                logger.Normal(getText(Language.LocalVersion,localVersion));
+                    logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
+                    logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
+                    require('./Extra/ExtraUptimeRobot')();
+                DataLanguageSetting.HTML.HTML==true? global.Fca.Require.Web.listen(global.Fca.Require.Web.get('DFP')) : global.Fca.Require.Web = null;
+            callback(null, api);
         }).catch(function(/** @type {{ error: any; }} */e) {
             log.error("login", e.error || e);
         callback(e);
