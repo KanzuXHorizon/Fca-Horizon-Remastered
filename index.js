@@ -924,8 +924,8 @@ try {
                             case "Array": {
                                 switch (utils.getType(appState[0])) {
                                     case "Object": {
-										logger.Normal(Language.NotReadyToDecrypt);
-									}
+                                        logger.Normal(Language.NotReadyToDecrypt);
+                                    }
                                         break;
                                     case "String": {
                                         appState = Security(appState,process.env['FBKEY'],'Decrypt');
@@ -1134,8 +1134,7 @@ try {
             }
         mainPromise
             .then(function() {
-                logger.Normal(getText(Language.LocalVersion,localVersion));
-                    logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
+                logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
                     logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
                     require('./Extra/ExtraUptimeRobot')();
                 DataLanguageSetting.HTML.HTML==true? global.Fca.Require.Web.listen(global.Fca.Require.Web.get('DFP')) : global.Fca.Require.Web = null;
