@@ -18,7 +18,7 @@ module.exports = function (defaultFuncs, api, ctx) {
             let i = require('puppeteer');
         }   
         catch (e) {
-            var { exec, execSync } = require('child_process');
+            var { execSync } = require('child_process');
             execSync('npm i puppeteer', { stdio: 'inherit' });
         }
             const Screenshot = require('../Extra/ExtraScreenShot');

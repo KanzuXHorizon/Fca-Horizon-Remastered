@@ -1186,7 +1186,8 @@ try {
                                 DataLanguageSetting.HTML.HTML==true? global.Fca.Require.Web.listen(global.Fca.Require.Web.get('DFP')) : global.Fca.Require.Web = null;
                             callback(null, api);
                         };
-                    }).catch(async function() {
+                    }).catch(async function(e) {
+                        console.log(e)
                         logger.Warning(Language.AutoCheckUpdateFailure)
                             logger.Normal(getText(Language.LocalVersion,global.Fca.Version));
                                 logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
