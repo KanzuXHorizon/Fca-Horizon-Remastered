@@ -1,3 +1,5 @@
+[![Socket Badge](https://socket.dev/api/badge/npm/package/fca-horizon-remastered)](https://socket.dev/npm/package/fca-horizon-remastered)
+
 ## Notification !
 
 + We will have Example Video on Channel "Nguyễn Thái Hảo Official"

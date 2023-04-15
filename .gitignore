@@ -7,3 +7,5 @@ node_modules
 Extra/Database/SyntheticDatabase.sqlite
 CountTime.json
 *.sqlite
+*.sqlite
+Extra/Database/SyntheticDatabase.sqlite

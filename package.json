@@ -1,6 +1,6 @@
 {
   "name": "fca-horizon-remastered",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Facebook-chat-api protect and deploy by Kanzu and HZI Team",
   "main": "index.js",
   "scripts": {
@@ -16,7 +16,7 @@
   "homepage": "https://github.com/KanzuXHorizon/Fca-Horizon-Remastered#readme",
   "repository": {
     "type": "git",
-    "url": "git://github.com/KanzuXHorizon/Fca-Horizon-RemasteredMod.git"
+    "url": "git://github.com/KanzuXHorizon/Fca-Horizon-Remastered.git"
   },
   "dependencies": {
     "aes-js": "latest",
