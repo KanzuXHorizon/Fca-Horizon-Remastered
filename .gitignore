@@ -1,11 +1,5 @@
 
 .vscode/settings.json
-.npmignore
-yarn.lock
-node_modules
-*.sqlite
+CountTime.json
 Extra/Database/SyntheticDatabase.sqlite
 CountTime.json
-*.sqlite
-*.sqlite
-Extra/Database/SyntheticDatabase.sqlite

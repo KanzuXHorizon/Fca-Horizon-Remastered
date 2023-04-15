@@ -1,6 +1,6 @@
 {
   "name": "fca-horizon-remastered",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Facebook-chat-api protect and deploy by Kanzu and HZI Team",
   "main": "index.js",
   "scripts": {
@@ -44,9 +44,9 @@
     "tough-cookie": "^4.1.2",
     "uuid-apikey": "latest",
     "websocket-stream": "latest",
-    "node-fetch": "2.6.0",
+    "node-fetch": "2.6.7",
     "better-sqlite3": "7.4.5",
-    "sqlite3": "5.0.3",
+    "sqlite3": "5.1.5",
     "sqlite": "4.0.21"
   },
   "engines": {

@@ -1,13 +1,3 @@
-
-.travis.yml
-.jshintrc
-CHANGELOG.md
-test
-Extra/Database/thread.sqlite
-Extra/Database/*.sqlite
-Extra/Database/test
-node_modules
 *.sqlite
 CountTime.json
-test.*
-*.env
+./Extra/Database/*.sqlite
