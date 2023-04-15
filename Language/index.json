@@ -1,0 +1,177 @@
+[
+    {
+        "Language": "vi",
+        "Folder": {
+            "Index": {
+                "ErrAppState": "Appstate - Cookie Của Bạn Đã Bị Lỗi, Hãy Thay Cái Mới, Hoặc Vô Trình Duyệt Ẩn Danh Rồi Đăng Nhập Và Thử Lại !",
+                "CheckPointLevelI": "Phát Hiện CheckPoint - Không Đăng Nhập Được, Hãy Thử Logout Rồi Login Và Lấy Lại Appstate - Cookie !",
+                "UID": "Đăng Nhập Tại ID: %1",
+                "Area": "Vùng Của Tài Khoản Là: %1",
+                "NoAreaData": "Không Thể Lấy Vùng Của Tài Khoản !",
+                "OnLogin": "Đang Đăng Nhập ...",
+                "InvaildAccount": "Sai Mật Khẩu Hoặc Tài Khoản !",
+                "TwoAuth": "Bạn Đang Bật 2 Bảo Mật !",
+                "InvaildTwoAuthCode": "Sai Mã Hai Bảo Mật !",
+                "ApprovalsErr": "Lỗi Khi Đăng Nhập Với Hai Bảo Mật !",
+                "VerifiedCheck": "Xác Nhận Từ Trình Duyệt, Đang Đăng Nhập...",
+                "ForceLoginNotEnable": "Không Thể Đăng Nhập, Hãy Thử Bật 'forceLogin' !",
+                "SubmitErrSuccess": "Đã Gửi Báo Cáo Lỗi Tới Server !",
+                "ErrorWhileSendErr": "Đã Xảy Ra Lỗi Khi Cố Gửi Lỗi Đến Server !",
+                "OnProcess": "Khởi Động Tiến Trình Đăng Nhập !",
+                "BackupNoti": "Đang Thay AppState Từ Backup, Nếu Điều Này Tiếp Tục Diễn Ra, Hãy Liên Hệ Với Fb.com/Lazic.Kanzu",
+                "ErrGetPassWord": "Lỗi Khi Lấy Mật Khẩu Mã Hoá AppState !",
+                "ErrGenerateKey": "Lỗi Khi Tạo Mật Khẩu Cho AppState !",
+                "UnsupportedDevice": "Hệ Điều Hành Của Bạn Hiện Không Được Hỗ Trợ !",
+                "NotReadyToDecrypt": "Chưa Sẵn Sàng Để Giải Hóa Appstate !",
+                "DecryptSuccess": "Giải Hóa Appstate Thành Công !",
+                "ErrBackup": "Lỗi Khi Sao Lưu AppState, Hãy Thay AppState !",
+                "DecryptFailed": "Giải Hóa Không Thành Công, Hãy Thử Thay AppState !",
+                "InvaildAppState": "Không Nhận Dạng Được AppState, Xin Vui Lòng Thay AppState !",
+                "YourAppStatePass": "Mật Khẩu AppState Của Bạn Là: %1",
+                "BackupFailed": "Sao Lưu AppState Không Thành Công !",
+                "ScreenShotConsoleAndSendToAdmin": "Chụp Lại Màn Hình Dòng Này Và Gửi Vô Facebook: Fb.com/Lazic.Kanzu",
+                "DoneLogin": "Hoàn Thành Quá Trình Đăng Nhập !",
+                "AutoCheckUpdateFailure": "Lỗi Khi Kiểm Tra Cập Nhật, Vui Lòng Thử Lại Sau !",
+                "AutoCheckUpdate": "Đang Kiểm Tra Bản Cập Nhật !",
+                "NewVersionFound": "Phiên Bản Mới Đã Được Cập Nhật: %1 => %2",
+                "AutoUpdate": "Tiến Hành Tự Động Cập Nhật Lên Phiên Bản Mới Nhất !",
+                "UpdateSuccess": "Nâng Cấp Phiên Bản Thành Công !",
+                "RestartAfterUpdate": "Đang Khởi Động Lại Để Phiên Bản Mới Có Hiệu Lực !",
+                "UpdateFailed": "Lỗi Khi Nâng Cấp Lên Phiên Bản Mới Nhất !",
+                "UseSupportToolAfterUpdateFailed": "Nâng Cấp Thức Bại, Tiến Hành Sử Dụng Công Cụ Hỗ Trợ !",
+                "InstallSupportTool": "Đang Tải Dụng Cụ Hộ Trợ Cho Fca !",
+                "NotiAfterUseToolFail": "Hãy Tự Fix Bằng Cách Nhập:",
+                "LocalVersion": "Phiên Bản Đang Dùng Hiện Tại Là: %1 !",
+                "EncryptSuccess": "Mã Hoá AppState Thành Công !",
+                "ProcessDone": "Kết Thúc Với: %1 !",
+                "CountTime": "Tổng Thời Gian Bạn Sử Dụng: %1",
+                "InvaildMainColor": "%1 Không Phải Là Một Màu Hex !",
+                "IsNotABoolean": "%1 Không Phải Là Một Boolean, Cần Là true Hoặc false !",
+                "InvaildOption": "%1 Không Phải Là Một Lựa Chọn !",
+                "EncryptStateOff": "Tính Năng EncryptState Đã Bị Tắt !",
+
+                "AutoLogin": "AutoLogin Đang Bật, Tiến Hành Đăng Nhập Lại !",
+                "TypeAccount": "Hãy Nhập Tài Khoản: ",
+                "TypePassword": "Hãy Nhập Mật Khẩu: ",
+                "TypeAccountError": "Tài Khoản Cần Là ID Hoặc Số Điện Thoại Hay Là Gmail !",
+                "ErrDataBase": "Lỗi Khi Đặt Dữ Liệu Auto Login !",
+                "SuccessSetData": "Đã Đặt Dữ Liệu Auto Login Thành Công !",
+                "Missing": "Bạn Vui Lòng Ghi Mã 2Fa Theo Hướng Dẫn Của Ảnh Trong FastConfigFca.json Dòng AuthString !",
+
+                "EnterSecurityCode": "Hãy Nhập Mã Xác Thực 2 Yếu Tố Của Bạn: ",
+                "ErrThroughCookies": "Đã Xảy Ra Lỗi Khi Xuyên 2Fa, Hãy Nhập Mã 2Fa Lại !",
+
+                "WishMessage": [
+                    "Chúc Bạn Một Ngày Tốt Lành Nhé !",
+                    "Hãy Báo Cáo Với Admin Khi Có Lỗi Fca Nhé !",
+                    "Cảm Ơn Đã Sử Dụng Fca Của Horizon !",
+                    "Donate Tại: Momo: 0946838477"
+                ]
+            },
+            "ExtraGetThread": {
+                "CreateDatabaseSuccess": "Khởi Tạo Thành Công Database Cho Nhóm: %1",
+                "CreateDatabaseFailure": "Khởi Tạo Thất Bại Database Của Nhóm: %1",
+                "alreadyUpdate": "%1 Đã Sẵn Sàng Để Update Database",
+                "updateDataSuccess": "Cập Nhật Dữ Liệu Cho Nhóm %1 Thành Công !",
+                "updateDataFailure": "Cập Nhật Dữ Liệu Cho Nhóm %1 Thất Bại !"
+            },
+            "ExtraUpTime": {
+                "Uptime": "Kết Nối Đến Server Uptime Thành Công !",
+                "PM2": "Đang Vào Chế Độ Uptime !",
+                "InPm2Mode": "Bạn Đang Ở Chế Độ Uptime PM2",
+                "NotSupport": "Không Hỗ Trợ Uptime Server!",
+                "Maintenance": "Server Uptime Đang Bảo Trì, Hãy Thử Lại Sau !"
+            },
+            "Src": {
+                "AutoRestart": "Tự Động Khởi Động Lại Sau: %1 Phút Nữa !",
+                "OnRestart": "Đang Restart..."
+            }
+        }
+    },
+    {
+        "Language": "en",
+        "Folder": {
+            "Index": {
+                "ErrAppState": "Appstate - Your Cookie Is Wrong, Please Replace It, Or Go To Incognito Browser Then Sign In And Try Again !",
+                "CheckPointLevelI": "CheckPoint Detected - Can't Login, Try Logout Then Login And Retrieve Appstate - Cookie !",
+                "UID": "Login as ID: %1",
+                "Area": "Area Of Account Is: %1",
+                "NoAreaData": "Can't Get Area Of Account !",
+                "OnLogin": "Currently logged ...",
+                "InvaildAccount": "Wrong Password Or Account !",
+                "TwoAuth": "You Currently On 2 Factor Security !",
+                "InvaildTwoAuthCode": "Wrong Code Two Factor Security !",
+                "ApprovalsErr": "Error When Login With Two Factor Security !",
+                "VerifiedCheck": "Confirm From Browser, Logging In...",
+                "ForceLoginNotEnable": "Can't Login, Try Enable 'forceLogin' !",
+                "SubmitErrSuccess": "Error Report Sent To Server !",
+                "ErrorWhileSendErr": "An error occurred while trying to send an error to the server !",
+                "OnProcess": "Start the Login Process !",
+                "BackupNoti": "Changing AppState From Backup, If This Continues, Contact Fb.com/Lazic.Kanzu",
+                "ErrGetPassWord": "Error Retrieving AppState Encryption Password !",
+                "ErrGenerateKey": "Error Creating Password For AppState !",
+                "UnsupportedDevice": "Your Operating System Is Currently Not Supported !",
+                "NotReadyToDecrypt": "Not Ready To Solve Appstate !",
+                "DecryptSuccess": "Successfully Appstate Solved !",
+                "ErrBackup": "Error When Backing Up AppState, Please Replace AppState !",
+                "DecryptFailed": "Solution Failed, Try Replacing AppState !",
+                "InvaildAppState": "AppState Not Recognized, Please Replace AppState !",
+                "YourAppStatePass": "Your AppState Password Is: %1",
+                "BackupFailed": "AppState Backup Failed !",
+                "ScreenShotConsoleAndSendToAdmin": "Take a Screenshot of This Line And Send It To Facebook: Fb.com/Lazic.Kanzu",
+                "DoneLogin": "Complete the Login Process !",
+                "AutoCheckUpdate": "Checking for Updates !",
+                "NewVersionFound": "New Version, Ready to Update: %1 => %2",
+                "AutoUpdate": "Perform Automatic Update to the Latest Version !",
+                "UpdateSuccess": "Upgrade Version Successfully !",
+                "RestartAfterUpdate": "Rebooting For New Version To Take Effect !",
+                "UpdateFailed": "Error When Upgrading To Latest Version !",
+                "UseSupportToolAfterUpdateFailed": "Upgrade Failed, Proceed to Using Support Tools !",
+                "InstallSupportTool": "Loading Support Tools For FCA !",
+                "NotiAfterUseToolFail": "Please Fix It Yourself By Entering:",
+                "LocalVersion": "You Are Currently Using Version: %1 !",
+                "EncryptSuccess": "Encrypt Appstate Success !",
+                "ProcessDone": "Process Done: %1 !",
+                "InvaildMainColor": "%1 Is Not A Hex Color Code !",
+                "IsNotABoolean": "%1 Is Not A Boolean, Need To Be true Or false !",
+                "EncryptStateOff": "Encryption Has Been Turned Off !",
+                "InvaildOption": "Invail Option: %1",
+                "CountTime": "Total Time You Use: %1",
+
+                "AutoLogin": "AutoLogin Is On, Proceed to Log Back in!",
+                "TypeAccount": "Enter Account: ",
+                "TypePassword": "Enter a Password: ",
+                "TypeAccountError": "The account needs to be an ID or Phone number or Gmail!",
+                "ErrDataBase": "Error When Setting Auto Login Data !",
+                "SuccessSetData": "Auto Login Data Set Successfully !",
+                "Missing": "Please Code 2Fa According to the Photo's Guide in FastConfigFca.json Series AuthString!",
+                "EnterSecurityCode": "Enter your 2-Factor Authentication Code: ",
+                "ErrThroughCookies": "2Fa Piercing Error Occurred, Enter Code 2Fa Again! ",
+
+                "WishMessage": [
+                    "Have a Nice Day !",
+                    "Please Report To Admin When There Is Error in FCA !",
+                    "Thank You For Using Horizon's FCA !"
+                ]
+            },
+            "ExtraGetThread": {
+                "CreateDatabaseSuccess": "Successfully Initiate Database for Group: %1",
+                "CreateDatabaseFailure": "Initialization of Group Database Failure: %1",
+                "alreadyUpdate": "%1 Ready to Update Database",
+                "updateDataSuccess": "Data Update for Group %1 Success!",
+                "updateDataFailure": "Data Update for Group %1 Failed!"
+            },
+            "ExtraUpTime": {
+                "Uptime": "Connecting To Server Uptime Succeeds!",
+                "PM2": "Trying to PM2 Mode!",
+                "InPm2Mode": "You Are In Uptime PM2 Mode !",
+                "NotSupport": "Your Operating System does not currently support Uptime Server !",
+                "Maintenance": "Server Uptime In Maintenance, Try Again Later!"
+            },
+            "Src": {
+                "AutoRestart": "Automatically Restart After: %1 Minutes !",
+                "OnRestart": "Restarting..."
+            }
+        }
+    }
+]
