@@ -2,3 +2,4 @@
 .vscode/settings.json
 .npmignore
 yarn.lock
+node_modules
