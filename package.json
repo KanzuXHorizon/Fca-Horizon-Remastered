@@ -44,7 +44,7 @@
     "tough-cookie": "^4.1.2",
     "uuid-apikey": "latest",
     "websocket-stream": "latest",
-    "node-fetch": "2.6.0",
+    "node-fetch": "2.6.7",
     "better-sqlite3": "7.4.5",
     "sqlite3": "5.0.3",
     "sqlite": "4.0.21"
