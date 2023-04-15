@@ -1131,72 +1131,70 @@ try {
             }
         mainPromise
             .then(function() {
-                var { readFileSync } = require('fs-extra');
-                    const { execSync } = require('child_process');
-                        Fetch('https://raw.githubusercontent.com/KanzuXHorizon/Fca-Horizon-Remastered/main/package.json').then(async (/** @type {{ body: { toString: () => string; }; }} */res) => {
-                            const localVersion = JSON.parse(readFileSync('./node_modules/fca-horizon-remastered/package.json')).version;
-                                if (Number(localVersion.replace(/\./g,"")) < Number(JSON.parse(res.body.toString()).version.replace(/\./g,"")) ) {
-                                    log.warn("[ FCA-HZI ] •",getText(Language.NewVersionFound,global.Fca.Version,JSON.parse(res.body.toString()).version));
-                                    if (global.Fca.Require.FastConfig.AutoUpdate == true) { 
-                                        log.warn("[ FCA-HZI ] •",Language.AutoUpdate);
+                const { execSync } = require('child_process');
+                    Fetch('https://raw.githubusercontent.com/KanzuXHorizon/Fca-Horizon-Remastered/main/package.json').then(async (/** @type {{ body: { toString: () => string; }; }} */res) => {
+                        const localVersion = global.Fca.Version;
+                            if (Number(localVersion.replace(/\./g,"")) < Number(JSON.parse(res.body.toString()).version.replace(/\./g,"")) ) {
+                                log.warn("[ FCA-HZI ] •",getText(Language.NewVersionFound,global.Fca.Version,JSON.parse(res.body.toString()).version));
+                                if (global.Fca.Require.FastConfig.AutoUpdate == true) { 
+                                    log.warn("[ FCA-HZI ] •",Language.AutoUpdate);
+                                        try {
+                                            execSync('npm install Fca-Horizon-Remastered@latest', { stdio: 'inherit' });
+                                                logger.Success(Language.UpdateSuccess)
+                                                    logger.Normal(Language.RestartAfterUpdate);
+                                                    await new Promise(resolve => setTimeout(resolve,5*1000));
+                                                console.clear();process.exit(1);
+                                            }
+                                        catch (err) {
+                                            log.warn('Error Update: ' + err);
+                                                logger.Normal(Language.UpdateFailed);
                                             try {
-                                                execSync('npm install Fca-Horizon-Remastered@latest', { stdio: 'inherit' });
-                                                    logger.Success(Language.UpdateSuccess)
-                                                        logger.Normal(Language.RestartAfterUpdate);
-                                                        await new Promise(resolve => setTimeout(resolve,5*1000));
-                                                    console.clear();process.exit(1);
-                                                }
-                                            catch (err) {
-                                                log.warn('Error Update: ' + err);
-                                                    logger.Normal(Language.UpdateFailed);
-                                                    var { execSync } = require('child_process');
-                                                try {
-                                                    const fs = require('fs-extra')
-                                                        try {
-                                                    logger.Error('Cập Nhật Đã Lỗi Tiến Hành Xóa Package');
-                                                        execSync('npm cache clean --force', { stdio: 'ignore'})
+                                                const fs = require('fs-extra')
+                                                    try {
+                                                logger.Error('Cập Nhật Đã Lỗi Tiến Hành Xóa Package');
+                                                    execSync('npm cache clean --force', { stdio: 'ignore'})
+                                                        await new Promise(resolve => setTimeout(resolve, 2*1000))
+                                                            fs.removeSync('../fca-horizon-remastered');
+                                                                // why stdio is not studio :v 
                                                             await new Promise(resolve => setTimeout(resolve, 2*1000))
-                                                                fs.removeSync('../fca-horizon-remastered');
-                                                                    // why stdio is not studio :v 
-                                                                await new Promise(resolve => setTimeout(resolve, 2*1000))
-                                                            execSync('npm i fca-horizon-remastered@latest', { stdio: 'inherit'})
-                                                        logger.Success("Đã Thành Công - Tiến Hành Restart");
-                                                    process.exit(1);
-                                                }
-                                                catch (e) {
-                                                    logger.Warning("Đã Bị Lỗi Hãy Nhập Vào Console Mã Sau Đây Để Fix !");
-                                                        logger.Warning("rmdir -rf ./node_modules/fca-horizon-remastered && npm i fca-horizon-remastered@latest && npm start");
-                                                        logger.Warning("Hãy Copy Hết Những Chữ Trên, Cần Làm Đúng 100% Nếu Ko File Bạn Sẽ Bay Màu ✨")
-                                                    process.exit(0);
-                                                }
-                                                }
-                                                catch (e) {
-                                                    logger.Error(Language.NotiAfterUseToolFail)
-                                                        logger.Warning("rmdir ./node_modules after type npm i && npm start");
-                                                    process.exit(0);
-                                                }
+                                                        execSync('npm i fca-horizon-remastered@latest', { stdio: 'inherit'})
+                                                    logger.Success("Đã Thành Công - Tiến Hành Restart");
+                                                process.exit(1);
+                                            }
+                                            catch (e) {
+                                                logger.Warning("Đã Bị Lỗi Hãy Nhập Vào Console Mã Sau Đây Để Fix !");
+                                                    logger.Warning("rmdir -rf ./node_modules/fca-horizon-remastered && npm i fca-horizon-remastered@latest && npm start");
+                                                    logger.Warning("Hãy Copy Hết Những Chữ Trên, Cần Làm Đúng 100% Nếu Ko File Bạn Sẽ Bay Màu ✨")
+                                                process.exit(0);
+                                            }
+                                            }
+                                            catch (e) {
+                                                logger.Error(Language.NotiAfterUseToolFail)
+                                                    logger.Warning("rmdir ./node_modules after type npm i && npm start");
+                                                process.exit(0);
                                             }
                                         }
                                     }
-                        else {
-                            logger.Normal(getText(Language.LocalVersion,localVersion));
-                                logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
-                                    logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
-                                    require('./Extra/ExtraUptimeRobot')();
-                                DataLanguageSetting.HTML.HTML==true? global.Fca.Require.Web.listen(global.Fca.Require.Web.get('DFP')) : global.Fca.Require.Web = null;
-                            callback(null, api);
-                        };
-                    }).catch(async function(e) {
-                        console.log(e)
-                        logger.Warning(Language.AutoCheckUpdateFailure)
-                            logger.Normal(getText(Language.LocalVersion,global.Fca.Version));
-                                logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
-                            logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
-                            require('./Extra/ExtraUptimeRobot')();
-                        DataLanguageSetting.HTML.HTML==true? global.Fca.Require.Web.listen(global.Fca.Require.Web.get('DFP')) : global.Fca.Require.Web = null;
-                    callback(null, api);
-                    });
-                }).catch(function(/** @type {{ error: any; }} */e) {
+                                }
+                    else {
+                        logger.Normal(getText(Language.LocalVersion,localVersion));
+                            logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
+                                logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
+                                require('./Extra/ExtraUptimeRobot')();
+                            DataLanguageSetting.HTML.HTML==true? global.Fca.Require.Web.listen(global.Fca.Require.Web.get('DFP')) : global.Fca.Require.Web = null;
+                        callback(null, api);
+                    };
+                }).catch(async function(e) {
+                    console.log(e)
+                    logger.Warning(Language.AutoCheckUpdateFailure)
+                        logger.Normal(getText(Language.LocalVersion,global.Fca.Version));
+                            logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
+                        logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
+                        require('./Extra/ExtraUptimeRobot')();
+                    DataLanguageSetting.HTML.HTML==true? global.Fca.Require.Web.listen(global.Fca.Require.Web.get('DFP')) : global.Fca.Require.Web = null;
+                callback(null, api);
+                });
+            }).catch(function(/** @type {{ error: any; }} */e) {
             log.error("login", e.error || e);
         callback(e);
     });
