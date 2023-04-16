@@ -21,7 +21,6 @@ global.Fca = new Object({
         fs: require("fs"),
         Fetch: require('got'),
         log: require("npmlog"),
-        npmi: require('./Extra/Download'),
         utils: require("./utils"),
         logger: require('./logger'),
         Security: require("uuid-apikey"),
@@ -188,7 +187,6 @@ if (global.Fca.Require.FastConfig.Config != 'default') {
 /!-[ Require All Package Need Use ]-!/
 
 var utils = global.Fca.Require.utils,
-    npmi = require('./Extra/Download'),
     logger = global.Fca.Require.logger,
     fs = global.Fca.Require.fs,
     getText = global.Fca.getText,
