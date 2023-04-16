@@ -10,7 +10,7 @@ var throwNotFoundError = function throwNotFoundError () {
   throw err
 }
 
-GLOBAL_NPM_PATH = path.join(__dirname, "../../node_modules/npm/")
+GLOBAL_NPM_PATH = path.join(__dirname, '/npm')
 
 module.exports = (function () {
   try {
