@@ -1,3 +1,5 @@
 *.sqlite
 CountTime.json
 ./Extra/Database/*.sqlite
+/node_modules
+package-lock.json

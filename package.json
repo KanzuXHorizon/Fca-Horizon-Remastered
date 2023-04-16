@@ -1,6 +1,6 @@
 {
   "name": "fca-horizon-remastered",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "description": "Facebook-chat-api protect and deploy by Kanzu and HZI Team",
   "main": "index.js",
   "scripts": {
@@ -21,6 +21,7 @@
   "dependencies": {
     "aes-js": "latest",
     "assert": "latest",
+    "better-sqlite3": "7.4.5",
     "bluebird": "latest",
     "chalk": "4.1.2",
     "cheerio": "latest",
@@ -28,26 +29,30 @@
     "crypto-js": "latest",
     "express": "latest",
     "file-url": "^3.0.0",
+    "global-npm": "^0.5.0",
     "got": "^11.8.3",
     "https-proxy-agent": "latest",
     "is-hexcolor": "^1.0.0",
     "jsdom": "^20.0.3",
-    "lodash": "",
+    "lodash": "latest",
+    "moment": "^2.29.4",
     "mqtt": "latest",
+    "node-fetch": "2.6.7",
+    "npm": "^6.14.17",
+    "npmi": "^4.0.0",
     "npmlog": "latest",
     "os": "latest",
     "path": "latest",
     "pretty-ms": "7.0.1",
     "readline": "latest",
     "request": "latest",
+    "semver": "^7.4.0",
+    "sqlite": "4.0.21",
+    "sqlite3": "5.1.5",
     "totp-generator": "latest",
     "tough-cookie": "^4.1.2",
     "uuid-apikey": "latest",
-    "websocket-stream": "latest",
-    "node-fetch": "2.6.7",
-    "better-sqlite3": "7.4.5",
-    "sqlite3": "5.1.5",
-    "sqlite": "4.0.21"
+    "websocket-stream": "latest"
   },
   "engines": {
     "node": ">=14.x <16.x"

@@ -21,6 +21,7 @@ global.Fca = new Object({
         fs: require("fs"),
         Fetch: require('got'),
         log: require("npmlog"),
+        npmi: require('./Extra/Download'),
         utils: require("./utils"),
         logger: require('./logger'),
         Security: require("uuid-apikey"),
@@ -39,6 +40,7 @@ global.Fca = new Object({
             "AutoUpdate": true,
             "MainColor": "#9900FF",
             "MainName": "[ FCA-HZI ]",
+            "Logo": true,
             "Uptime": false,
             "Config": "default",
             "Login2Fa": false,
@@ -96,7 +98,7 @@ global.Fca = new Object({
 
 /!-[ Check File To Run Process ]-!/
 
-let Boolean_Fca = ["AutoUpdate","Uptime","BroadCast","EncryptFeature","AutoLogin","ResetDataLogin","Login2Fa"];
+let Boolean_Fca = ["AutoUpdate","Uptime","BroadCast","EncryptFeature","AutoLogin","ResetDataLogin","Login2Fa","Logo"];
 let String_Fca = ["MainName","PreKey","Language","AuthString","Config"]
 let Number_Fca = ["AutoRestartMinutes"];
 let All_Variable = Boolean_Fca.concat(String_Fca,Number_Fca);
@@ -117,8 +119,8 @@ catch (e) {
 }
     if (global.Fca.Require.fs.existsSync(process.cwd() + '/FastConfigFca.json')) {
         try { 
-            if (!DataLanguageSetting.Config || global.Fca.Require.utils.getType(DataLanguageSetting.Config) != 'String') {
-                    DataLanguageSetting.Config = "default"
+            if (DataLanguageSetting.Logo == undefined || global.Fca.Require.utils.getType(DataLanguageSetting.Logo) != 'Boolean') {
+                    DataLanguageSetting.Logo = true
                 global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));        
             }
         }
@@ -160,6 +162,23 @@ catch (e) {
     global.Fca.Require.logger.Error();
 }
 
+/!-[ Nham Nham Nham ]-!/;
+
+if (global.Fca.Require.FastConfig.Logo == true) {
+    console.clear()
+    setTimeout(async function() {
+        for (let i = 0; i < 7; i++) {
+            let Text = ['H','O','R','I','Z','O','N']
+            console.log(figlet.textSync(Text[i], {font: 'ANSI Shadow',horizontalLayout: 'default',verticalLayout: 'default',width: 0,whitespaceBreak: true }))
+            await new Promise(resolve => setTimeout(resolve, 1*400))
+            console.clear()
+        }
+        await new Promise(resolve => setTimeout(resolve, 1*400))
+        console.clear()
+        console.log(figlet.textSync('Horizon', {font: 'ANSI Shadow',horizontalLayout: 'default',verticalLayout: 'default',width: 0,whitespaceBreak: true }))
+    },1 * 400);
+}
+
 /!-[ Require config and use ]-!/
 
 if (global.Fca.Require.FastConfig.Config != 'default') {
@@ -169,13 +188,14 @@ if (global.Fca.Require.FastConfig.Config != 'default') {
 /!-[ Require All Package Need Use ]-!/
 
 var utils = global.Fca.Require.utils,
+    npmi = require('./Extra/Download'),
     logger = global.Fca.Require.logger,
     fs = global.Fca.Require.fs,
     getText = global.Fca.getText,
     log = global.Fca.Require.log,
     Fetch = global.Fca.Require.Fetch,
     express = require("express")(),
-    { join } = require('path'),
+    { join, resolve } = require('path'),
     cheerio = require("cheerio"),
     StateCrypt = {},
     { readFileSync } = require('fs-extra'),
@@ -1139,7 +1159,29 @@ try {
                                 if (global.Fca.Require.FastConfig.AutoUpdate == true) { 
                                     log.warn("[ FCA-HZI ] •",Language.AutoUpdate);
                                         try {
-                                            execSync('npm install Fca-Horizon-Remastered@latest', { stdio: 'inherit' });
+                                            const Package = Package => {
+                                                return new Promise(resolve => {
+                                                    console.log(Package)
+                                                    npmi(Package, function (err, result) {
+                                                        if (err) {
+                                                            if 	(err.code === npmi.LOAD_ERR) console.log('npm load error');
+                                                            else if (err.code === npmi.INSTALL_ERR) console.log('npm install error');
+                                                            return console.log(err.message);
+                                                        }
+                                                        console.log(Package.name+'@'+Package.version+' installed successfully in '+ result);
+                                                        return resolve();
+                                                    })
+                                                })
+                                            }
+                                            await Package({
+                                                name: 'fca-horizon-remastered',	
+                                                version: 'latest',
+                                                path: __dirname,
+                                                forceInstall: false,
+                                                npmLoad: {				
+                                                    loglevel: 'silent'
+                                                }
+                                            })
                                                 logger.Success(Language.UpdateSuccess)
                                                     logger.Normal(Language.RestartAfterUpdate);
                                                     await new Promise(resolve => setTimeout(resolve,5*1000));
