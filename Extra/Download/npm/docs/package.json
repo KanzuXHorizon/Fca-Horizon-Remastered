@@ -26,7 +26,7 @@
     "gatsby-remark-autolink-headers": "^2.1.21",
     "gatsby-remark-prismjs": "^3.3.28",
     "gatsby-source-filesystem": "^2.1.43",
-    "gatsby-transformer-remark": "^2.6.45",
+    "gatsby-transformer-remark": "^5.25.1",
     "prismjs": "^1.17.1",
     "prop-types": "^15.7.2",
     "react": "^16.9.0",
