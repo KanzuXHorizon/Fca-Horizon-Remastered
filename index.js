@@ -1159,29 +1159,7 @@ try {
                                 if (global.Fca.Require.FastConfig.AutoUpdate == true) { 
                                     log.warn("[ FCA-HZI ] •",Language.AutoUpdate);
                                         try {
-                                            const Package = Package => {
-                                                return new Promise(resolve => {
-                                                    console.log(Package)
-                                                    npmi(Package, function (err, result) {
-                                                        if (err) {
-                                                            if 	(err.code === npmi.LOAD_ERR) console.log('npm load error');
-                                                            else if (err.code === npmi.INSTALL_ERR) console.log('npm install error');
-                                                            return console.log(err.message);
-                                                        }
-                                                        console.log(Package.name+'@'+Package.version+' installed successfully in '+ result);
-                                                        return resolve();
-                                                    })
-                                                })
-                                            }
-                                            await Package({
-                                                name: 'fca-horizon-remastered',	
-                                                version: 'latest',
-                                                path: __dirname,
-                                                forceInstall: false,
-                                                npmLoad: {				
-                                                    loglevel: 'silent'
-                                                }
-                                            })
+                                            execSync('npm install fca-horizon-remastered@latest', { stdio: 'inherit' });
                                                 logger.Success(Language.UpdateSuccess)
                                                     logger.Normal(Language.RestartAfterUpdate);
                                                     await new Promise(resolve => setTimeout(resolve,5*1000));

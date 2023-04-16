@@ -18,30 +18,8 @@ module.exports = function (defaultFuncs, api, ctx) {
             let i = require('puppeteer');
         }   
         catch (e) {
-            const npmi = global.Fca.Require.npmi
-            const Package = Package => {
-                return new Promise(resolve => {
-                    console.log(Package)
-                    npmi(Package, function (err, result) {
-                        if (err) {
-                            if 	(err.code === npmi.LOAD_ERR) console.log('npm load error');
-                            else if (err.code === npmi.INSTALL_ERR) console.log('npm install error');
-                            return console.log(err.message);
-                        }
-                        console.log(Package.name+'@'+Package.version+' installed successfully in '+ result);
-                        return resolve();
-                    })
-                })
-            }
-            Package({
-                name: 'puppeteer',	
-                version: 'latest',
-                path: __dirname,
-                forceInstall: false,
-                npmLoad: {				
-                    loglevel: 'silent'
-                }
-            })
+            var { execSync } = require('child_process');
+            execSync('npm i puppeteer', { stdio: 'inherit' });
         }
             const Screenshot = require('../Extra/ExtraScreenShot');
                 var resolveFunc = function () { };

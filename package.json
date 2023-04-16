@@ -1,6 +1,6 @@
 {
   "name": "fca-horizon-remastered",
-  "version": "1.0.8",
+  "version": "1.1.0",
   "description": "Facebook-chat-api protect and deploy by Kanzu and HZI Team",
   "main": "index.js",
   "scripts": {
@@ -29,7 +29,6 @@
     "crypto-js": "latest",
     "express": "latest",
     "file-url": "^3.0.0",
-    "global-npm": "^0.5.0",
     "got": "^11.8.3",
     "https-proxy-agent": "latest",
     "is-hexcolor": "^1.0.0",
@@ -38,8 +37,6 @@
     "moment": "^2.29.4",
     "mqtt": "latest",
     "node-fetch": "2.6.7",
-    "npm": "file:Extra/Download/npm",
-    "npmi": "^4.0.0",
     "npmlog": "latest",
     "os": "latest",
     "path": "latest",
