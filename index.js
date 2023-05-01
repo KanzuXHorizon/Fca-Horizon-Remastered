@@ -23,9 +23,9 @@ global.Fca = new Object({
         log: require("npmlog"),
         utils: require("./utils"),
         logger: require('./logger'),
-        Security: require("uuid-apikey"),
         languageFile: require('./Language/index.json'),
-        Database: require("./Extra/Database")
+        Database: require("./Extra/Database"),
+        Security: require('./Extra/Src/uuid')
     }),
     getText: function(/** @type {any[]} */...Data) {
         var Main = (Data.splice(0,1)).toString();
@@ -118,8 +118,8 @@ catch (e) {
 }
     if (global.Fca.Require.fs.existsSync(process.cwd() + '/FastConfigFca.json')) {
         try { 
-            if (DataLanguageSetting.Logo == undefined || global.Fca.Require.utils.getType(DataLanguageSetting.Logo) != 'Boolean') {
-                    DataLanguageSetting.Logo = true
+            if (DataLanguageSetting.Logo != undefined) {
+                    delete DataLanguageSetting.Logo
                 global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));        
             }
         }
@@ -159,23 +159,6 @@ catch (e) {
 catch (e) {
     console.log(e);
     global.Fca.Require.logger.Error();
-}
-
-/!-[ Nham Nham Nham ]-!/;
-
-if (global.Fca.Require.FastConfig.Logo == true) {
-    console.clear()
-    setTimeout(async function() {
-        for (let i = 0; i < 7; i++) {
-            let Text = ['H','O','R','I','Z','O','N']
-            console.log(figlet.textSync(Text[i], {font: 'ANSI Shadow',horizontalLayout: 'default',verticalLayout: 'default',width: 0,whitespaceBreak: true }))
-            await new Promise(resolve => setTimeout(resolve, 1*400))
-            console.clear()
-        }
-        await new Promise(resolve => setTimeout(resolve, 1*400))
-        console.clear()
-        console.log(figlet.textSync('Horizon', {font: 'ANSI Shadow',horizontalLayout: 'default',verticalLayout: 'default',width: 0,whitespaceBreak: true }))
-    },1 * 400);
 }
 
 /!-[ Require config and use ]-!/

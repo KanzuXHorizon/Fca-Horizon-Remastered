@@ -1,21 +1,23 @@
 var get = require('lodash/get'),
     set = require('lodash/set'),
-    fetch = require("node-fetch"),
+    got = require("got"),
     BetterDB = require("better-sqlite3"),
     db = new BetterDB(__dirname + "/SyntheticDatabase.sqlite");
-
+var ReplitURL = process.env.REPLIT_DB_URL
+var ReplID = ReplID
 module.exports = { 
     get: function(key, ops,forceFuction) {
-        if (process.env["REPL_ID"] == undefined || forceFuction) {
+        if (ReplID == undefined || forceFuction) {
             if (!key)
                 throw new TypeError(
                     "No key specified."
                 );
             return arbitrate("fetch", { id: key, ops: ops || {} });
         }   
-        else return fetch(process.env.REPLIT_DB_URL + "/" + key)
-            .then((e) => e.text())
-        .then((strValue) => {
+        else return got(ReplitURL + "/" + key)
+        .then((StrValue) => {
+            var strValue = StrValue.body
+
             if (ops && ops.raw) return strValue;
                 if (!strValue) return null;
             try {
@@ -33,7 +35,7 @@ module.exports = {
     },
 
     set: function(key, value,forceFuction) {
-        if (process.env["REPL_ID"] == undefined || forceFuction) {
+        if (ReplID == undefined || forceFuction) {
             if (!key)
                 throw new TypeError(
                     "No key specified."
@@ -45,42 +47,42 @@ module.exports = {
                 ops:  {},
             });
         }
-        else return fetch(process.env.REPLIT_DB_URL, {
+        else return got(ReplitURL, {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: encodeURIComponent(key) + "=" + encodeURIComponent(JSON.stringify(value)),
         });
     },
     has: function(key,forceFuction) {
-        if (process.env["REPL_ID"] == undefined || forceFuction) {
+        if (ReplID == undefined || forceFuction) {
             if (!key)
                 throw new TypeError(
                     "No key specified."
                 );
             return arbitrate("has", { id: key, ops: {} });
         }
-        else return fetch(process.env.REPLIT_DB_URL + "/" + key)
-            .then((e) => e.text())
-            .then((strValue) => {
+        else return got(ReplitURL + "/" + key)
+            .then((StrValue) => {          
+                var strValue = StrValue.body
                 if (strValue === "") return false;
                 return true;
             });
     },
     delete: function(key,forceFuction) {
-        if (process.env["REPL_ID"] == undefined || forceFuction) {
+        if (ReplID == undefined || forceFuction) {
             if (!key)
                 throw new TypeError(
                     "No key specified."
                 );
             return arbitrate("delete", { id: key, ops: {} });
         }
-        else return fetch(process.env.REPLIT_DB_URL + "/" + key, {
+        else return got(ReplitURL + "/" + key, {
             method: "DELETE",
         });
     },
 
     deleteMultiple: function(forceFuction,...args) {
-        if (process.env["REPL_ID"] == undefined || forceFuction) {
+        if (ReplID == undefined || forceFuction) {
             if (!key)
                 throw new TypeError(
                     "No key specified."
@@ -109,7 +111,7 @@ module.exports = {
     },
 
     empty: async function(forceFuction) {
-        if (process.env["REPL_ID"] == undefined || forceFuction) {
+        if (ReplID == undefined || forceFuction) {
             return arbitrate("clear");
         }
         else {
@@ -125,19 +127,19 @@ module.exports = {
     },
 
     list: async function(forceFuction) {
-        if (process.env["REPL_ID"] == undefined || forceFuction) {
+        if (ReplID == undefined || forceFuction) {
             return arbitrate("all",{ ops: {} });
         }
         else {
-            return fetch(
-                this.key + `?encode=true&prefix=${encodeURIComponent(true)}`
+            return got(
+                ReplitURL + `?encode=true&prefix=${encodeURIComponent(true)}`
             )
-                .then((r) => r.text())
                 .then((t) => {
-                if (t.length === 0) {
+                var strValue = t.body
+                if (strValue.length === 0) {
                     return [];
                 }
-                return t.split("\n").map(decodeURIComponent);
+                return strValue.split("\n").map(decodeURIComponent);
             });
         }
     }
