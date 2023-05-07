@@ -286,23 +286,15 @@ module.exports = function(loginData, options, callback) {
                 let TimeStamp = Database.get('Instant_Update',{},true);
                     if (TimeStamp == null || TimeStamp == undefined || Date.now() - TimeStamp > 10 * 1000) {
                         var Instant_Update = require('./Extra/Src/Instant_Update.js');
-                            await Instant_Update(async function(Timestamp, Rebuild) {
-                            await Database.set("NeedRebuild", Rebuild, true);
-                        await Database.set("Instant_Update", Timestamp, true);
-                    })
+                    await Instant_Update()
                 }
-                
             }
             else {
                 let TimeStamp = Database.get('Check_Update',{},true);
                     if (TimeStamp == null || TimeStamp == undefined || Date.now() - TimeStamp > 300000) {
                         var Check_Update = require('./Extra/Src/Check_Update.js');
-                            await Check_Update(async function(Timestamp,Rebuild) {
-                            await Database.set("NeedRebuild", Rebuild, true);
-                        await Database.set("Check_Update", Timestamp, true);
-                    })
-                }
-                
+                    await Check_Update()
+                } 
             }
         return login(loginData, options, callback);
     }).catch(function(err) {

@@ -46,7 +46,7 @@ module.exports = function (defaultFuncs, api, ctx) {
 
     if (utils.getType(id) !== "Array") id = [id];
     if (Database.has('UserInfo', true) == false) Database.set('UserInfo', [], true);
-    var DatabaseUser = JSON.parse(Database.get('UserInfo', {}, true)) || [];
+    var DatabaseUser = Database.get('UserInfo', {}, true) || [];
     var respone = [];
     var Nope = [];
     if (global.Fca.Data.Userinfo != undefined && global.Fca.Data.Userinfo.length != 0) {
