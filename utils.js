@@ -1566,7 +1566,6 @@ function decodeClientPayload(payload) {
 function getAppState(jar, Encode) {
     var prettyMilliseconds = require('pretty-ms')
     var getText = globalThis.Fca.getText;
-    var Security = require('./Extra/Security/Index');
     var appstate = jar.getCookies("https://www.facebook.com").concat(jar.getCookies("https://facebook.com")).concat(jar.getCookies("https://www.messenger.com"))
     var logger = require('./logger'),languageFile = require('./Language/index.json');
     var Language = languageFile.find(i => i.Language == globalThis.Fca.Require.FastConfig.Language).Folder.Index;
@@ -1577,7 +1576,7 @@ function getAppState(jar, Encode) {
                 if (process.env['FBKEY'] != undefined && Encode) {
                     if(!globalThis.Fca.Setting.get('getAppState')) {
                         logger.Normal(Language.EncryptSuccess);
-                        data = Security(JSON.stringify(appstate),process.env['FBKEY'],"Encrypt");
+                        data = global.EncyptApp
                         globalThis.Fca.Setting.set('AppState', data);
                     }
                     else {

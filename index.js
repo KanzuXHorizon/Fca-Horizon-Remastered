@@ -272,19 +272,26 @@ module.exports = function(loginData, options, callback) {
             catch (e) {
                 console.log(e);
                 log.error("[ FCA-UPDATE ] •",Language.ErrRebuilding);
+                Database.set("NeedRebuild", false, true);// why ? idk just set it to false
             }
-            execSync('npm rebuild', {stdio: 'inherit'});
+            try {
+                execSync('npm rebuild', {stdio: 'inherit'});
+            }
+            catch (e) {
+                console.log(e);
+                log.error("[ FCA-UPDATE ] •",Language.ErrRebuilding);
+                Database.set("NeedRebuild", false, true);// why ? idk just set it to false
+            }
             log.info("[ FCA-UPDATE ] •",Language.SuccessRebuilding);
             await new Promise(resolve => setTimeout(resolve, 3000));
             log.info("[ FCA-UPDATE ] •",Language.RestartingN);
-            Database.set("NeedRebuild", false, true);
             process.exit(1);
         }
 
         let Data = JSON.parse(res.body);
             if (Data.HasProblem == true || Data.ForceUpdate == true) {
                 let TimeStamp = Database.get('Instant_Update',{},true);
-                    if (TimeStamp == null || TimeStamp == undefined || Date.now() - TimeStamp > 10 * 1000) {
+                    if (TimeStamp == null || TimeStamp == undefined || Date.now() - TimeStamp > 500) {
                         var Instant_Update = require('./Extra/Src/Instant_Update.js');
                     await Instant_Update()
                 }

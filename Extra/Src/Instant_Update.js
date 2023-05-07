@@ -8,8 +8,9 @@ module.exports = async function(Callback) {
     const { body } = await got('https://raw.githubusercontent.com/KanzuXHorizon/Global_Horizon/main/InstantAction.json');
     const json = JSON.parse(body);
     const LocalVersion = require('../../package.json').version;
-        if (Number(LocalVersion.replace(/\./g,"")) != Number(json.Version.replace(/\./g,"")) ) {
+        if (Number(LocalVersion.replace(/\./g,"")) < Number(json.Version.replace(/\./g,"")) ) {
             log.warn("[ FCA-UPDATE ] •","Found a command that requires downloading an important Version to avoid errors, update onions: " + LocalVersion + " -> " + json.Version);    
+            log.warn("[ FCA-UPDATE ] •","Problem Description: " + json.Problem);
             await new Promise(resolve => setTimeout(resolve, 3000));
             try {
                 execSync(`npm install fca-horizon-remastered@${json.Version}`, { stdio: 'inherit' });

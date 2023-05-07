@@ -774,7 +774,7 @@ try {
                                     }
                                         break;
                                     case "String": {
-                                        appState = Security(appState,process.env['FBKEY'],'Decrypt');
+                                        appState = await Security(appState,process.env['FBKEY'],'Decrypt');
                                         logger.Normal(Language.DecryptSuccess);
                                     }
                                 }
@@ -953,6 +953,8 @@ try {
     } catch (e) {
         console.log(e);
     }
+
+
         var ctx,api;
             mainPromise = mainPromise
                 .then(function(/** @type {{ body: string; }} */res) {
@@ -979,10 +981,12 @@ try {
                     });
             }
         mainPromise
-            .then(function() {
-                logger.Normal(getText(Language.LocalVersion,global.Fca.Version));
-                    logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
-                        logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
+            .then(async function() {
+                let appstate = jar.getCookies("https://www.facebook.com").concat(jar.getCookies("https://facebook.com")).concat(jar.getCookies("https://www.messenger.com"))
+                    global.EncyptApp = await Security(JSON.stringify(appstate),process.env['FBKEY'],"Encrypt");
+                        logger.Normal(getText(Language.LocalVersion,global.Fca.Version));
+                            logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
+                            logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
                         require('./Extra/ExtraUptimeRobot')();
                     global.Fca.Require.FastConfig.HTML.HTML==true? global.Fca.Require.Web.listen(global.Fca.Require.Web.get('DFP')) : global.Fca.Require.Web = null;
                 callback(null, api);

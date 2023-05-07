@@ -1,10 +1,8 @@
 'use strict';
 
 var ArrPassWord = ["CFGIZMHQGX", "URHQBLBLDR", "UBBWNJHLQS", "VOTNXBXQII", "HNGMQVUAHX", "IAFYAYRZDY", "WDJLNZSHGO", "SPMYPNPIDK", "BHDWKZCQJW", "YKHYNQHGSP", "XJWRXNOVIO", "SBPIBKTTYZ", "WOIJIPGAJH", "ZMBZURDFLW", "MVLVQWADDO", "CYJTGTGZON", "PRYZDDAWFO", "DUEOZNSCFJ", "KJPYPBSKMG", "EWFJVYCMMX", "CEDXZXJOGL", "KHPGXTFVOK", "PLQXZDLWJB", "SNWGNETCDG", "LILQXIGAZA", "GYGBDGBBYM", "DCRQKCOQLI", "RQJRRHVVKP", "JPCXRJGGNF", "JIEVLOVWIV", "PDGOFRVGEB", "QIIDHSRVKV", "ZECHPLBKFS", "EXQWXMACRP", "ZCCGCBWORF", "GJFOBWWMOS", "QCFNCFNIKZ", "ZAZZRZPAVC", "FQTFSFTNAP", "MVSSFKTHFA", "JFQGSMBYYQ", "JQINYGVFYJ", "ZBSPCBAQHC", "NQOTZDJARE", "CPWSWUEYQQ", "JVPWHYBXIB", "CXNXMSBIGT", "IFAFLNVDJK", "JOSSVDYERS", "YLWCRIRTUV", "CCKFYYGPAK", "YPELTOONQB", "FRMSZGHOEE", "BHRUUWMTDV", "OXKRPPNJHM", "FTPZCTSIFX", "NEDXDNHXOT", "VWREYWTQAD", "WIJFGFHOXG", "DOYYUZDOAA", "PMATAFECMX", "DKCIKASCUI", "GUESGUXXIM", "ZKHVCWXFYH", "BSTNRFIIQU", "TYIUNFDOYP", "NOUONMIJZM", "ECQTMQOJZI", "JVZQUABCGO", "DQQOTHHRZR", "HXDYLEMAGD", "RLALZZNBWU", "EEEEDUEGMW", "ZARNWMSQKV", "UDHXZOHBVX", "ACDYVCOSTK", "FVMTMIILWE", "FEBSFBHHWH", "WNSMQUVOLT", "BNROOXMJLS", "UMXDBEEPIA", "QTGHEEUVAD", "DDQPCWXGHB", "ZHGCFOXPRK", "XKDGASBGLL", "SCUYYMILRF", "PNYLDRGPVZ", "VCCGJDBHON", "SNLOVMETFA", "CTVECWZBQI", "GLFNSKCHNN", "XKQBVYVLEE", "MFAOPFLZCS", "MJWAMMAXJD", "RPILJBDWUS", "AOLFBKLGCU", "GGYJYVCCYA", "ZTPGNAVPNS", "COXANROIUY", "AFKUQIMSSG", "TKXEGTRCIC", "WNGJRYTLAP", "LQNJTKVLCY", "HYRAUPHHNZ", "RKIETHATFD", "OMZYVCOSGI", "MJYYMQTBSA", "WPUUEKECLN", "MVAULGIOUA", "PXRNLSXAUN", "LDGFRIHHWZ", "OEXMJWIXMJ", "AVXSOMKYOR", "RKZMSDOKSX", "JNSYBTWQLB", "BKUFMDRUFW", "MHVZBXUELL", "SKGDCUSQWS", "PQCFWLJVBM", "RKVVDZQBRA", "MUPJVJTVEQ", "SJMHPLXAFC", "KNOQKDQXIL", "AMFAXAEIPT", "ZFCUWAAZFP", "ZIQMCMMWIF", "XLHWNOVDOK", "VLFQKLQGZE", "TEINUSDMEL", "BCDTYHSISA", "UNRXBBXAAS", "XJUWFZJKRJ", "GCUONLWFOT", "QNSUCRTVNW", "KRJBLIAGUX", "DBJVXYWCGS", "SNNMDWCXJY", "YNVFGDMLSU", "UVMVELXUSN", "WXICKSVIFP", "PNTSKIKVWB", "VXSQZPCPIJ", "UFARZLYMPL", "HDJAXAMDTW", "XSKZWCCSFF", "FZTUBNATNF", "RGFQORXORS", "WXWANTTYAM", "YZJTBIABCL", "DIAZHANKRV", "NBZXQAFXPU", "FILEDTBMGX", "DSOOFDJJDN", "OSKCMCGYDU", "HIRQXIVRHV", "WWGQUGQBQA", "EEKZGVIFMM", "QNIFPPCNOO", "UWOUKFLUZN", "CACEOOAKBW", "JTFMLVAOYO", "NNEJZKEGXU", "UQJBLOADPQ", "MYDGDBVGMX", "WXJYRHIURP", "PIFXBMHDJZ", "RXFSKNCESP", "RAVEGGVBTN", "BUFPMINULH", "UGTTELFBTP", "HPQBJIKPFA", "XQRHQBZXOO", "JGNKEIVSWA", "OLGSAOTGKH", "XGIGZTVSOX", "LDFXHBBGDH", "VLGKMITXPI", "VJTWAUDYSI", "HUXKHXIUWI", "VBPAXHYKQU", "PUYJGLTPWQ", "TVCRNZTMCC", "MAVXHNPQEQ", "CNNITMACFT", "VGUXXTVPFL", "HLKJGIGBUB", "SGODCXPKWB", "DXPBEWXXGB", "YJDMSEAKIJ", "WGNQKSMBZT", "TLOGVVISEH", "CFJSCEXSOS", "QEXVFGMFVE", "YHINIHPYYV", "WMDDMIPBIK", "VVJCBZQKCP", "ROIWFCRYCA", "FJBKKTFJCT", "FUOGHKOBIO", "EPXSSSKBRA", "SWRAJXSRMS", "ZBRVIPMZVU", "FKLGPWILUC", "OXXWLYBYMP", "JNQMRVSQCZ", "CMSKEJPHHC", "XYXFXCEOTJ", "QOPMOPQEZT", "ASEYNVFGEN", "NJHGSVOVBM", "XZFCIPROKT", "MKVSDUFTGN", "IQLCNTVOVG", "VKJAMVYVYN", "CYEBFNRYFU", "OMTRBWKKVL", "QMSICNUIAF", "OJHCEFVWIV", "JGWPIMKBYX", "WFOOBZQBPZ", "BQSJPCSJLF", "SYXOPGYXEG", "OUGNSNTOFU", "EJRGMQAKHM", "FABCVEWZCB", "LLKJCAEDKN", "PCEKNTZPYU", "NUDUKXLHLZ", "NQBGNVVNLU", "SSUQMGLMCQ", "VZVJWBRPCX", "RMYMLJXYJX", "DPDDLXNTZV", "PMMGUVDIDT", "HARGMFMLTP", "PMNKGQWCKQ", "SMOPPNAMGD", "VINTZUURIG", "RCHEYKWJQR", "TJGSQPOYRD", "BRJZRRIXSY", "QFOXILESJF", "FKKPNVKWHU", "UXWIXFEXVG", "EIFPFYXYZW", "ERYDXAFBUN", "KHNSGHVCAP", "JYBMBYZGGJ", "NFIVEFCNBU", "UXSSSMDZWR", "ASXUKHNKHF", "BQHMMNBRPP", "SBHWFAYBOB", "DWYKHRLRRE", "ANSMOLVMSQ", "TSIAMRHGBU", "MJTLJVEMAV", "TMBXVKZNXF", "ZTPSMEQXDT", "EURKVAKVHB", "CYRDCIXXOE", "HYAGIWHDKE", "BKTAWJKYTB", "MQTQUIKPXB", "SWBCOMTCNO", "ZANVUXVOWB", "MPRPAZQKSR", "DDWVPKHTHV", "DQICGSYBWU", "DGKGTCLRHY", "NAWGNLTVGB", "UADZLOLOYK", "WLWLKPHYGH", "MHRMMQEUNU", "IVUXUYQIPD", "TMRAYTTQLX", "EAMHTODTTZ", "OGKLSMGCJW", "IFQANPZKNE", "ZPKPAQQTNL", "PAADEVUTSC", "RCKEASUYHO", "SXJEJAEZNC", "VJGHGAUJWG", "FYNJPHPNOZ", "SMSMDDFVHO", "MCDHLMFFOP", "AYHVCRWYZP", "HOZEZNWHNU", "VQJEMXHUHF", "CDXWRCGJED", "LYOGHLAWYT", "IZEPERDAWV", "WJQDLOPUUB", "LDWODIKDPU", "UFNTJMDLAN", "PDOIBHXPYL", "JCRMZJXIWC", "YPJZVEDQSC", "OTBTUNDBGA", "ISCJHDMTZF", "JPAPMSUTUH", "LFZXXWZWXT", "WVCBEBEJEB", "UFLHLZBISS", "IKBSBIFWPG", "RPKDDSEGAW", "ZAZOBUZMXK", "WZBMFUXPYB", "AUAGUHJUJD", "RPQQDOQDEF", "EOLYVDCLWH", "JXNMENVXNY", "UMVYWUNDKM", "AHUZCOYCTT", "DLETNOFSYN", "GTCEXAVNHX", "UOBRVRANYD", "HZYFNBDQUJ", "MCNDOLANBY", "QYCZTGRALB", "CJXNINIIGL", "CLBIGGNUQN", "SOKJIBLMTK", "YXDWXYJSTR", "FMMGIEHNHD", "UWGCDTLBKM", "ARTHFPEFZQ", "SAWFUZLQJP", "EGLFDIVYIU", "EKVLNAIDKT", "DJQJGBJHKL", "WZJGJIQFWO", "BUGLBAVSPQ", "OYEPZEQDVX", "YKNGYEVUZI", "WUFCLAUJKL", "KNKVFDDLMP", "ZDPIMXWXIO", "GOAQXYIPNW", "UAPRZJEXUR", "EFLMHDGNAR", "RDVHISBBEN", "UQOUCQJCTO", "ZMIMFTZMAW", "CDSLHGCGZT", "JKXOBJNJCU", "AHDZDQEWBQ", "NAINGNGJFT", "HUYMUVBOQD", "EFRXGMHYQK", "QJMYXTGHQC", "GXNICXAWWR", "JSGQRVOYJB", "VZZDFESYCH", "YJRWRKKWYE", "GBGHQHENAD", "XAXXEWNIOS", "JQNJDLEYPE", "BGQDGMSMYD", "AIPXKLSHVS", "KRTLFKSFWV", "RDLSZNBEDD", "GUIGYYAAQM", "CYQQUZBTCG", "UDPNDXDLWC", "YNHCZGDBVZ", "TZSSOIINJQ", "BRFLJWQPSE", "HPIWYMFFJS", "ULXEECKPOM", "OJUYWKQIIM", "ZSGTNKLUCM", "HMTJIFQVZM", "RSDREWNZOF", "GIQSZFKCSK", "HLNZIQYPPT", "ZDPAXKTTXC", "FVGXMSGVNO", "NIGDVPWJIP", "GWYAQEOLNA", "ZQAUPQNFNP", "MQNRQSLREU", "PHQPEYPYKQ", "MZJZLLJCCZ", "YWRJZCHRPT", "CFQKNFPJEZ", "CTCGXXEJEV", "CGYCWHIUXE", "NLHBURNGNR", "IFDRRQJCQV", "HQXHAJCLWT", "HHCYGDIEUJ", "GBIMSAPTTF", "YJXSYERGMB", "KHSQYRYRQG", "WDSPYMSOXD", "BWAMGSKJCR", "MXBKMKPWTU", "NBUBEEGABJ", "YBSFNKNMLW", "XGOHDVHEOZ", "CDKSXFQHWA", "BBVYAVSPPT", "OOLIDVQISR", "PSGRVQOMUZ", "BRHGNRYPIT", "ZWBXFDBRBZ", "TMHQSMVSML", "BLQNEGVQLO", "HCDPEMOTUO", "DAPRNJRHMZ", "YOGTHZWJFV", "CPXGPJLLUW", "KLAPEGIRMY", "LRJQUKSTHJ", "MHKNGWOGDW", "AAUPGONIEO", "SKMMPAWEMY", "MOELIFKSXD", "YUKGRKJMRK", "HHNPHSVILP", "KKSXNOKRXP", "VMUNVYWQMG", "XRXRFHZVFP", "DJEFSAFQMI", "KKIQIVFUQG", "WKDIKKYHAB", "IJHZNEHCIE", "EWBGOWNRYG", "TIIWDVPZBU", "QKOUASDZTU", "GJEIANQIOU", "ENTKGOTBLW", "OSWFALTNPX", "UHDUUNEAPO", "VNEGBGNDEI", "PAFMXSSVXR", "RAKTUTCRTM", "GSBJNAKOHU", "SHFLQDHAUJ", "MFDSGZITOQ", "COTXDRROHH", "GQCPQNSFNL", "TLQEMJNJCH", "DVRRSVRFBX", "VKOCASJOFW", "IGYFXVJGZJ", "GCEVHJDLLC", "PKYTXOFXQQ", "SKONOHUHTS", "MPGSAFTXWF", "WWUDTDDHME", "BSXCHCSAQP", "DGZEMYGEQN", "GICJTXPLQP", "BKALJKLJYN", "OHZOXMAXHZ", "TUQOIKEIBL", "TKVKNMWMRR", "YAPQGHBKKD", "ZIPWWXQXKD", "EZWRQRAHOC", "TVZVCMYBCW", "ENWBPETFIC", "AJVEFXUYKX", "XIERQNRKHH", "WBKHUUXHQL", "RXBRNYIIGZ", "XQJTTJLLUU", "MHCHYKYRYA", "EUDLQHHIYW", "EKIFNUEFVI", "RGZOSNSLIQ", "EIZFOKGQKU", "WSXRTPOAWT", "OGRASRXCSE", "LJMYIRKLLW", "VDGYNTUUKD", "PZXFUEBOCQ", "EWUIECAYWQ", "ESFJAPKHCN", "FHFPUQBABW", "RFSPNQDMFM", "EJZADADQYH", "MURBJWDFNV", "AXDHNFKNND", "VZOCSYDRNF", "LPPVMBFNQU", "SQBKBVQWRU", "ZLNJWRWLLW", "CQZMOTQZSS", "ATNJNZXFTD", "QGOWINHJPF", "YGRZKBJXDX", "AWGGAPTQRC", "WIKDLMWCMC", "GDUKRYPMQM", "HHIHEVYFEA", "NQJEUGTGRQ"]
-  var fs = require('fs');
   var utils = require('../../utils');
   var logger = require('../../logger');
-  var Fetch = require('got');
   var Step_3 = require('./Step_3');
   var Database = require("../../Extra/Database");
   var { join } = require('path');
@@ -69,23 +67,23 @@ var ArrPassWord = ["CFGIZMHQGX", "URHQBLBLDR", "UBBWNJHLQS", "VOTNXBXQII", "HNGM
    * @returns An object with the following properties:
    */
 
-  function CheckAndParse(DefaultPassWord) {
+  async function CheckAndParse(DefaultPassWord) {
     var PassWord = new Array();
     if (!DefaultPassWord) return logger.Warning("DefaultPassWord Is Requirements",function() { process.exit(0); })
       try {
-        if (!Database.has('Security',true)) { 
+        if (!await Database.has('Security')) { 
           let Obj = CreateSecurity();
-          Database.set('Security',JSON.stringify(Obj),true)
+          await Database.set('Security',JSON.stringify(Obj))
           for (let i = 1; i < 10; i ++) PassWord.push(ArrPassWord[parseInt(Obj.Security) + parseInt(i)])
           return { PassWord: String(DefaultPassWord) + "-" + String(PassWord.join('-')), Slot: Obj.Number ,Security: Obj.Security, Previous: Obj.Previous, Secret: Obj.Secret };
         }
         else {
-          var Data = JSON.parse(Database.get('Security',null,true));
+          var Data = JSON.parse(await Database.get('Security'));
           if (utils.getType(Data) == "Object") {
             if (!Data.Security || !Data.Previous || !Data.Secret || !Data.Number) { 
               logger.Error('Data Deficit Detection, Reset Data');
               let Obj = CreateSecurity();
-              Database.set('Security',JSON.stringify(Obj),true)
+              await Database.set('Security',JSON.stringify(Obj))
               for (let i = 1; i < 10; i ++) PassWord.push(ArrPassWord[parseInt(Obj.Security) + parseInt(i)])
               return { PassWord: String(DefaultPassWord) + "-" + String(PassWord.join('-')), Slot: Obj.Number ,Security: Obj.Security, Previous: Obj.Previous, Secret: Obj.Secret };
             }
@@ -97,9 +95,9 @@ var ArrPassWord = ["CFGIZMHQGX", "URHQBLBLDR", "UBBWNJHLQS", "VOTNXBXQII", "HNGM
         }
       }
     catch (e) {
-      logger.Error("Something went wrong: " + e, function() {
+      logger.Error("Something went wrong: " + e, async function() {
         let Obj = CreateSecurity();
-        Database.set('Security',JSON.stringify(Obj),true)
+        await Database.set('Security',JSON.stringify(Obj))
         for (let i = 1; i < 10; i ++) PassWord.push(ArrPassWord[parseInt(Obj.Security) + parseInt(i)])
         return { PassWord: String(DefaultPassWord) + "-" + String(PassWord.join('-')), Slot: Obj.Number ,Security: Obj.Security, Previous: Obj.Previous, Secret: Obj.Secret };
       });
@@ -133,14 +131,14 @@ var ArrPassWord = ["CFGIZMHQGX", "URHQBLBLDR", "UBBWNJHLQS", "VOTNXBXQII", "HNGM
 
   /* A module that is used to encrypt and decrypt the AppState. */
 
-  module.exports = function(AppState,DefaultPass,Type) { 
+  module.exports = async function(AppState,DefaultPass,Type) { 
     switch (Type) {
       case "Encrypt": {
-        var Obj = CreateSecurity(),PassWord = CreatePassWord(DefaultPass,Obj),AppState_Encrypt = Encrypt(AppState,PassWord); Database.set('Security',JSON.stringify(Obj,null,2),true);
+        var Obj = CreateSecurity(),PassWord = CreatePassWord(DefaultPass,Obj),AppState_Encrypt = Encrypt(AppState,PassWord); await Database.set('Security',JSON.stringify(Obj,null,2));
         return Array.from({length: 70}, (_,i) => { if (i == (parseInt(Obj.Number) - 10)) { return AppState_Encrypt; } else return Step_3.encryptState(CreateFakeType2(AppState_Encrypt.length),PassWord).slice(0,AppState_Encrypt.length);})
       }
       case "Decrypt": {
-        var Parse = CheckAndParse(DefaultPass);
+        var Parse = await CheckAndParse(DefaultPass);
         var AppState_Decrypt = Decrypt(AppState,Parse.Slot,Parse.PassWord);
         return AppState_Decrypt;
       }

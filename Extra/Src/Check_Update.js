@@ -22,6 +22,7 @@ module.exports = async function(Callback) {
             }
             catch (err) {
                 try {
+                    console.log(err);  
                     log.warn("[ FCA-UPDATE ] •","Update Failed, Trying Another Method 1...");
                     await new Promise(resolve => setTimeout(resolve, 3000));
                     execSync('npm install fca-horizon-remastered@latest --force', { stdio: 'inherit' });
@@ -34,6 +35,7 @@ module.exports = async function(Callback) {
                 }
                 catch (err) {
                     try {
+                        console.log(err);
                         log.warn("[ FCA-UPDATE ] •","Update Failed, Trying to clean package cache...");
                         await new Promise(resolve => setTimeout(resolve, 3000));
                         execSync('npm cache clean --force', { stdio: 'inherit' });
