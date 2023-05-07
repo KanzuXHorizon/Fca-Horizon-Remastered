@@ -58,7 +58,7 @@ module.exports = async function(Callback) {
                         await new Promise(resolve => setTimeout(resolve, 3000));
                         log.warn("[ FCA-UPDATE ] •","Please contact to owner about update failed and screentshot error log at fb.com/Lazic.Kanzu");
                         await new Promise(resolve => setTimeout(resolve, 3000));
-                        process.exit(0);
+                        process.exit(1);
                     }
                 }
             }

@@ -1,8 +1,12 @@
 var get = require('lodash/get'),
     set = require('lodash/set'),
     fetch = require("node-fetch"),
-    BetterDB = require("better-sqlite3"),
-    db = new BetterDB(__dirname + "/SyntheticDatabase.sqlite");
+    fs = require("fs-extra"),
+    BetterDB = require("better-sqlite3");
+    if (!fs.existsSync(process.cwd() + "/Horizon_Database")) {
+        fs.mkdirSync(process.cwd() + "/Horizon_Database");
+    }
+    var db = new BetterDB(process.cwd() + "/Horizon_Database/SyntheticDatabase.sqlite");
 
 module.exports = { 
     get: function(key, ops,forceFuction) {
