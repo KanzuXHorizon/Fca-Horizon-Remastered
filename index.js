@@ -283,6 +283,7 @@ module.exports = function(loginData, options, callback) {
                 Database.set("NeedRebuild", false, true);// why ? idk just set it to false
             }
             log.info("[ FCA-UPDATE ] •",Language.SuccessRebuilding);
+            Database.set("NeedRebuild", false, true);// why ? idk just set it to false
             await new Promise(resolve => setTimeout(resolve, 3000));
             log.info("[ FCA-UPDATE ] •",Language.RestartingN);
             process.exit(1);
