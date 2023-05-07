@@ -1,3 +1,5 @@
+'use strict';
+
 const crypto = require('crypto');
 const aes = require("aes-js");
 

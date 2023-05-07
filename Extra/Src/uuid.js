@@ -1,6 +1,6 @@
 /**
  * Credit: @chronosis | Github: https://github.com/chronosis/uuid-apikey/
- * Description: Update  Package to réolve Deprecated from package "uuid"
+ * Description: Update  Package to resolve Deprecated from package "uuid"
 */
 // index.js
 

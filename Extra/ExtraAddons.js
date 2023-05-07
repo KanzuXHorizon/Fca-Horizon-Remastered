@@ -1,3 +1,5 @@
+'use strict';
+
 var utils = require('../utils');
 var logger = require('../logger')
 var OTP = require('totp-generator');

@@ -28,6 +28,7 @@ function formatData(data) {
 }
 
 module.exports = function (defaultFuncs, api, ctx) {
+  const Database = require('../Extra/Database');
   return function getUserInfo(id, callback) {
     var resolveFunc = function () { };
     var rejectFunc = function () { };
@@ -44,14 +45,19 @@ module.exports = function (defaultFuncs, api, ctx) {
     }
 
     if (utils.getType(id) !== "Array") id = [id];
-
+    var DatabaseUser = JSON.parse(Database.get('UserInfo')) || [];
     var respone = [];
     var Nope = [];
     if (global.Fca.Data.Userinfo != undefined && global.Fca.Data.Userinfo.length != 0) {
       if (id.length == 1) {
         if (global.Fca.Data.Userinfo[0].some(i => i.id == id[0])) {
-          var Format = {}
-          Format[id[0]] = global.Fca.Data.Userinfo[0].find(i => i.id == id[0])
+          let Format = {};
+          Format[id[0]] = global.Fca.Data.Userinfo[0].find(i => i.id == id[0]);
+          callback(null,Format);
+        }
+        else if (DatabaseUser.some(i => i.id == id[0])) {
+          let Format = {};
+          Format[id[0]] = DatabaseUser.find(i => i.id == id[0]);
           callback(null,Format);
         }
         else {
@@ -62,6 +68,11 @@ module.exports = function (defaultFuncs, api, ctx) {
         if (global.Fca.Data.Userinfo[0].some(i => i.id == ii)) {
           let Format = {}
           Format[id[ii]] = global.Fca.Data.Userinfo[0].find(i => i.id == ii);
+          respone.push(Format);
+        }
+        else if (DatabaseUser.some(i => i.id == ii)) {
+          let Format = {};
+          Format[id[ii]] = DatabaseUser.find(i => i.id == ii);
           respone.push(Format);
         }
         else {

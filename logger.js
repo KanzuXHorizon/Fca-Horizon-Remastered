@@ -1,3 +1,4 @@
+'use strict';
 /* eslint-disable linebreak-style */
 
 const chalk = require('chalk');

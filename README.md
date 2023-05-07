@@ -1,5 +1,9 @@
 [![Socket Badge](https://socket.dev/api/badge/npm/package/fca-horizon-remastered)](https://socket.dev/npm/package/fca-horizon-remastered)
 
+## Important !
+
+This package require NodeJS 14.17.0 to work properly.
+
 ## Notification !
 
 + We will have Example Video on Channel "Nguyễn Thái Hảo Official"

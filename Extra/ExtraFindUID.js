@@ -1,3 +1,5 @@
+'use strict';
+
 const got = global.Fca.Require.Fetch;
 
 /**

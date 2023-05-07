@@ -61,6 +61,21 @@
                 "EnterSecurityCode": "Hãy Nhập Mã Xác Thực 2 Yếu Tố Của Bạn: ",
                 "ErrThroughCookies": "Đã Xảy Ra Lỗi Khi Xuyên 2Fa, Hãy Nhập Mã 2Fa Lại !",
 
+                "NodeVersionNotSupported": "Phiên Bản: %1 Không Được Hỗ Trợ, Tự Động Tải Phiên Bản Nodejs V14",
+                "UsingNVM": "Bạn đang sử dụng nvm để control node version, hãy bấm 'nvm install 14.17.0' sau đó bấm 'nvm use 14.17.0' để chuyển sang phiên bản được hỗ trợ !",
+                "DownloadingNode": "Đang tải phiên bản Node V14 Được Hỗ Trợ !",
+                "NodeDownloadingComplete": "Tải Phiên Bản Node V14 Thành Công !",
+                "RestartRequire": "Tải Thành Công, Yêu Cầu Người Dùng Restart Máy Để Có Tác Dụng!",
+                "ErrNodeDownload": "Đã Xảy Ra Lỗi Trong Lúc Tự Động Tải Node Phiên Bản 14, Hãy Liên Hệ Fb.com/Lazic.Kanzu!",
+                "RestartingN": "Đang Khởi Động Lại Chương Trình",
+                "Rebuilding": "Đang Rebuild Lại Package NPM tránh lỗi !",
+                "ErrRebuilding": "Đã Sảy Ra Lỗi Tại Khu Vực Rebuilding - npm install",
+                "SuccessRebuilding": "Rebuilding Thành Công !",
+                "UnableToConnect": "Đã Sảy Ra Lỗi Trong Lúc Kết Nối Tới Máy Chủ Instant Action, Hãy Kiểm Tra Lại Wifi!",
+                "EVMChange": "Đang Thay Đổi Replit.nix Để Hỗ Trợ Node V14!",
+                "EVMChangeSuccess": "Thay Đổi Replit.nix Thành Công, Tiến Hành Restarting!",
+
+
                 "WishMessage": [
                     "Chúc Bạn Một Ngày Tốt Lành Nhé !",
                     "Hãy Báo Cáo Với Admin Khi Có Lỗi Fca Nhé !",
@@ -147,6 +162,20 @@
                 "Missing": "Please Code 2Fa According to the Photo's Guide in FastConfigFca.json Series AuthString!",
                 "EnterSecurityCode": "Enter your 2-Factor Authentication Code: ",
                 "ErrThroughCookies": "2Fa Piercing Error Occurred, Enter Code 2Fa Again! ",
+
+                "NodeVersionNotSupported": "Version: %1 is not supported, automatically download nodejs version v14",
+                "UsingNVM": "You are using nvm to control node version, please type 'nvm install 14.17.0' then type 'nvm use 14.17.0' to switch to the supported version!",
+                "DownloadingNode": "Downloading node version v14 which is supported!",
+                "NodeDownloadingComplete": "Successfully downloaded node version v14!",
+                "RestartRequire": "Download successful, user needs to restart the computer to take effect!",
+                "ErrNodeDownload": "An error occurred while automatically downloading node version 14, please contact fb.com/lazic.kanzu!",
+                "RestartingN": "Restarting the program",
+                "Rebuilding": "Rebuilding npm package to avoid errors !",
+                "ErrRebuilding": "An error occurred in the rebuilding area - npm install",
+                "SuccessRebuilding": "Successfully rebuilt !",
+                "UnableToConnect": "An error occurred while connecting to the instant action server, please check your wifi connection!",
+                "EVMChange": "Changing replit.nix to support node v14!",
+                "EVMChangeSuccess": "Successfully changed replit.nix, go ahead and restart!",
 
                 "WishMessage": [
                     "Have a Nice Day !",

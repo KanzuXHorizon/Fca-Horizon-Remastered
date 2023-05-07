@@ -1,9 +1,21 @@
+'use strict';
+
 const logger = require("../logger");
 module.exports = function() {
     var Logger = global.Fca.Require.logger;
     switch (process.platform) {
-        case 'win32': return Logger.Warning(global.Fca.Require.Language.ExtraUpTime.NotSupport);
-        case 'darwin': return Logger.Warning(global.Fca.Require.Language.ExtraUpTime.NotSupport);
+        case 'win32': {
+            if (global.Fca.Require.FastConfig.Uptime) {
+                logger.Warning(global.Fca.Require.Language.ExtraUpTime.NotSupport);
+            }
+            break;
+        }
+        case 'darwin': {
+            if (global.Fca.Require.FastConfig.Uptime) {
+                logger.Warning(global.Fca.Require.Language.ExtraUpTime.NotSupport);
+            }
+            break;
+        }
         case 'linux':
             if (process.env.REPL_SLUG) {
                 var Value = global.Fca.Require.FastConfig;

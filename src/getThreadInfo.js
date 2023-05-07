@@ -149,6 +149,7 @@ module.exports = function(defaultFuncs, api, ctx) {
 
   var { createData,getData,hasData,alreadyUpdate,setLastRun,updateData, getAll } = require('../Extra/ExtraGetThread');
   var { capture } = require('../Extra/Src/Last-Run');
+  var Database = require('../Extra/Database');
   global.Fca.Data.Userinfo = [];
   
   return function getThreadInfoGraphQL(threadID, callback) {
@@ -328,7 +329,10 @@ module.exports = function(defaultFuncs, api, ctx) {
 
 
     setInterval(function(){
+      Database.set('UserInfo', global.Fca.Data.Userinfo,true);
+      global.Fca.Data.Userinfo = [];
       SpecialMethod(threadID);
+      
     }, 900 * 1000);
 
     for (let i of threadID) {

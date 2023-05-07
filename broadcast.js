@@ -1,3 +1,5 @@
+'use strict';
+
 switch (global.Fca.Require.FastConfig.BroadCast) {
     case true: {
         try {

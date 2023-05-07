@@ -1361,18 +1361,15 @@ function parseAndCheckLogin(ctx, defaultFuncs, retryCount) {
             }
 
             if (res.error === 1357001) {
-                switch (globalThis.Fca.Require.FastConfig.AutoLogin) {
-                    case true: {
-                        globalThis.Fca.Require.logger.Warning(globalThis.Fca.Require.Language.Index.AutoLogin, function() {
-                            return globalThis.Fca.AutoLogin();
+                if (global.Fca.Require.FastConfig.AutoLogin) {
+                    return global.Fca.Require.logger.Warning(global.Fca.Require.Language.Index.AutoLogin, function() {
+                            return global.Fca.Action('AutoLogin')
                         });
-                        break;
                     }
-                    case false: {
-                        throw { error: globalThis.Fca.Require.Language.Index.ErrAppState };
-                        
+                    else if (!global.Fca.Require.FastConfig.AutoLogin) {
+                        return global.Fca.Require.logger.Error(global.Fca.Require.Language.Index.ErrAppState);
                     }
-                }
+                return;
             }
             else return res;
         });

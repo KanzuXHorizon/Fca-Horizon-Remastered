@@ -621,25 +621,25 @@ module.exports = function (defaultFuncs, api, ctx) {
             .then(utils.parseAndCheckLogin(ctx, defaultFuncs))
             .then((resData) => {
                 if (utils.getType(resData) != "Array") {
-                    switch (global.Fca.Require.FastConfig.AutoLogin) {
-                        case true: {
-                            global.Fca.Require.logger.Warning(global.Fca.Require.Language.Index.AutoLogin, function() {
-                                return global.Fca.AutoLogin();
-                            });
-                            break;
-                        }
-                        case false: {
-                            throw { error: global.Fca.Require.Language.Index.ErrAppState };
-                            
-                        }
+                    if (global.Fca.Require.FastConfig.AutoLogin) {
+                        return global.Fca.Require.logger.Warning(global.Fca.Require.Language.Index.AutoLogin, function() {
+                            return global.Fca.Action('AutoLogin');
+                        });
                     }
+                    else if (!global.Fca.Require.FastConfig.AutoLogin) {
+                        return global.Fca.Require.logger.Error(global.Fca.Require.Language.Index.ErrAppState);
+                    }
+                    return;
                 }
-                if (resData && resData[resData.length - 1].error_results > 0) throw resData[0].o0.errors;
-                if (resData[resData.length - 1].successful_results === 0) throw { error: "getSeqId: there was no successful_results", res: resData };
-                if (resData[0].o0.data.viewer.message_threads.sync_sequence_id) {
-                    ctx.lastSeqId = resData[0].o0.data.viewer.message_threads.sync_sequence_id;
-                    listenMqtt(defaultFuncs, api, ctx, globalCallback);
-                } else throw { error: "getSeqId: no sync_sequence_id found.", res: resData };
+                else {
+                    if (resData && resData[resData.length - 1].error_results > 0) throw resData[0].o0.errors;
+                    if (resData[resData.length - 1].successful_results === 0) throw { error: "getSeqId: there was no successful_results", res: resData };
+                    if (resData[0].o0.data.viewer.message_threads.sync_sequence_id) {
+                        ctx.lastSeqId = resData[0].o0.data.viewer.message_threads.sync_sequence_id;
+                        listenMqtt(defaultFuncs, api, ctx, globalCallback);
+                    } 
+                    else throw { error: "getSeqId: no sync_sequence_id found.", res: resData };
+                }
             })
             .catch((err) => {
                 log.error("getSeqId", err);
