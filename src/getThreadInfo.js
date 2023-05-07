@@ -226,7 +226,6 @@ module.exports = function(defaultFuncs, api, ctx) {
           resData.map(function (x,y) {
             ThreadInfo.push(formatThreadGraphQLResponse(x["o"+y].data));
           });
-          global.Fca.Data.Userinfo = []
           if (process.env.HalzionVersion == 1973) {
             if (Object.keys(resData).length == 1) {
               updateData(threadID,ThreadInfo[0]);	
