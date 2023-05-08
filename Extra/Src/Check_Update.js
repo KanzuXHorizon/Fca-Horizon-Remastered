@@ -1,4 +1,4 @@
-module.exports = async function()) {
+module.exports = async function() {
     const got = require('got');
     const log = require('npmlog');
     const fs = require('fs');

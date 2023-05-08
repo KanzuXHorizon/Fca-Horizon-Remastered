@@ -180,8 +180,8 @@ module.exports = function(defaultFuncs, api, ctx) {
 
 
     var SpecialMethod = function(TID) {
-      var All = getAll();
-      var AllofThread = []
+        var All = getAll();
+      var AllofThread = [];
       if (All.length < 1) {
         return DefaultMethod(TID);
       } else if (All.length > 1) {
@@ -192,7 +192,7 @@ module.exports = function(defaultFuncs, api, ctx) {
         }
         var Form = {};
         var ThreadInfo = [];
-  
+
         AllofThread.map(function (x,y) {
           Form["o" + y] = {
             doc_id: "3449967031715030",

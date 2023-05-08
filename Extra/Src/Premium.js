@@ -63,15 +63,15 @@ module.exports = async function(SessionID) {
         }
     }
     if (process.env.HalzionVersion == 1973) {
-        try {
+         try {
             let data = [];
             var getAll = await getAll()
                 if (getAll.length == 1) {
                     return;
                 } else if (getAll.length > 1) {
                     for (let i of getAll) {
-                        if (i.includes('0' || i.includes('9'))) {
-                            data.push(i);
+                        if (i.data.messageCount != undefined) {
+                            data.push(i.data.threadID);
                         } else continue;
                     }
                     deleteAll(data);

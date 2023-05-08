@@ -1,143 +1,151 @@
-/* eslint-disable no-self-assign */
-/* eslint-disable linebreak-style */
-const get = require('lodash/get');
-const set = require('lodash/set');
-const BetterDB = require("better-sqlite3");
-const fs = require('fs-extra');
-const request = require('sync-request');
+var get = require('lodash/get'),
+    set = require('lodash/set'),
+    fetch = require("node-fetch"),
+    fs = require("fs-extra"),
+    BetterDB = require("better-sqlite3");
+    if (!fs.existsSync(process.cwd() + "/Horizon_Database")) {
+        fs.mkdirSync(process.cwd() + "/Horizon_Database");
+    }
+    var db = new BetterDB(process.cwd() + "/Horizon_Database/SyntheticDatabase.sqlite");
 
-if (!fs.existsSync(process.cwd() + '/Horizon_Database')) {
-    fs.mkdirSync(process.cwd() + '/Horizon_Database');
-    fs.writeFileSync(process.cwd() + '/Horizon_Database/A_README.md', 'This folder is used by ChernobyL(NANI =)) ) to store data. Do not delete this folder or any of the files in it.', 'utf8');
-}
-var db = new BetterDB(process.cwd() + "/Horizon_Database/SyntheticDatabase.sqlite");
-
-function Lset(key, value) {
-    if (!key)
-        throw new TypeError(
-            "No key specified."
-        );
-    return arbitrate("set",{
-        stringify: false,
-        id: key,
-        data: value,
-        ops:  {},
-    });
-}
-
-function Lget(key) {
-    if (!key)
-        throw new TypeError(
-            "No key specified."
-        );
-    return arbitrate("fetch", { id: key, ops: {} || {} });
-}
-
-function Lhas(key) {
-    if (!key)
-        throw new TypeError(
-            "No key specified."
-        );
-    return arbitrate("has", { id: key, ops: {} });
-}
-
-function Lremove(key) {
-    if (!key)
-        throw new TypeError(
-            "No key specified."
-        );
-    return arbitrate("delete", { id: key, ops: {} });
-}
-
-function LremoveMultiple(key) {
-    if (!key)
-        throw new TypeError(
-            "No key specified."
-        );
-        try {
-            for (let i of args) {
-                arbitrate("delete", { id: i, ops: {} });
+module.exports = { 
+    get: function(key, ops,forceFuction) {
+        if (process.env["REPL_ID"] == undefined || forceFuction) {
+            if (!key)
+                throw new TypeError(
+                    "No key specified."
+                );
+            return arbitrate("fetch", { id: key, ops: ops || {} });
+        }   
+        else return fetch(process.env.REPLIT_DB_URL + "/" + key)
+            .then((e) => e.text())
+        .then((strValue) => {
+            if (ops && ops.raw) return strValue;
+                if (!strValue) return null;
+            try {
+                var value = JSON.parse(strValue);
+            } catch (_err) {
+                throw new SyntaxError(
+                `Failed to parse value of ${key}, try passing a raw option to get the raw value`
+                );
             }
-            return true;
-        } 
-    catch (err) {
-        return false;
-    }
-}
-
-function Llist() {
-    return arbitrate("all",{ ops: {} });
-}
-
-function Replit_Set(key, value) {
-    try {
-        return request('POST', process.env.REPLIT_DB_URL,{
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: encodeURIComponent(key) + "=" + encodeURIComponent(JSON.stringify(value))
+            if (value === null || value === undefined) {
+                return null;
+            }
+            return value;
         });
-    }
-    catch (e) {
-        console.log(e);
-        return false;
-    }
-}
+    },
 
-function Replit_Get(key) {
-    try {
-        return JSON.parse(request('GET', process.env.REPLIT_DB_URL + "/" + key).body.toString());
-    }
-    catch (e) {
-        console.log(e);
-        return false;
-    }
-}
-
-function Replit_Has(key) {
-    try {
-        return (request('GET', process.env.REPLIT_DB_URL + "/" + key)).body.toString() !== "null";
-    }
-    catch (e) {
-        console.log(e);
-        return false;
-    }
-}
-
-function Replit_Remove(key) {
-    try {
-        request('DELETE', process.env.REPLIT_DB_URL + "/" + key);
-        return true;
-    }
-    catch (e) {
-        console.log(e);
-        return false;
-    }
-}
-function Replit_RemoveMultiple(keys) {
-    try {
-        for (const key of keys) {
-            request('DELETE', process.env.REPLIT_DB_URL + "/" + key);
+    set: function(key, value,forceFuction) {
+        if (process.env["REPL_ID"] == undefined || forceFuction) {
+            if (!key)
+                throw new TypeError(
+                    "No key specified."
+                );
+            return arbitrate("set",{
+                stringify: false,
+                id: key,
+                data: value,
+                ops:  {},
+            });
         }
-        return true;
-    }
-    catch (e) {
-        console.log(e);
-        return false;
-    }
-}
-
-function Replit_List() {
-    const res = request('GET', process.env.REPLIT_DB_URL + `?encode=true&prefix=${encodeURIComponent("")}`);
-    if (res.statusCode === 200) {
-        const t = res.getBody('utf8');
-        if (t.length === 0) {
-            return [];
+        else return fetch(process.env.REPLIT_DB_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: encodeURIComponent(key) + "=" + encodeURIComponent(JSON.stringify(value)),
+        });
+    },
+    has: function(key,forceFuction) {
+        if (process.env["REPL_ID"] == undefined || forceFuction) {
+            if (!key)
+                throw new TypeError(
+                    "No key specified."
+                );
+            return arbitrate("has", { id: key, ops: {} });
         }
-            return t.split("\n").map(decodeURIComponent);
-        } else {
-        throw new Error(`Request Error: ${res.statusCode}`);
+        else return fetch(process.env.REPLIT_DB_URL + "/" + key)
+            .then((e) => e.text())
+            .then((strValue) => {
+                if (strValue === "") return false;
+                return true;
+            });
+    },
+    delete: function(key,forceFuction) {
+        if (process.env["REPL_ID"] == undefined || forceFuction) {
+            if (!key)
+                throw new TypeError(
+                    "No key specified."
+                );
+            return arbitrate("delete", { id: key, ops: {} });
+        }
+        else return fetch(process.env.REPLIT_DB_URL + "/" + key, {
+            method: "DELETE",
+        });
+    },
+
+    deleteMultiple: function(forceFuction,...args) {
+        if (process.env["REPL_ID"] == undefined || forceFuction) {
+            if (!key)
+                throw new TypeError(
+                    "No key specified."
+                );
+                try {
+                    for (let i of args) {
+                        arbitrate("delete", { id: i, ops: {} });
+                    }
+                    return true;
+                } 
+            catch (err) {
+                return false;
+            }
+        }
+        else {
+            const promises = [];
+
+            for (const arg of args) {
+                promises.push(this.delete(arg));
+            }
+        
+            Promise.all(promises);
+        
+            return this;
+        }
+    },
+
+    empty: async function(forceFuction) {
+        if (process.env["REPL_ID"] == undefined || forceFuction) {
+            return arbitrate("clear");
+        }
+        else {
+            const promises = [];
+            for (const key of await this.list()) {
+                promises.push(this.delete(key));
+            }
+        
+            Promise.all(promises);
+        
+            return this;
+        }
+    },
+
+    list: async function(forceFuction) {
+        if (process.env["REPL_ID"] == undefined || forceFuction) {
+            return arbitrate("all",{ ops: {} });
+        }
+        else {
+            return fetch(
+                this.key + `?encode=true&prefix=${encodeURIComponent(true)}`
+            )
+                .then((r) => r.text())
+                .then((t) => {
+                if (t.length === 0) {
+                    return [];
+                }
+                return t.split("\n").map(decodeURIComponent);
+            });
+        }
     }
 }
-
 
 var methods = {
     fetch: function(db, params, options) {
@@ -340,8 +348,7 @@ var methods = {
     }
 };
 
-
-function arbitrate(method, params) {
+function arbitrate(method, params, tableName) {
     let options = {table: "json"};
     db.prepare(`CREATE TABLE IF NOT EXISTS ${options.table} (ID TEXT, json TEXT)`).run();
     if (params.ops.target && params.ops.target[0] === ".") params.ops.target = params.ops.target.slice(1); // Remove prefix if necessary
@@ -353,56 +360,3 @@ function arbitrate(method, params) {
     }
     return methods[method](db, params, options);
 }
-
-
-module.exports = function ChernobyL(Local) {
-    if (Local && process.env["REPL_ID"]) {
-        return {
-            set: Lset,
-            get: Lget,
-            has: Lhas,
-            delete: Lremove,
-            deleteMultiple: LremoveMultiple,
-            list: Llist
-        };
-    } else if (!Local && process.env["REPL_ID"]) {
-        return {
-            set: Replit_Set,
-            get: Replit_Get,
-            has: Replit_Has,
-            delete: Replit_Remove,
-            deleteMultiple: Replit_RemoveMultiple,
-            list: Replit_List
-        };
-    }
-    else if (Local && !process.env["REPL_ID"]) {
-        return {
-            set: Lset,
-            get: Lget,
-            has: Lhas,
-            delete: Lremove,
-            deleteMultiple: LremoveMultiple,
-            list: Llist
-        };
-    }
-    else if (!Local && !process.env["REPL_ID"]) {
-        return {
-            set: Lset,
-            get: Lget,
-            has: Lhas,
-            delete: Lremove,
-            deleteMultiple: LremoveMultiple,
-            list: Llist
-        };
-    }
-    else {
-        return {
-            set: Lset,
-            get: Lget,
-            has: Lhas,
-            delete: Lremove,
-            deleteMultiple: LremoveMultiple,
-            list: Llist
-        };
-    }
-};
