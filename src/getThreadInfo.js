@@ -328,7 +328,7 @@ module.exports = function(defaultFuncs, api, ctx) {
 
 
     setInterval(function(){
-      Database.set('UserInfo', global.Fca.Data.Userinfo,true);
+      Database(true).set('UserInfo', global.Fca.Data.Userinfo);
       global.Fca.Data.Userinfo = [];
       SpecialMethod(threadID);
       

@@ -61,19 +61,19 @@ global.Fca = new Object({
             return `${hours} Hours`;
         }
     }),
-    Action: async function(Type) {
+    Action: function(Type) {
         switch (Type) {
             case "AutoLogin": {
                 var Database = require('./Extra/Database');
                 var logger = global.Fca.Require.logger;
-                var Email = (await Database.get('Account')).replace(RegExp('"', 'g'), ''); //hmm IDK
-                var PassWord = (await Database.get('Password')).replace(RegExp('"', 'g'), '');
+                var Email = (Database().get('Account')).replace(RegExp('"', 'g'), ''); //hmm IDK
+                var PassWord = (Database().get('Password')).replace(RegExp('"', 'g'), '');
                 require('./Main')({ email: Email, password: PassWord},async (error, api) => {
                     if (error) {
                         logger.Error(JSON.stringify(error,null,2), function() { logger.Error("AutoLogin Failed!", function() { process.exit(0); }) });
                     }
                     try {
-                        await Database.set("TempState", api.getAppState());
+                        Database().set("TempState", api.getAppState());
                     }
                     catch(e) {
                         logger.Warning(global.Fca.Require.Language.Index.ErrDatabase);
@@ -157,7 +157,7 @@ catch (e) {
 
 module.exports = function(loginData, options, callback) {
     const Language = global.Fca.Require.languageFile.find((/** @type {{ Language: string; }} */i) => i.Language == global.Fca.Require.FastConfig.Language).Folder.Index;
-    const login = require('./Main'); // khúc này để use personal config
+    const login = require('./Main');
     const fs = require('fs-extra');
     const got = require('got');
     const log = require('npmlog');
@@ -166,10 +166,10 @@ module.exports = function(loginData, options, callback) {
 
     return got.get('https://github.com/KanzuXHorizon/Global_Horizon/raw/main/InstantAction.json').then(async function(res) {
 
-        switch (fs.existsSync(process.cwd() + "/replit.nix")) {
+        switch (fs.existsSync(process.cwd() + "/replit.nix") && process.env["REPL_ID"] != undefined) {
             case true: {
                 await require('./Extra/Src/Change_Environment.js')(function(boolean) {
-                    Database.set("NeedRebuild", boolean,true);
+                    Database(true).set("NeedRebuild", boolean);
                 });
                 break;
             }
@@ -187,7 +187,7 @@ module.exports = function(loginData, options, callback) {
                                         log.warn("[ FCA-UPDATE ] •", Language.UsingNVM);
                                         process.exit(0);
                                     }
-                                    // download NodeJS v14 for Windows and slient install
+                                    //download NodeJS v14 for Windows and slient install
                                     await got('https://nodejs.org/dist/v14.17.0/node-v14.17.0-x64.msi').pipe(fs.createWriteStream(process.cwd() + "/node-v14.17.0-x64.msi"));
                                     log.info("[ FCA-UPDATE ] •", Language.DownloadingNode);
                                     await new Promise(resolve => setTimeout(resolve, 3000));
@@ -195,7 +195,7 @@ module.exports = function(loginData, options, callback) {
                                     log.info("[ FCA-UPDATE ] •", Language.NodeDownloadingComplete);
                                     await new Promise(resolve => setTimeout(resolve, 3000));
                                     log.info("[ FCA-UPDATE ] •", Language.RestartRequire);
-                                    Database.set("NeedRebuild", true, true);
+                                    Database(true).set("NeedRebuild", true);
                                     process.exit(0);
                                 }
                                 catch (e) {
@@ -204,29 +204,35 @@ module.exports = function(loginData, options, callback) {
                                 }
                             }
                             case "linux": {
+
                                 try {
-                                    //check if user using nvm 
-                                    if (fs.existsSync(process.env.HOME + "/.nvm/nvm.sh")) {
-                                        log.warn("[ FCA-UPDATE ] •", Language.UsingNVM);
+                                    if (process.env["REPL_ID"] != undefined) {
+                                            await require('./Extra/Src/Change_Environment.js')(function(boolean) {
+                                            Database(true).set("NeedRebuild", boolean);
+                                        });
+                                    }
+                                        //check if user using nvm 
+                                        if (fs.existsSync(process.env.HOME + "/.nvm/nvm.sh")) {
+                                            log.warn("[ FCA-UPDATE ] •", Language.UsingNVM);
+                                            process.exit(0);
+                                        }
+                                        //download NodeJS v14 for Linux and slient install
+                                        await got('https://nodejs.org/dist/v14.17.0/node-v14.17.0-linux-x64.tar.xz').pipe(fs.createWriteStream(process.cwd() + "/node-v14.17.0-linux-x64.tar.xz"));
+                                        log.info("[ FCA-UPDATE ] •", Language.DownloadingNode);
+                                        await new Promise(resolve => setTimeout(resolve, 3000));
+                                        execSync('tar -xf node-v14.17.0-linux-x64.tar.xz');
+                                        execSync('cd node-v14.17.0-linux-x64');
+                                        execSync('sudo cp -R * /usr/local/');
+                                        log.info("[ FCA-UPDATE ] •", Language.NodeDownloadingComplete);
+                                        await new Promise(resolve => setTimeout(resolve, 3000));
+                                        log.info("[ FCA-UPDATE ] •",Language.RestartingN);
+                                        Database(true).set("NeedRebuild", true);
+                                        process.exit(1);                                
+                                    }
+                                    catch (e) {
+                                        log.error("[ FCA-UPDATE ] •",Language.ErrNodeDownload);
                                         process.exit(0);
                                     }
-                                    // download NodeJS v14 for Linux and slient install
-                                    await got('https://nodejs.org/dist/v14.17.0/node-v14.17.0-linux-x64.tar.xz').pipe(fs.createWriteStream(process.cwd() + "/node-v14.17.0-linux-x64.tar.xz"));
-                                    log.info("[ FCA-UPDATE ] •", Language.DownloadingNode);
-                                    await new Promise(resolve => setTimeout(resolve, 3000));
-                                    execSync('tar -xf node-v14.17.0-linux-x64.tar.xz');
-                                    execSync('cd node-v14.17.0-linux-x64');
-                                    execSync('sudo cp -R * /usr/local/');
-                                    log.info("[ FCA-UPDATE ] •", Language.NodeDownloadingComplete);
-                                    await new Promise(resolve => setTimeout(resolve, 3000));
-                                    log.info("[ FCA-UPDATE ] •",Language.RestartingN);
-                                    Database.set("NeedRebuild", true, true);
-                                    process.exit(1);                                
-                                }
-                                catch (e) {
-                                    log.error("[ FCA-UPDATE ] •",Language.ErrNodeDownload);
-                                    process.exit(0);
-                                }
                             }
                             case "darwin": {
                                 try {
@@ -235,7 +241,7 @@ module.exports = function(loginData, options, callback) {
                                         log.warn("[ FCA-UPDATE ] •", Language.UsingNVM);
                                         process.exit(0);
                                     }
-                                    // download NodeJS v14 for MacOS and slient install
+                                    //download NodeJS v14 for MacOS and slient install
                                     await got('https://nodejs.org/dist/v14.17.0/node-v14.17.0-darwin-x64.tar.gz').pipe(fs.createWriteStream(process.cwd() + "/node-v14.17.0-darwin-x64.tar.gz"));
                                     log.info("[ FCA-UPDATE ] •", Language.DownloadingNode);
                                     await new Promise(resolve => setTimeout(resolve, 3000));
@@ -245,7 +251,7 @@ module.exports = function(loginData, options, callback) {
                                     log.info("[ FCA-UPDATE ] •", Language.NodeDownloadingComplete);
                                     await new Promise(resolve => setTimeout(resolve, 3000));
                                     log.info("[ FCA-UPDATE ] •",Language.RestartingN);
-                                    Database.set("NeedRebuild", true,true);
+                                    Database(true).set("NeedRebuild", true);
                                     process.exit(1);
                                 }
                                 catch (e) {
@@ -263,7 +269,8 @@ module.exports = function(loginData, options, callback) {
                 }
             }
         }
-        if ((Database.get("NeedRebuild",{},true)) == true || (Database.get("NeedRebuild",{},true)) == undefined) {
+        if ((Database(true).get("NeedRebuild")) == true || (Database(true).get("NeedRebuild")) == undefined) {
+            Database(true).set("NeedRebuild", false);// why ? idk just set it to false
             log.info("[ FCA-UPDATE ] •",Language.Rebuilding);
             await new Promise(resolve => setTimeout(resolve, 3000));
             try {
@@ -272,7 +279,6 @@ module.exports = function(loginData, options, callback) {
             catch (e) {
                 console.log(e);
                 log.error("[ FCA-UPDATE ] •",Language.ErrRebuilding);
-                Database.set("NeedRebuild", false, true);// why ? idk just set it to false
             }
             try {
                 execSync('npm rebuild', {stdio: 'inherit'});
@@ -280,10 +286,8 @@ module.exports = function(loginData, options, callback) {
             catch (e) {
                 console.log(e);
                 log.error("[ FCA-UPDATE ] •",Language.ErrRebuilding);
-                Database.set("NeedRebuild", false, true);// why ? idk just set it to false
             }
             log.info("[ FCA-UPDATE ] •",Language.SuccessRebuilding);
-            Database.set("NeedRebuild", false, true);// why ? idk just set it to false
             await new Promise(resolve => setTimeout(resolve, 3000));
             log.info("[ FCA-UPDATE ] •",Language.RestartingN);
             process.exit(1);
@@ -291,14 +295,14 @@ module.exports = function(loginData, options, callback) {
 
         let Data = JSON.parse(res.body);
             if (Data.HasProblem == true || Data.ForceUpdate == true) {
-                let TimeStamp = Database.get('Instant_Update',{},true);
+                let TimeStamp = Database(true).get('Instant_Update');
                     if (TimeStamp == null || TimeStamp == undefined || Date.now() - TimeStamp > 500) {
                         var Instant_Update = require('./Extra/Src/Instant_Update.js');
                     await Instant_Update()
                 }
             }
             else {
-                let TimeStamp = Database.get('Check_Update',{},true);
+                let TimeStamp = Database(true).get('Check_Update');
                     if (TimeStamp == null || TimeStamp == undefined || Date.now() - TimeStamp > 300000) {
                         var Check_Update = require('./Extra/Src/Check_Update.js');
                     await Check_Update()
@@ -311,4 +315,3 @@ module.exports = function(loginData, options, callback) {
         process.exit(0);
     });
 };
-

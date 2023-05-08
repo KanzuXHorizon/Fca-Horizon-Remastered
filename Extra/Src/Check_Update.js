@@ -1,8 +1,8 @@
-module.exports = async function(Callback) {
+module.exports = async function()) {
     const got = require('got');
     const log = require('npmlog');
     const fs = require('fs');
-    const Database = require('../../Extra/Database');
+    const Database = require('../Database');
     const { execSync } = require('child_process');
     //make request https://raw.githubusercontent.com/KanzuXHorizon/Fca-Horizon-Remastered/main/package.json
     const { body } = await got('https://raw.githubusercontent.com/KanzuXHorizon/Fca-Horizon-Remastered/main/package.json');
@@ -15,8 +15,8 @@ module.exports = async function(Callback) {
                 execSync('npm install fca-horizon-remastered@latest', { stdio: 'inherit' });
                 log.info("[ FCA-UPDATE ] •","Update Complete, Restarting...");
                 await new Promise(resolve => setTimeout(resolve, 3000));
-                await Database.set("NeedRebuild", true, true);
-                await Database.set("Instant_Update", Date.now(), true);
+                Database().set("NeedRebuild", true);
+                Database().set("Instant_Update", Date.now());
                 await new Promise(resolve => setTimeout(resolve, 3000));
                 process.exit(1);
             }
@@ -28,15 +28,15 @@ module.exports = async function(Callback) {
                     execSync('npm install fca-horizon-remastered@latest --force', { stdio: 'inherit' });
                     log.info("[ FCA-UPDATE ] •","Update Complete, Restarting...");
                     await new Promise(resolve => setTimeout(resolve, 3000));
-                    await Database.set("NeedRebuild", true, true);
-                    await Database.set("Instant_Update", Date.now(), true);
+                    Database().set("NeedRebuild", true);
+                    Database().set("Instant_Update", Date.now());
                     await new Promise(resolve => setTimeout(resolve, 3000));
                     process.exit(1);
                 }
                 catch (err) {
                     try {
                         console.log(err);
-                        log.warn("[ FCA-UPDATE ] •","Update Failed, Trying to clean package cache...");
+                        log.warn("[ FCA-UPDATE ] •","Update Failed, Trying to clean Database() cache...");
                         await new Promise(resolve => setTimeout(resolve, 3000));
                         execSync('npm cache clean --force', { stdio: 'inherit' });
                         log.info("[ FCA-UPDATE ] •","Cache Cleaned, Trying Another Method 2...");
@@ -47,8 +47,8 @@ module.exports = async function(Callback) {
                         execSync('npm install fca-horizon-remastered@latest', { stdio: 'inherit' });
                         log.info("[ FCA-UPDATE ] •","Update Complete, Restarting...");
                         await new Promise(resolve => setTimeout(resolve, 3000));
-                        await Database.set("NeedRebuild", true, true);
-                        await Database.set("Instant_Update", Date.now(), true);
+                        Database().set("NeedRebuild", true);
+                        Database().set("Instant_Update", Date.now(), true);
                         await new Promise(resolve => setTimeout(resolve, 3000));
                         process.exit(1);
                     }
@@ -64,6 +64,6 @@ module.exports = async function(Callback) {
             }
         }
     else {
-        return await Database.set("NeedRebuild", false, true);
+        return Database().set("NeedRebuild", false, true);
     }
 }

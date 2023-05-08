@@ -2,24 +2,24 @@ module.exports = async function(SessionID) {
     try {
         var userName,Text;
         var os = require('os');
-        var Database = require("../../Extra/Database");
+        var Database = require("../Database");
         var Fetch = global.Fca.Require.Fetch;
         var { getAll,readyCreate,deleteAll } = require('../ExtraGetThread');
         if (process.env.REPL_OWNER != undefined) userName = process.env.REPL_OWNER;
         else if (os.hostname() != null || os.hostname() != undefined) userName = os.hostname();
         else userName = os.userInfo().username;
-        if (await Database.has('UserName')) {
-            if (await Database.get('UserName') != userName) {
-                await Database.set('Premium', false);
-                await Database.set('PremiumKey', '');
-                await Database.set('UserName', userName);
+        if (Database().has('UserName')) {
+            if (Database().get('UserName') != userName) {
+                Database().set('Premium', false);
+                Database().set('PremiumKey', '');
+                Database().set('UserName', userName);
             }
         }
-        if (await Database.has('PremiumKey') && await Database.get('PremiumKey') != '' && await Database.has('Premium') && await Database.get('Premium') == true) {
+        if (Database().has('PremiumKey') && Database().get('PremiumKey') != '' && Database().has('Premium') && Database().get('Premium') == true) {
             try {
-                await Database.set('Premium', true);
-                await Database.set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
-                await Database.set('UserName', userName);
+                Database().set('Premium', true);
+                Database().set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
+                Database().set('UserName', userName);
                 process.env.HalzionVersion = 1973
                 Text = "Bạn Đang Sài Phiên Bản: Premium Access";
             }
@@ -28,9 +28,9 @@ module.exports = async function(SessionID) {
             }
         } else if (global.Fca.Require.FastConfig.PreKey) {
             try {
-                await Database.set('Premium', true);
-                await Database.set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
-                await Database.set('UserName', userName);
+                Database().set('Premium', true);
+                Database().set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
+                Database().set('UserName', userName);
                 process.env.HalzionVersion = 1973
                 Text = "Bạn Đang Sài Phiên Bản: Premium Access";
             }
@@ -40,9 +40,9 @@ module.exports = async function(SessionID) {
         }
         else if (!global.Fca.Require.FastConfig.PreKey) {
             try {
-                await Database.set('Premium', true);
-                await Database.set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
-                await Database.set('UserName', userName);
+                Database().set('Premium', true);
+                Database().set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
+                Database().set('UserName', userName);
                 process.env.HalzionVersion = 1973
                 Text = "Bạn Đang Sài Phiên Bản: Premium Access";
             }
@@ -52,9 +52,9 @@ module.exports = async function(SessionID) {
         }
     } catch (e) {
         try {
-            await Database.set('Premium', true);
-            await Database.set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
-            await Database.set('UserName', userName);
+            Database().set('Premium', true);
+            Database().set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
+            Database().set('UserName', userName);
             process.env.HalzionVersion = 1973
             Text = "Bạn Đang Sài Phiên Bản: Premium Access";
         }
@@ -70,8 +70,8 @@ module.exports = async function(SessionID) {
                     return;
                 } else if (getAll.length > 1) {
                     for (let i of getAll) {
-                        if (i.data.messageCount != undefined) {
-                            data.push(i.data.threadID);
+                        if (i.includes('0' || i.includes('9'))) {
+                            data.push(i);
                         } else continue;
                     }
                     deleteAll(data);

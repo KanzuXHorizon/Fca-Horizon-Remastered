@@ -19,11 +19,11 @@ module.exports = function (defaultFuncs, api, ctx) {
             };
         }
             var  Database = require('synthetic-horizon-database');
-            if (Database.get('agreement', {}, true) == true) {
+            if (Database(true).get('agreement') == true) {
                 callback(null, "Accecpt");
             }
             else {
-                Database.set('agreement', true,true);
+                Database(true).set('agreement', true);
                 var Form = "=== Horizon end-user license agreement ===\n\n Free to use and edited ✨";
                 callback(null, Form);
             }

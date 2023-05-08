@@ -1,6 +1,6 @@
 /* eslint-disable */
 "use strict";
-var Database = require("../Extra/Database");
+var Database= require("./Database");
 var { lastRun,capture } = require('./Src/Last-Run');
 var logger = require("../logger");
 var getText = global.Fca.getText;
@@ -9,7 +9,7 @@ language = language.find(i => i.Language == require(process.cwd() + "/FastConfig
 
 exports.createData = function(threadID,threadData) {
     try { 
-        Database.set(String(threadID),Object(threadData),true);
+        Database(true).set(String(threadID),Object(threadData));
         logger.Normal(getText(language.CreateDatabaseSuccess,String(threadID)));
     }
     catch (e) {
@@ -20,7 +20,7 @@ exports.createData = function(threadID,threadData) {
 
 exports.updateData = function(threadID,threadData) {
     try { 
-        Database.set(String(threadID),Object(threadData),true);
+        Database(true).set(String(threadID),Object(threadData));
         logger.Normal(getText(language.updateDataSuccess,String(threadID)));
     }
     catch (e) {
@@ -31,7 +31,7 @@ exports.updateData = function(threadID,threadData) {
 
 exports.updateMessageCount = function(threadID,threadData) {
     try { 
-        Database.set(String(threadID),Object(threadData),true);
+        Database(true).set(String(threadID),Object(threadData));
     }
     catch (e) {
         console.log(e);
@@ -39,9 +39,9 @@ exports.updateMessageCount = function(threadID,threadData) {
 }
 
 exports.getData = function(threadID) {
-    switch (Database.has(String(threadID),true)) {
+    switch (Database(true).has(String(threadID))) {
         case true: {
-            return Database.get(String(threadID),{},true)
+            return Database(true).get(String(threadID))
         }
         case false: {
             return null;
@@ -51,20 +51,20 @@ exports.getData = function(threadID) {
 
 exports.deleteAll = function(data) {
     for (let i of data) {
-        Database.delete(String(i),true);
+        Database(true).delete(String(i));
     }
 }
 
 exports.getAll = function() {
-    return Database.list(true);
+    return Database(true).list();
 }
 
 exports.hasData = function(threadID) {
-    return Database.has(String(threadID),true);
+    return Database(true).has(String(threadID));
 }
 
 exports.alreadyUpdate = function(threadID) {
-    var Time = Database.get(String(threadID),{},true).TimeUpdate;
+    var Time = Database(true).get(String(threadID)).TimeUpdate;
         try { 
             if (global.Fca.startTime >= (Time + (3600 * 1000))) {
                 logger.Normal(getText(language.alreadyUpdate, String(threadID)));
@@ -79,9 +79,9 @@ exports.alreadyUpdate = function(threadID) {
 }
 
 exports.readyCreate = function(Name) {
-    switch (Database.has(String(Name),true)) {
+    switch (Database(true).has(String(Name))) {
         case true: {
-            if (Number(global.Fca.startTime) >= Number(Database.get(String(Name),{},true) + (120 * 1000))) {
+            if (Number(global.Fca.startTime) >= Number(Database(true).get(String(Name)) + (120 * 1000))) {
                 return true;
             }   
             else {
@@ -95,19 +95,19 @@ exports.readyCreate = function(Name) {
 }
 
 exports.setLastRun = function(Name,LastRun) {
-    Database.set(String(Name),String(lastRun(LastRun)),true);
+    Database(true).set(String(Name),String(lastRun(LastRun)));
 }
 
 exports.getLastRun = function(Name) {
-    switch (Database.has(String(Name),true)) {
+    switch (Database(true).has(String(Name))) {
         case true: {
-            return Database.get(String(Name),{},true);
+            return Database(true).get(String(Name));
         }
         case false: {
             try {
                 capture(Name)
                 this.setLastRun(Name,Name);
-                return Database.get(String(Name),{},true);
+                return Database(true).get(String(Name));
             }
             catch(e) {
                 console.log(e);

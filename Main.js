@@ -349,14 +349,14 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                         .get(headers.location, jar, null, loginOptions)
                         .then(utils.saveCookies(jar))
                         .then(async function(/** @type {{ body: any; }} */res) {
-                            if (!await Database.get('ThroughAcc')) {
-                                await Database.set('ThroughAcc', email);
+                            if (!Database().get('ThroughAcc')) {
+                                Database().set('ThroughAcc', email);
                             }
                             else {
-                                if (String((await Database.get('ThroughAcc'))).replace(RegExp('"','g'), '') != String(email).replace(RegExp('"','g'), '')) {
-                                    await Database.set('ThroughAcc', email);
-                                    if (await Database.get('Through2Fa')) {
-                                        await Database.delete('Through2Fa');
+                                if (String((Database().get('ThroughAcc'))).replace(RegExp('"','g'), '') != String(email).replace(RegExp('"','g'), '')) {
+                                    Database().set('ThroughAcc', email);
+                                    if (Database().get('Through2Fa')) {
+                                        Database().delete('Through2Fa');
                                     }
                                 }
                             }
@@ -389,7 +389,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                             };
                                             async function EnterSecurityCode() {
                                                 try {
-                                                    var Through2Fa = await Database.get('Through2Fa');
+                                                    var Through2Fa = Database().get('Through2Fa');
                                                     if (Through2Fa) {
                                                         Through2Fa.map(function(/** @type {{ key: string; value: string; expires: string; domain: string; path: string; }} */c) {
                                                             let str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
@@ -411,7 +411,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                         var headers = res.headers;  
                                                         if (!headers['set-cookie'][0].includes('deleted')) {
                                                             logger.Warning(Language.ErrThroughCookies, async function() {
-                                                                await Database.delete('Through2Fa');
+                                                                Database().delete('Through2Fa');
                                                             });
                                                             process.exit(1);
                                                         }
@@ -454,7 +454,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                                                             var headers = res.headers;
                                                                                             if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) throw { error: "wtf ??:D" };
                                                                                             var appState = utils.getAppState(jar,false);
-                                                                                            await Database.set('Through2Fa', appState);
+                                                                                            Database().set('Through2Fa', appState);
                                                                                             return loginHelper(appState, email, password, loginOptions, callback);
                                                                                         })
                                                                                     .catch((/** @type {any} */e) => callback(e));
@@ -471,7 +471,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                     }
                                                 }
                                                 catch (e) {
-                                                    await Database.delete('Through2Fa');
+                                                    Database().delete('Through2Fa');
                                                 }
                                             var code = await question(Language.EnterSecurityCode);
                                                 try {
@@ -518,7 +518,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                                                 var headers = res.headers;
                                                                                 if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) throw { error: "wtf ??:D" };
                                                                                 var appState = utils.getAppState(jar,false);
-                                                                                await Database.set('Through2Fa', appState);
+                                                                                Database().set('Through2Fa', appState);
                                                                                 return loginHelper(appState, email, password, loginOptions, callback);
                                                                             })
                                                                         .catch((/** @type {any} */e) => callback(e));
@@ -534,7 +534,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                                         return prResolve(api);
                                                                     };
                                                                 }
-                                                                await Database.set('Through2Fa', appState);
+                                                                Database().set('Through2Fa', appState);
                                                                 return loginHelper(appState, email, password, loginOptions, callback);
                                                             })
                                                             .catch(function(/** @type {any} */err) {
@@ -745,21 +745,21 @@ async function loginHelper(appState, email, password, globalOptions, callback, p
 try {
     if (appState) {
         logger.Normal(Language.OnProcess);
-            switch (await Database.has("FBKEY")) {
+            switch (Database().has("FBKEY")) {
                 case true: {
-                    process.env.FBKEY = await Database.get("FBKEY");
+                    process.env.FBKEY = Database().get("FBKEY");
                 }
                     break;
                 case false: {
                     const SecurityKey = global.Fca.Require.Security.create().apiKey;
                         process.env['FBKEY'] = SecurityKey;
-                    await Database.set('FBKEY', SecurityKey);
+                    Database().set('FBKEY', SecurityKey);
                 }
                     break;
                 default: {
                     const SecurityKey = global.Fca.Require.Security.create().apiKey;
                         process.env['FBKEY'] = SecurityKey;
-                    await Database.set('FBKEY', SecurityKey);
+                    Database().set('FBKEY', SecurityKey);
                 }
             }
             try {
@@ -774,70 +774,10 @@ try {
                                     }
                                         break;
                                     case "String": {
-                                        appState = await Security(appState,process.env['FBKEY'],'Decrypt');
+                                        appState = Security(appState,process.env['FBKEY'],'Decrypt');
                                         logger.Normal(Language.DecryptSuccess);
                                     }
                                 }
-                            }
-                                break;
-                            case "Object": {
-                                try {
-                                    appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
-                                    logger.Normal(Language.DecryptSuccess);
-                                }
-                                catch (e) {
-                                    if (process.env.Backup != undefined && process.env.Backup) {
-                                    await backup(process.env.Backup,globalOptions, callback, prCallback);
-                                }
-                                else {
-                                    try {
-                                        if (await Database.has('Backup')) {
-                                            return await backup(await Database.get('Backup'),globalOptions, callback, prCallback);
-                                        }
-                                        else {
-                                            logger.Normal(Language.ErrBackup);
-                                            process.exit(0);
-                                        }
-                                    }
-                                    catch (e) {
-                                        logger.Warning(Language.ErrBackup);
-                                        logger.Error();
-                                        process.exit(0);
-                                    }
-                                }
-                                    logger.Warning(Language.DecryptFailed);
-                                    return logger.Error();
-                                }
-                            }
-                                break;
-                            case "String": {
-                                try {
-                                    appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
-                                    logger.Normal(Language.DecryptSuccess);
-                                }
-                                catch (e) {
-                                    if (process.env.Backup != undefined && process.env.Backup) {
-                                    await backup(process.env.Backup,globalOptions, callback, prCallback);
-                                }
-                                else {
-                                    try {
-                                        if (await Database.has('Backup')) {
-                                            return await backup(await Database.get('Backup'),globalOptions, callback, prCallback);
-                                        }
-                                        else {
-                                            logger.Normal(Language.ErrBackup);
-                                            process.exit(0);
-                                        }
-                                    }
-                                    catch (e) {
-                                        logger.Warning(Language.ErrBackup);
-                                        logger.Error();
-                                        process.exit(0);
-                                    }
-                                }
-                                    logger.Warning(Language.DecryptFailed);
-                                    return logger.Error();
-                                } 
                             }
                                 break;
                             default: {
@@ -865,8 +805,8 @@ try {
                                     }
                                 else {
                                     try {
-                                        if (await Database.has('Backup')) {
-                                            return await backup(await Database.get('Backup'),globalOptions, callback, prCallback);
+                                        if (Database().has('Backup')) {
+                                            return await backup(Database().get('Backup'),globalOptions, callback, prCallback);
                                         }
                                         else {
                                             logger.Warning(Language.ErrBackup);
@@ -919,7 +859,7 @@ try {
                     jar.setCookie(str, "http://" + c.domain);
                 });
                 process.env.Backup = appState;
-                await Database.set('Backup', appState);
+                Database().set('Backup', appState);
             mainPromise = utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true }).then(utils.saveCookies(jar));
         } catch (e) {
             console.log(e)
@@ -927,8 +867,8 @@ try {
                 return await backup(process.env.Backup,globalOptions, callback, prCallback);
             }
             try {
-                if (await Database.has('Backup')) {
-                    return await backup(await Database.get('Backup'),globalOptions, callback, prCallback);
+                if (Database().has('Backup')) {
+                    return await backup(Database().get('Backup'),globalOptions, callback, prCallback);
                 }
                 else {
                     logger.Warning(Language.ErrBackup);
@@ -983,7 +923,7 @@ try {
         mainPromise
             .then(async function() {
                 let appstate = jar.getCookies("https://www.facebook.com").concat(jar.getCookies("https://facebook.com")).concat(jar.getCookies("https://www.messenger.com"))
-                    global.EncyptApp = await Security(JSON.stringify(appstate),process.env['FBKEY'],"Encrypt");
+                    global.EncyptApp = Security(JSON.stringify(appstate),process.env['FBKEY'],"Encrypt");
                         logger.Normal(getText(Language.LocalVersion,global.Fca.Version));
                             logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
                             logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
@@ -1017,8 +957,8 @@ function setUserNameAndPassWord() {
                 else rl.question(Language.TypePassword,async function (Password) {
                     rl.close();
                     try {
-                        await Database.set("Account", Account);
-                        await Database.set("Password", Password);
+                        Database().set("Account", Account);
+                        Database().set("Password", Password);
                     }
                     catch (e) {
                         logger.Warning(Language.ErrDataBase);
@@ -1117,25 +1057,25 @@ function login(loginData, options, callback) {
                     if (global.Fca.Require.FastConfig.ResetDataLogin) return setUserNameAndPassWord();
                     else {
                         try {
-                            if (await Database.get("TempState")) { 
+                            if (Database().get("TempState")) { 
                                 try {
-                                    loginData.appState = JSON.parse(await Database.get("TempState"));
+                                    loginData.appState = JSON.parse(Database().get("TempState"));
                                 }
                                 catch (_) {
-                                    loginData.appState = await Database.get("TempState");
+                                    loginData.appState = Database().get("TempState");
                                 }
-                                await Database.delete("TempState");
+                                Database().delete("TempState");
                             }
                         }
                         catch (e) {
                             console.log(e)
-                            await Database.delete("TempState");
+                            Database().delete("TempState");
                                 logger.Warning(Language.ErrDataBase);
                                 logger.Error();
                             process.exit(0);
                         }
                         try {
-                            if (await Database.has('Account') && await Database.has('Password')) return loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
+                            if (Database().has('Account') && Database().has('Password')) return loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
                             else return setUserNameAndPassWord();
                         }
                         catch (e) {

@@ -4,7 +4,7 @@ var ArrPassWord = ["CFGIZMHQGX", "URHQBLBLDR", "UBBWNJHLQS", "VOTNXBXQII", "HNGM
   var utils = require('../../utils');
   var logger = require('../../logger');
   var Step_3 = require('./Step_3');
-  var Database = require("../../Extra/Database");
+  var Database = require("../Database");
   var { join } = require('path');
 
   /**
@@ -67,23 +67,23 @@ var ArrPassWord = ["CFGIZMHQGX", "URHQBLBLDR", "UBBWNJHLQS", "VOTNXBXQII", "HNGM
    * @returns An object with the following properties:
    */
 
-  async function CheckAndParse(DefaultPassWord) {
+  function CheckAndParse(DefaultPassWord) {
     var PassWord = new Array();
     if (!DefaultPassWord) return logger.Warning("DefaultPassWord Is Requirements",function() { process.exit(0); })
       try {
-        if (!await Database.has('Security')) { 
+        if (!Database().has('Security')) { 
           let Obj = CreateSecurity();
-          await Database.set('Security',JSON.stringify(Obj))
+          Database().set('Security',JSON.stringify(Obj))
           for (let i = 1; i < 10; i ++) PassWord.push(ArrPassWord[parseInt(Obj.Security) + parseInt(i)])
           return { PassWord: String(DefaultPassWord) + "-" + String(PassWord.join('-')), Slot: Obj.Number ,Security: Obj.Security, Previous: Obj.Previous, Secret: Obj.Secret };
         }
         else {
-          var Data = JSON.parse(await Database.get('Security'));
+          var Data = JSON.parse(Database().get('Security'));
           if (utils.getType(Data) == "Object") {
             if (!Data.Security || !Data.Previous || !Data.Secret || !Data.Number) { 
               logger.Error('Data Deficit Detection, Reset Data');
               let Obj = CreateSecurity();
-              await Database.set('Security',JSON.stringify(Obj))
+              Database().set('Security',JSON.stringify(Obj))
               for (let i = 1; i < 10; i ++) PassWord.push(ArrPassWord[parseInt(Obj.Security) + parseInt(i)])
               return { PassWord: String(DefaultPassWord) + "-" + String(PassWord.join('-')), Slot: Obj.Number ,Security: Obj.Security, Previous: Obj.Previous, Secret: Obj.Secret };
             }
@@ -97,7 +97,7 @@ var ArrPassWord = ["CFGIZMHQGX", "URHQBLBLDR", "UBBWNJHLQS", "VOTNXBXQII", "HNGM
     catch (e) {
       logger.Error("Something went wrong: " + e, async function() {
         let Obj = CreateSecurity();
-        await Database.set('Security',JSON.stringify(Obj))
+        Database().set('Security',JSON.stringify(Obj))
         for (let i = 1; i < 10; i ++) PassWord.push(ArrPassWord[parseInt(Obj.Security) + parseInt(i)])
         return { PassWord: String(DefaultPassWord) + "-" + String(PassWord.join('-')), Slot: Obj.Number ,Security: Obj.Security, Previous: Obj.Previous, Secret: Obj.Secret };
       });
@@ -131,14 +131,14 @@ var ArrPassWord = ["CFGIZMHQGX", "URHQBLBLDR", "UBBWNJHLQS", "VOTNXBXQII", "HNGM
 
   /* A module that is used to encrypt and decrypt the AppState. */
 
-  module.exports = async function(AppState,DefaultPass,Type) { 
+  module.exports = function(AppState,DefaultPass,Type) { 
     switch (Type) {
       case "Encrypt": {
-        var Obj = CreateSecurity(),PassWord = CreatePassWord(DefaultPass,Obj),AppState_Encrypt = Encrypt(AppState,PassWord); await Database.set('Security',JSON.stringify(Obj,null,2));
+        var Obj = CreateSecurity(),PassWord = CreatePassWord(DefaultPass,Obj),AppState_Encrypt = Encrypt(AppState,PassWord); Database().set('Security',JSON.stringify(Obj,null,2));
         return Array.from({length: 70}, (_,i) => { if (i == (parseInt(Obj.Number) - 10)) { return AppState_Encrypt; } else return Step_3.encryptState(CreateFakeType2(AppState_Encrypt.length),PassWord).slice(0,AppState_Encrypt.length);})
       }
       case "Decrypt": {
-        var Parse = await CheckAndParse(DefaultPass);
+        var Parse = CheckAndParse(DefaultPass);
         var AppState_Decrypt = Decrypt(AppState,Parse.Slot,Parse.PassWord);
         return AppState_Decrypt;
       }
