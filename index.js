@@ -1,6 +1,6 @@
 'use strict';
 /* eslint-disable linebreak-style */
-
+const utils = require('./utils');
 global.Fca = new Object({
     isThread: new Array(),
     isUser: new Array(),
@@ -37,6 +37,7 @@ global.Fca = new Object({
             "EncryptFeature": true,
             "ResetDataLogin": false,
             "AutoRestartMinutes": 0,
+            "DevMode": false,
             "HTML": {   
                 "HTML": true,
                 "UserName": "Guest",
@@ -92,7 +93,7 @@ global.Fca = new Object({
 });
 
 try {
-    let Boolean_Fca = ["AutoUpdate","Uptime","BroadCast","EncryptFeature","AutoLogin","ResetDataLogin","Login2Fa"];
+    let Boolean_Fca = ["AutoUpdate","Uptime","BroadCast","EncryptFeature","AutoLogin","ResetDataLogin","Login2Fa", "DevMode"];
     let String_Fca = ["MainName","PreKey","Language","AuthString","Config"]
     let Number_Fca = ["AutoRestartMinutes"];
     let All_Variable = Boolean_Fca.concat(String_Fca,Number_Fca);
@@ -113,8 +114,8 @@ catch (e) {
 }
     if (global.Fca.Require.fs.existsSync(process.cwd() + '/FastConfigFca.json')) {
         try { 
-            if (DataLanguageSetting.Logo != undefined) {
-                    delete DataLanguageSetting.Logo
+            if (DataLanguageSetting.DevMode == undefined || utils.getType(DataLanguageSetting.DevMode) != "boolean") {
+                    DataLanguageSetting.DevMode = false
                 global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));        
             }
         }
@@ -163,6 +164,10 @@ module.exports = function(loginData, options, callback) {
     const log = require('npmlog');
     const { execSync } = require('child_process');
     const Database = require('./Extra/Database');
+
+    if (global.Fca.Require.FastConfig.DevMode) {
+        require('./Extra/Src/Release_Memory');
+    }
 
     return got.get('https://github.com/KanzuXHorizon/Global_Horizon/raw/main/InstantAction.json').then(async function(res) {
 
@@ -312,6 +317,8 @@ module.exports = function(loginData, options, callback) {
     }).catch(function(err) {
         console.log(err)
         log.error("[ FCA-UPDATE ] •",Language.UnableToConnect);
+        log.error("[ FCA-UPDATE ] •", "OFFLINE MODE ACTIVATED");
+        return login(loginData, options, callback);
         process.exit(0);
     });
 };

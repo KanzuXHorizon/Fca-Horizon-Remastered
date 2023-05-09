@@ -55,7 +55,7 @@ function LremoveMultiple(key) {
             "No key specified."
         );
         try {
-            for (let i of args) {
+            for (let i of key) {
                 arbitrate("delete", { id: i, ops: {} });
             }
             return true;
@@ -94,7 +94,7 @@ function Replit_Get(key) {
 
 function Replit_Has(key) {
     try {
-        return (request('GET', process.env.REPLIT_DB_URL + "/" + key)).body.toString() !== "null";
+        return (request('GET', process.env.REPLIT_DB_URL + "/" + key)).body.toString() != "";
     }
     catch (e) {
         console.log(e);

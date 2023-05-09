@@ -174,15 +174,20 @@ module.exports = function(defaultFuncs, api, ctx) {
       // đã áp dụng vào fca mới(cloud - fca(private)) vào cuối tháng 8/2022 bởi @IteralingCode(Hidden Member( always :) )) - Synthetic 4 - @Horizon Team
       //cập nhật dự án bị bỏ rơi này vào ngày 19/11/2022 bởi @KanzuWakazaki(Owner) - Synthetic 1  - @Horizon Team nhằm đáp ứng nhu cầu của client !
 
-      var time = new Date().toLocaleDateString('vi-VN',  {minute: 'numeric' }).split(',')[0]
-
       if (utils.getType(threadID) !== "Array") threadID = [threadID];
 
 
     var SpecialMethod = function(TID) {
         var All = getAll();
+        var Real = [];
+        for (let i of All) {
+            if (i.data.threadID != undefined) {
+              Real.push(i.data.threadID);
+            } else continue;
+        }
       var AllofThread = [];
-      if (All.length < 1) {
+      if (Real.length == 0) return;
+      else if (Real.length == 1) {
         return DefaultMethod(TID);
       } else if (All.length > 1) {
         for (let i of All) {
@@ -192,7 +197,6 @@ module.exports = function(defaultFuncs, api, ctx) {
         }
         var Form = {};
         var ThreadInfo = [];
-
         AllofThread.map(function (x,y) {
           Form["o" + y] = {
             doc_id: "3449967031715030",
@@ -242,6 +246,11 @@ module.exports = function(defaultFuncs, api, ctx) {
           throw "Lỗi: getThreadInfoGraphQL Có Thể Do Bạn Spam Quá Nhiều"
         });
       }
+      Real= null;
+      AllofThread=null;
+      ThreadInfo = null;
+      Form = null
+      form = null
     }
     var DefaultMethod = function(TID) { 
       var ThreadInfo = [];
@@ -257,7 +266,9 @@ module.exports = function(defaultFuncs, api, ctx) {
         }
         callback(null,ThreadInfo);
       }
-    }
+      //release memory
+      ThreadInfo = null;
+    };
     var CreateMethod = function(TID) { 
       var Form = {}
       var ThreadInfo = [];
@@ -322,6 +333,10 @@ module.exports = function(defaultFuncs, api, ctx) {
         callback(null,{threadID:"5011501735554963",threadName:"TempThreadInfo",participantIDs:["100042817150429","100077059530660"],userInfo:[{id:"100042817150429",name:"Nguyễn Th\xe1i Hảo",firstName:"Hảo",vanity:"Lazic.Kanzu",thumbSrc:"https://scontent.fsgn5-10.fna.fbcdn.net/v/t39.30808-1/311136459_774539707316594_357342861145224378_n.jpg?stp=cp0_dst-jpg_p60x60&_nc_cat=101&ccb=1-7&_nc_sid=f67be1&_nc_ohc=0y9pN1XSiVIAX8HS5P6&_nc_ht=scontent.fsgn5-10.fna&oh=00_AfCBYmeKDgLZLWDMRBmBZj8zRLboVA096bkbsC4a1Q0DUQ&oe=637E5939",profileUrl:"https://scontent.fsgn5-10.fna.fbcdn.net/v/t39.30808-1/311136459_774539707316594_357342861145224378_n.jpg?stp=cp0_dst-jpg_p60x60&_nc_cat=101&ccb=1-7&_nc_sid=f67be1&_nc_ohc=0y9pN1XSiVIAX8HS5P6&_nc_ht=scontent.fsgn5-10.fna&oh=00_AfCBYmeKDgLZLWDMRBmBZj8zRLboVA096bkbsC4a1Q0DUQ&oe=637E5939",gender:"MALE",type:"User",isFriend:!0,isBirthday:!1},{id:"100077059530660",name:"Lucius Hori",firstName:"Lucius",vanity:"Horizon.Lucius.Synthesis.III",thumbSrc:"https://scontent.fsgn5-3.fna.fbcdn.net/v/t39.30808-1/309709623_179304871314830_1479186956574752444_n.jpg?stp=cp0_dst-jpg_p60x60&_nc_cat=104&ccb=1-7&_nc_sid=7206a8&_nc_ohc=rXiLw0_ID7MAX-q4wYv&_nc_ht=scontent.fsgn5-3.fna&oh=00_AfD8Wl_EQLLBCZOWxmBdcIP9Nc1iyLQY9qsMTIN4Sf5H8w&oe=637D35E0",profileUrl:"https://scontent.fsgn5-3.fna.fbcdn.net/v/t39.30808-1/309709623_179304871314830_1479186956574752444_n.jpg?stp=cp0_dst-jpg_p60x60&_nc_cat=104&ccb=1-7&_nc_sid=7206a8&_nc_ohc=rXiLw0_ID7MAX-q4wYv&_nc_ht=scontent.fsgn5-3.fna&oh=00_AfD8Wl_EQLLBCZOWxmBdcIP9Nc1iyLQY9qsMTIN4Sf5H8w&oe=637D35E0",gender:"MALE",type:"User",isFriend:!1,isBirthday:!1}],unreadCount:38357,messageCount:39288,timestamp:"1668862170994",muteUntil:null,isGroup:!0,isSubscribed:!0,isArchived:!1,folder:"INBOX",cannotReplyReason:null,eventReminders:[],emoji:"\uD83D\uDE0F",color:"DD8800",nicknames:{"100042817150429":"Bla bla"},adminIDs:[{id:"100042817150429"}],approvalMode:!0,approvalQueue:[],reactionsMuteMode:"reactions_not_muted",mentionsMuteMode:"mentions_not_muted",isPinProtected:!1,relatedPageThread:null,name:"Temp ThreadInfo GraphQL",snippet:"/getthreadtest",snippetSender:"100042817150429",snippetAttachments:[],serverTimestamp:"1668862170994",imageSrc:"https://scontent.fsgn5-10.fna.fbcdn.net/v/t1.15752-9/278020824_345766417524223_6790288127531819759_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=02e273&_nc_ohc=kOr9K5TWwDMAX-4qPH1&_nc_ht=scontent.fsgn5-10.fna&oh=03_AdRQSwLyIGJ-zrgyQj1IIQAFO3IC-4_Qq_qMd58ZtMCI0A&oe=63A02D7A",isCanonicalUser:!1,isCanonical:!1,recipientsLoadable:!0,hasEmailParticipant:!1,readOnly:!1,canReply:!0,lastMessageType:"message",lastReadTimestamp:"1649756873571",threadType:2,TimeCreate:1668862173440,TimeUpdate:1668862173440});
         throw err;
       });
+      //release memory
+      ThreadInfo = null;
+      Form = null;
+      form = null;
     }
     if (global.Fca.Data.Already != true) SpecialMethod(threadID); 
     global.Fca.Data.Already = true;

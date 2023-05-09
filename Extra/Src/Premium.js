@@ -3,23 +3,22 @@ module.exports = async function(SessionID) {
         var userName,Text;
         var os = require('os');
         var Database = require("../Database");
-        var Fetch = global.Fca.Require.Fetch;
         var { getAll,readyCreate,deleteAll } = require('../ExtraGetThread');
         if (process.env.REPL_OWNER != undefined) userName = process.env.REPL_OWNER;
         else if (os.hostname() != null || os.hostname() != undefined) userName = os.hostname();
         else userName = os.userInfo().username;
-        if (Database().has('UserName')) {
-            if (Database().get('UserName') != userName) {
-                Database().set('Premium', false);
-                Database().set('PremiumKey', '');
-                Database().set('UserName', userName);
+        if (Database(true).has('UserName')) {
+            if (Database(true).get('UserName') != userName) {
+                Database(true).set('Premium', false);
+                Database(true).set('PremiumKey', '');
+                Database(true).set('UserName', userName);
             }
         }
-        if (Database().has('PremiumKey') && Database().get('PremiumKey') != '' && Database().has('Premium') && Database().get('Premium') == true) {
+        if (Database(true).has('PremiumKey') && Database(true).get('PremiumKey') != '' && Database(true).has('Premium') && Database(true).get('Premium') == true) {
             try {
-                Database().set('Premium', true);
-                Database().set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
-                Database().set('UserName', userName);
+                Database(true).set('Premium', true);
+                Database(true).set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
+                Database(true).set('UserName', userName);
                 process.env.HalzionVersion = 1973
                 Text = "Bạn Đang Sài Phiên Bản: Premium Access";
             }
@@ -28,9 +27,9 @@ module.exports = async function(SessionID) {
             }
         } else if (global.Fca.Require.FastConfig.PreKey) {
             try {
-                Database().set('Premium', true);
-                Database().set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
-                Database().set('UserName', userName);
+                Database(true).set('Premium', true);
+                Database(true).set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
+                Database(true).set('UserName', userName);
                 process.env.HalzionVersion = 1973
                 Text = "Bạn Đang Sài Phiên Bản: Premium Access";
             }
@@ -40,9 +39,9 @@ module.exports = async function(SessionID) {
         }
         else if (!global.Fca.Require.FastConfig.PreKey) {
             try {
-                Database().set('Premium', true);
-                Database().set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
-                Database().set('UserName', userName);
+                Database(true).set('Premium', true);
+                Database(true).set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
+                Database(true).set('UserName', userName);
                 process.env.HalzionVersion = 1973
                 Text = "Bạn Đang Sài Phiên Bản: Premium Access";
             }
@@ -52,9 +51,9 @@ module.exports = async function(SessionID) {
         }
     } catch (e) {
         try {
-            Database().set('Premium', true);
-            Database().set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
-            Database().set('UserName', userName);
+            Database(true).set('Premium', true);
+            Database(true).set('PremiumKey', String(global.Fca.Require.FastConfig.PreKey));
+            Database(true).set('UserName', userName);
             process.env.HalzionVersion = 1973
             Text = "Bạn Đang Sài Phiên Bản: Premium Access";
         }
