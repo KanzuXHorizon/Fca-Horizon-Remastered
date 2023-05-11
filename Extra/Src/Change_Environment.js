@@ -7,7 +7,8 @@ module.exports = async function(callback) {
     const Check = fs.readFileSync(process.cwd() + "/replit.nix", { encoding: 'utf8' });
     switch (Check.includes('pkgs.nodejs-14_x')) {
         case true: {
-            return callback(false)
+            Database(true).set("NeedRebuild", false);
+            return;
         }
         case false: {
             log.warn("[ FCA-HZI ] •",Language.EVMChange);
