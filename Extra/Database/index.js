@@ -4,7 +4,8 @@ const get = require('lodash/get');
 const set = require('lodash/set');
 const BetterDB = require("better-sqlite3");
 const fs = require('fs-extra');
-const request = require('sync-request');
+const request = require('request');
+const deasync = require('deasync');
 
 if (!fs.existsSync(process.cwd() + '/Horizon_Database')) {
     fs.mkdirSync(process.cwd() + '/Horizon_Database');
@@ -71,10 +72,26 @@ function Llist() {
 
 function Replit_Set(key, value) {
     try {
-        return request('POST', process.env.REPLIT_DB_URL,{
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: encodeURIComponent(key) + "=" + encodeURIComponent(JSON.stringify(value))
+        var done = false;
+        
+        request({
+            url: process.env.REPLIT_DB_URL,
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },  
+            body: `${encodeURIComponent(key)}=${encodeURIComponent(JSON.stringify(value))}`
+        
+        }, function (error, response, body) {
+            done = true;
         });
+
+        deasync.loopWhile(function(){
+            return !done;
+        });
+
+        return;
+        
     }
     catch (e) {
         console.log(e);
@@ -84,7 +101,21 @@ function Replit_Set(key, value) {
 
 function Replit_Get(key) {
     try {
-        return JSON.parse(request('GET', process.env.REPLIT_DB_URL + "/" + key).body.toString());
+        var done = false;
+        var response = null;
+    
+        request(process.env.REPLIT_DB_URL + "/" + key, function (error, res, body) {
+            if (!error && res.statusCode == 200) {
+                response = body;
+            }
+            done = true;
+        });
+    
+        deasync.loopWhile(function(){
+            return !done;
+        });
+    
+        return JSON.parse(response);
     }
     catch (e) {
         console.log(e);
@@ -94,7 +125,21 @@ function Replit_Get(key) {
 
 function Replit_Has(key) {
     try {
-        return (request('GET', process.env.REPLIT_DB_URL + "/" + key)).body.toString() != "";
+        var done = false;
+        var response = null;
+
+        request(process.env.REPLIT_DB_URL + "/" + key, function (error, res, body) {
+            if (!error && res.statusCode == 200) {
+                response = body;
+            }
+            done = true;
+        });
+
+        deasync.loopWhile(function(){
+            return !done;
+        });
+
+        return response != null;
     }
     catch (e) {
         console.log(e);
@@ -104,8 +149,16 @@ function Replit_Has(key) {
 
 function Replit_Remove(key) {
     try {
-        request('DELETE', process.env.REPLIT_DB_URL + "/" + key);
-        return true;
+        var done = false;
+        request.delete(process.env.REPLIT_DB_URL + "/" + key , function (error, response, body) {
+            done = true;
+        });
+
+        deasync.loopWhile(function(){
+            return !done;
+        });
+
+        return;
     }
     catch (e) {
         console.log(e);
@@ -115,7 +168,7 @@ function Replit_Remove(key) {
 function Replit_RemoveMultiple(keys) {
     try {
         for (const key of keys) {
-            request('DELETE', process.env.REPLIT_DB_URL + "/" + key);
+            request.delete(process.env.REPLIT_DB_URL + "/" + key , function (error, response, body) {});
         }
         return true;
     }
@@ -126,16 +179,25 @@ function Replit_RemoveMultiple(keys) {
 }
 
 function Replit_List() {
-    const res = request('GET', process.env.REPLIT_DB_URL + `?encode=true&prefix=${encodeURIComponent("")}`);
-    if (res.statusCode === 200) {
-        const t = res.getBody('utf8');
-        if (t.length === 0) {
-            return [];
+    var done = false;
+    var response = null;
+
+    request(process.env.REPLIT_DB_URL + "?encode=true" + `&prefix=${encodeURIComponent("")}`, function (error, res, body) {
+        if (!error && res.statusCode == 200) {
+            response = body;
         }
-            return t.split("\n").map(decodeURIComponent);
-        } else {
-        throw new Error(`Request Error: ${res.statusCode}`);
+        done = true;
+
+    });
+
+    deasync.loopWhile(function(){
+        return !done;
+    });
+
+    if (response.length === 0) {
+        return [];
     }
+    return response.split("\n").map(decodeURIComponent);
 }
 
 

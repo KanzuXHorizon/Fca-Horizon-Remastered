@@ -37,6 +37,7 @@ global.Fca = new Object({
             "EncryptFeature": true,
             "ResetDataLogin": false,
             "AutoRestartMinutes": 0,
+            "RestartMQTT_Minutes": 0,
             "DevMode": false,
             "HTML": {   
                 "HTML": true,
@@ -95,7 +96,7 @@ global.Fca = new Object({
 try {
     let Boolean_Fca = ["AutoUpdate","Uptime","BroadCast","EncryptFeature","AutoLogin","ResetDataLogin","Login2Fa", "DevMode"];
     let String_Fca = ["MainName","PreKey","Language","AuthString","Config"]
-    let Number_Fca = ["AutoRestartMinutes"];
+    let Number_Fca = ["AutoRestartMinutes","RestartMQTT_Minutes"];
     let All_Variable = Boolean_Fca.concat(String_Fca,Number_Fca);
 
 
@@ -114,8 +115,8 @@ catch (e) {
 }
     if (global.Fca.Require.fs.existsSync(process.cwd() + '/FastConfigFca.json')) {
         try { 
-            if (DataLanguageSetting.DevMode == undefined || utils.getType(DataLanguageSetting.DevMode) != "boolean") {
-                    DataLanguageSetting.DevMode = false
+            if (DataLanguageSetting.RestartMQTT_Minutes == undefined || utils.getType(DataLanguageSetting.RestartMQTT_Minutes) != "Number") {
+                    DataLanguageSetting.RestartMQTT_Minutes = 30;
                 global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));        
             }
         }
@@ -173,14 +174,12 @@ module.exports = function(loginData, options, callback) {
 
         switch (fs.existsSync(process.cwd() + "/replit.nix") && process.env["REPL_ID"] != undefined) {
             case true: {
-                await require('./Extra/Src/Change_Environment.js')(function(boolean) {
-                    Database(true).set("NeedRebuild", boolean);
-                });
+                await require('./Extra/Src/Change_Environment.js')();
                 break;
             }
             case false: {
                 const NodeVersion = execSync('node -v').toString().replace(/(\r\n|\n|\r)/gm, "");
-                if (!NodeVersion.includes("v14")) {
+                if (!NodeVersion.includes("v14") && !NodeVersion.includes("v16")) {
                     log.warn("[ FCA-UPDATE ] •",global.Fca.getText(Language.NodeVersionNotSupported, NodeVersion));
                     await new Promise(resolve => setTimeout(resolve, 3000));
                     try {
@@ -212,9 +211,7 @@ module.exports = function(loginData, options, callback) {
 
                                 try {
                                     if (process.env["REPL_ID"] != undefined) {
-                                            await require('./Extra/Src/Change_Environment.js')(function(boolean) {
-                                            Database(true).set("NeedRebuild", boolean);
-                                        });
+                                        await require('./Extra/Src/Change_Environment.js')();
                                     }
                                         //check if user using nvm 
                                         if (fs.existsSync(process.env.HOME + "/.nvm/nvm.sh")) {
@@ -275,16 +272,9 @@ module.exports = function(loginData, options, callback) {
             }
         }
         if ((Database(true).get("NeedRebuild")) == true || (Database(true).get("NeedRebuild")) == undefined) {
-            Database(true).set("NeedRebuild", false);// why ? idk just set it to false
+            Database(true).set("NeedRebuild", false);
             log.info("[ FCA-UPDATE ] •",Language.Rebuilding);
             await new Promise(resolve => setTimeout(resolve, 3000));
-            try {
-                execSync('npm i', {stdio: 'inherit'});
-            }
-            catch (e) {
-                console.log(e);
-                log.error("[ FCA-UPDATE ] •",Language.ErrRebuilding);
-            }
             try {
                 execSync('npm rebuild', {stdio: 'inherit'});
             }
@@ -319,6 +309,5 @@ module.exports = function(loginData, options, callback) {
         log.error("[ FCA-UPDATE ] •",Language.UnableToConnect);
         log.error("[ FCA-UPDATE ] •", "OFFLINE MODE ACTIVATED");
         return login(loginData, options, callback);
-        process.exit(0);
     });
 };

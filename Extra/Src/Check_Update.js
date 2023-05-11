@@ -15,7 +15,6 @@ module.exports = async function() {
                 execSync('npm install fca-horizon-remastered@latest', { stdio: 'inherit' });
                 log.info("[ FCA-UPDATE ] •","Update Complete, Restarting...");
                 await new Promise(resolve => setTimeout(resolve, 3000));
-                Database().set("NeedRebuild", true);
                 Database().set("Instant_Update", Date.now());
                 await new Promise(resolve => setTimeout(resolve, 3000));
                 process.exit(1);
@@ -28,7 +27,6 @@ module.exports = async function() {
                     execSync('npm install fca-horizon-remastered@latest --force', { stdio: 'inherit' });
                     log.info("[ FCA-UPDATE ] •","Update Complete, Restarting...");
                     await new Promise(resolve => setTimeout(resolve, 3000));
-                    Database().set("NeedRebuild", true);
                     Database().set("Instant_Update", Date.now());
                     await new Promise(resolve => setTimeout(resolve, 3000));
                     process.exit(1);
@@ -47,7 +45,6 @@ module.exports = async function() {
                         execSync('npm install fca-horizon-remastered@latest', { stdio: 'inherit' });
                         log.info("[ FCA-UPDATE ] •","Update Complete, Restarting...");
                         await new Promise(resolve => setTimeout(resolve, 3000));
-                        Database().set("NeedRebuild", true);
                         Database().set("Instant_Update", Date.now(), true);
                         await new Promise(resolve => setTimeout(resolve, 3000));
                         process.exit(1);

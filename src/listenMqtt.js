@@ -38,7 +38,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     if (ctx.mqttEndpoint) host = `${ctx.mqttEndpoint}&sid=${sessionID}`;
     else if (ctx.region) host = `wss://edge-chat.facebook.com/chat?region=${ctx.region.toLocaleLowerCase()}&sid=${sessionID}`;
     else host = `wss://edge-chat.facebook.com/chat?sid=${sessionID}`;
-   
+
     var options = {
         clientId: "mqttwsclient",
         protocolId: 'MQIsdp',
@@ -66,10 +66,115 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
         var agent = new HttpsProxyAgent(ctx.globalOptions.proxy);
         options.wsOptions.agent = agent;
     }
-  
     ctx.mqttClient = new mqtt.Client(_ => websocket(host, options.wsOptions), options);
-
     var mqttClient = ctx.mqttClient;
+
+    if (process.env.OnStatus == undefined && global.Fca.Require.FastConfig.RestartMQTT_Minutes != 0) { 
+        setInterval(() => {
+            mqttClient.end();
+            mqttClient = null;
+            ctx.mqttClient = null;
+            global.Fca.Require.logger.Normal('Restarting MQTT Client...')
+            restartMQTT();
+        }, global.Fca.Require.FastConfig.RestartMQTT_Minutes * 60000);
+    }
+
+    function restartMQTT() {
+        global.Fca.Require.logger.Normal('Restarting MQTT Client Sucessfully');
+
+        const newClient = new mqtt.Client(_ => websocket(host, options.wsOptions), options);
+
+        mqttClient = newClient;
+        ctx.mqttClient = newClient;
+
+        mqttClient.on('connect', function () {
+        
+        topics.forEach(topicsub => mqttClient.subscribe(topicsub));
+
+        var topic;
+        var queue = {
+            sync_api_version: 11,
+            max_deltas_able_to_process: 100,
+            delta_batch_size: 500,
+            encoding: "JSON",
+            entity_fbid: ctx.userID,
+        };
+
+        if (ctx.syncToken) {
+            topic = "/messenger_sync_get_diffs";
+            queue.last_seq_id = ctx.lastSeqId;
+            queue.sync_token = ctx.syncToken;
+        } else {
+            topic = "/messenger_sync_create_queue";
+            queue.initial_titan_sequence_id = ctx.lastSeqId;
+            queue.device_params = null;
+        }
+        mqttClient.publish(topic, JSON.stringify(queue), { qos: 1, retain: false });
+
+        var rTimeout = setTimeout(function () {
+            mqttClient.end();
+            getSeqID();
+        }, 3000);
+
+        ctx.tmsWait = function () {
+            clearTimeout(rTimeout);
+            ctx.globalOptions.emitReady ? globalCallback({type: "ready",error: null}) : '';
+            delete ctx.tmsWait;
+        };
+    });
+
+    mqttClient.on('message', function (topic, message, _packet) {
+            const jsonMessage = JSON.parse(message.toString());
+        if (topic === "/t_ms") {
+            if (ctx.tmsWait && typeof ctx.tmsWait == "function") ctx.tmsWait();
+
+            if (jsonMessage.firstDeltaSeqId && jsonMessage.syncToken) {
+                ctx.lastSeqId = jsonMessage.firstDeltaSeqId;
+                ctx.syncToken = jsonMessage.syncToken;
+            }
+
+            if (jsonMessage.lastIssuedSeqId) ctx.lastSeqId = parseInt(jsonMessage.lastIssuedSeqId);
+            //If it contains more than 1 delta
+            for (var i in jsonMessage.deltas) {
+                var delta = jsonMessage.deltas[i];
+                parseDelta(defaultFuncs, api, ctx, globalCallback, { "delta": delta });
+            }
+        } else if (topic === "/thread_typing" || topic === "/orca_typing_notifications") {
+            var typ = {
+                type: "typ",
+                isTyping: !!jsonMessage.state,
+                from: jsonMessage.sender_fbid.toString(),
+                threadID: utils.formatID((jsonMessage.thread || jsonMessage.sender_fbid).toString())
+            };
+            (function () { globalCallback(null, typ); })();
+        } else if (topic === "/orca_presence") {
+            if (!ctx.globalOptions.updatePresence) {
+                for (var i in jsonMessage.list) {
+                    var data = jsonMessage.list[i];
+                    var userID = data["u"];
+
+                    var presence = {
+                        type: "presence",
+                        userID: userID.toString(),
+                        //Convert to ms
+                        timestamp: data["l"] * 1000,
+                        statuses: data["p"]
+                    };
+                    (function () { globalCallback(null, presence); })();
+                }
+            }
+        }
+
+    });
+        newClient.on('error', (error) => {
+            console.log(`MQTT client error: ${error}`);
+            newClient.end(); // Close the new client connection
+            setTimeout(restartMQTT, 5000); // Wait for 5 seconds before retrying
+        });
+        mqttClient = newClient;
+        return ctx.mqttClient = newClient; 
+    }
+
     mqttClient.on('error', function (err) {
         log.error("listenMqtt", err);
         mqttClient.end();
@@ -81,7 +186,6 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     });
 
     mqttClient.on('connect', function () {
-
         if (process.env.OnStatus == undefined) {
             global.Fca.Require.logger.Normal(global.Fca.Data.PremText || "Hiện Status Lỗi :s")
             if (Number(global.Fca.Require.FastConfig.AutoRestartMinutes) == 0) {
@@ -95,6 +199,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
             }
             else {
                 global.Fca.Require.logger.Normal(global.Fca.getText(global.Fca.Require.Language.Src.AutoRestart,global.Fca.Require.FastConfig.AutoRestartMinutes));
+                global.Fca.Require.logger.Normal("Auto Restart MQTT Client After: " + global.Fca.Require.FastConfig.RestartMQTT_Minutes + " Minutes");
                 setInterval(() => { 
                     global.Fca.Require.logger.Normal(global.Fca.Require.Language.Src.OnRestart);
                     process.exit(1);
@@ -125,10 +230,6 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
             queue.device_params = null;
         }
         mqttClient.publish(topic, JSON.stringify(queue), { qos: 1, retain: false });
-
-   // set status online
-    // fix by NTKhang
-    mqttClient.publish("/foreground_state", JSON.stringify({"foreground": chatOn}), {qos: 1});
 
         var rTimeout = setTimeout(function () {
             mqttClient.end();
@@ -194,13 +295,6 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
         LogUptime();
     });
     
-    mqttClient.on('close', function () {
-
-    });
-
-    mqttClient.on('disconnect',function () {
-        process.exit(1);
-    });
 }
 
 function LogUptime() {

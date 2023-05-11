@@ -62,7 +62,7 @@ module.exports = async function(SessionID) {
         }
     }
     if (process.env.HalzionVersion == 1973) {
-         try {
+        try {
             let data = [];
             var getAll = await getAll()
                 if (getAll.length == 1) {
