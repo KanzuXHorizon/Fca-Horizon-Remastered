@@ -32,17 +32,17 @@ module.exports = function (defaultFuncs, api, ctx) {
         }),
         doc_id: 7188178894556645
     };
-    console.log(form)
+    console.log(form);
 try {
         defaultFuncs
             .post("https://www.facebook.com/api/graphql/", ctx.jar, form)
             .then(utils.parseAndCheckLogin(ctx, defaultFuncs))
             .then(function (resData) {
             if (resData.error) throw resData;
-                callback(null,resData.data.viewer.chat_sidebar_contact_nodes[0])
+                callback(null,resData.data.viewer.chat_sidebar_contact_nodes[0]);
             })
             .catch(function (err) {
-                console.log(err)
+                console.log(err);
                 log.error("getUserInfo", "Lỗi: getUserInfo Có Thể Do Bạn Spam Quá Nhiều !,Hãy Thử Lại !");
                 return callback(err);
             });

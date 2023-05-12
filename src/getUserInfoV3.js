@@ -32,7 +32,7 @@ var form = {
         "id": String(id) 
     }),
     "doc_id": 5092283120862795
-}
+};
 try {
         defaultFuncs
             .post("https://www.facebook.com/api/graphql/", ctx.jar, form)

@@ -153,7 +153,7 @@ module.exports = function (defaultFuncs, api, ctx) {
           } 
           else {
             sendContent(form, threadID, !isGroup, messageAndOTID, callback);
-            global.Fca.isUser.push(threadID)
+            global.Fca.isUser.push(threadID);
         }
       }
     }

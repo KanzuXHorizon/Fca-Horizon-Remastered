@@ -18,7 +18,7 @@ var point = function(x,y,vx,vy){
   this.y = y;
   this.vx = vx || 1;
   this.vy = vy || 1;
-}
+};
 point.prototype.update = function() {
   ctx.beginPath();
   ctx.fillStyle = "#95a5a6";
@@ -58,7 +58,7 @@ point.prototype.update = function() {
   
   this.x += this.vx;
   this.y += this.vy;
-}
+};
 
 function loop() {
   ctx.clearRect(0,0,c.width,c.height);

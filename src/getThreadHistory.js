@@ -195,7 +195,7 @@ function formatReactionsGraphQL(reaction) {
 }
 
 function formatEventData(event) {
-  if (event == null) return {}
+  if (event == null) return {};
 
   switch (event.__typename) {
     case "ThemeColorExtensibleMessageAdminText":

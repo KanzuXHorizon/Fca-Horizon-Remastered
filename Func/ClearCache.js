@@ -37,7 +37,7 @@ module.exports = function (defaultFuncs, api, ctx) {
             case 'linux': {
                 for (let i = 0; i < New1.length; i++) {
                     log.Normal('Đang Clear Loại File ' + New1[i]);
-                    var STR = String(`find ./modules -type f -iname \'*.${New1[i]}\' -exec rm {} \\;`)
+                    var STR = String(`find ./modules -type f -iname \'*.${New1[i]}\' -exec rm {} \\;`);
                     execSync(STR);
                 }
                 log.Normal('Thành Công Clear ' + New1.length + ' Loại File !');
@@ -48,7 +48,7 @@ module.exports = function (defaultFuncs, api, ctx) {
                 var cmd = "del /q /s /f /a ";
                 for (let i = 0; i < New1.length; i++) {
                     log.Normal('Đang Clear Loại File ' + New1[i]);
-                    var STR = String(cmd + '.\\modules\\*.' + New1[i] + '\"')
+                    let STR = String(cmd + '.\\modules\\*.' + New1[i] + '"');
                     execSync(STR, { stdio: 'inherit' });
                 }
                 log.Normal('Thành Công Clear ' + New1.length + ' Loại File !');
@@ -60,5 +60,5 @@ module.exports = function (defaultFuncs, api, ctx) {
             }
         }
         return returnPromise;
-    }
+    };
 };

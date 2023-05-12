@@ -6,7 +6,6 @@ var mqtt = require('mqtt');
 var websocket = require('websocket-stream');
 var HttpsProxyAgent = require('https-proxy-agent');
 const EventEmitter = require('events');
-const { json } = require("body-parser");
 var identity = function () { };
 var form = {};
 var getSeqID = function () { };
@@ -72,9 +71,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     if (process.env.OnStatus == undefined && global.Fca.Require.FastConfig.RestartMQTT_Minutes != 0) { 
         setInterval(() => {
             mqttClient.end();
-            mqttClient = null;
-            ctx.mqttClient = null;
-            global.Fca.Require.logger.Normal('Restarting MQTT Client...')
+            global.Fca.Require.logger.Normal('Restarting MQTT Client...');
             restartMQTT();
         }, global.Fca.Require.FastConfig.RestartMQTT_Minutes * 60000);
     }
@@ -187,7 +184,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
 
     mqttClient.on('connect', function () {
         if (process.env.OnStatus == undefined) {
-            global.Fca.Require.logger.Normal(global.Fca.Data.PremText || "Hiện Status Lỗi :s")
+            global.Fca.Require.logger.Normal(global.Fca.Data.PremText || "Hiện Status Lỗi :s");
             if (Number(global.Fca.Require.FastConfig.AutoRestartMinutes) == 0) {
                 // something
             }
@@ -291,7 +288,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
         LogUptime();process.kill(process.pid);
     });
 
-    process.on('exit', (code) => {
+    process.on('exit', () => {
         LogUptime();
     });
     
@@ -322,7 +319,7 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
                 } catch (err) {
                     return log.error("Lỗi Nhẹ", err);
                 }
-                 global.Fca.Data.event = fmtMsg;
+                global.Fca.Data.event = fmtMsg;
                 try {
                     if (process.env.HalzionVersion == 1973) { 
                         var { updateMessageCount,getData,hasData } = require('../Extra/ExtraGetThread');

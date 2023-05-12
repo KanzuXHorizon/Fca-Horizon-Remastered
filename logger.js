@@ -22,7 +22,7 @@ module.exports = {
 		}
 		else console.log(chalk.hex(global.Fca.Require.FastConfig.MainColor).bold(`${global.Fca.Require.FastConfig.MainName || '[ FCA-HZI ]'} > `) + Str);
 		if (getType(Data) == 'Function' || getType(Data) == 'AsyncFunction') {
-			return Data()
+			return Data();
 		}
 		if (Data) {
 			return Data;
@@ -63,4 +63,4 @@ module.exports = {
 		}
 		else return callback;
 	}
-}
+};

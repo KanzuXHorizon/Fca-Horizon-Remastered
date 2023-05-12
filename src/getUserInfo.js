@@ -45,97 +45,69 @@ module.exports = function (defaultFuncs, api, ctx) {
     }
 
     if (utils.getType(id) !== "Array") id = [id];
-    if (Database(true).has('UserInfo') == false) Database(true).set('UserInfo', []);
-    var DatabaseUser = Database(true).get('UserInfo', {}) || [];
-    var respone = [];
-    var Nope = [];
+    if (global.Fca.Data.AlreadyGetInfo != true) {
+      if (Database(true).has('UserInfo') == false) { 
+        Database(true).set('UserInfo', []); 
+        global.Fca.Data.AlreadyGetInfo = true; 
+      }
+    }
+
+    var NeedGet = [];
+    var AlreadyGet = [];
+
     if (global.Fca.Data.Userinfo != undefined && global.Fca.Data.Userinfo.length != 0) {
-      if (id.length == 1) {
-        if (global.Fca.Data.Userinfo[0].some(i => i.id == id[0])) {
+      for (let i of id) {
+        if (global.Fca.Data.Userinfo.some(ii => ii.id == i)) {
           let Format = {};
-          Format[id[0]] = global.Fca.Data.Userinfo[0].find(i => i.id == id[0]);
-          callback(null,Format);
-        }
-        else if (DatabaseUser.some(i => i.id == id[0])) {
-          let Format = {};
-          Format[id[0]] = DatabaseUser.find(i => i.id == id[0]);
-          callback(null,Format);
+          Format[i] = global.Fca.Data.Userinfo.find(ii => ii.id == i);
+          AlreadyGet.push(Format);
         }
         else {
-          Nope.push(id[0]);
-        }
-      } 
-      else for (let ii of id) {
-        if (global.Fca.Data.Userinfo[0].some(i => i.id == ii)) {
-          let Format = {}
-          Format[id[ii]] = global.Fca.Data.Userinfo[0].find(i => i.id == ii);
-          respone.push(Format);
-        }
-        else if (DatabaseUser.some(i => i.id == ii)) {
-          let Format = {};
-          Format[id[ii]] = DatabaseUser.find(i => i.id == ii);
-          respone.push(Format);
-        }
-        else {
-          Nope.push(ii);
+          const DatabaseUser = Database(true).get('UserInfo', {}) || [];
+          if (DatabaseUser.some(ii => ii.id == i)) {
+            let Format = {};
+            Format[i] = DatabaseUser.find(ii => ii.id == i);
+            AlreadyGet.push(Format);
+          }
+          else {
+            NeedGet.push(i);
+          }
         }
       }
-      if (Nope.length > 0 && respone > 0) {
-        var form = {};
-        Nope.map(function (v, i) {
-          form["ids[" + i + "]"] = v;
-        });
-        defaultFuncs
-          .post("https://www.facebook.com/chat/user_info/", ctx.jar, form)
-          .then(utils.parseAndCheckLogin(ctx, defaultFuncs))
-          .then(function (resData) {
-            if (resData.error) throw resData;
-            respone.push(formatData(resData.payload.profiles));
-            callback(null, respone);
-          })
-          .catch(function (err) {
-            log.error("getUserInfo", "Lỗi: getUserInfo Có Thể Do Bạn Spam Quá Nhiều !,Hãy Thử Lại !");
-            return callback(err, respone);
-          });
-        return returnPromise;
-      }
-      else if (Nope.length > 0 && respone <= 0) {
-        let form = {};
-        Nope.map(function (v, i) {
-          form["ids[" + i + "]"] = v;
-        });
-        defaultFuncs
-          .post("https://www.facebook.com/chat/user_info/", ctx.jar, form)
-          .then(utils.parseAndCheckLogin(ctx, defaultFuncs))
-          .then(function (resData) {
-            if (resData.error) throw resData;
-            callback(null, formatData(resData.payload.profiles));
-          })
-          .catch(function (err) {
-            log.error("getUserInfo", "Lỗi: getUserInfo Có Thể Do Bạn Spam Quá Nhiều !,Hãy Thử Lại !");
-            return callback(err, respone);
-          });
-        return returnPromise;
-      };
-      return returnPromise
     }
-    else {
+
+    if (NeedGet.length > 0) {
       let form = {};
-        id.map(function (v, i) {
+        NeedGet.map(function (v, i) {
           form["ids[" + i + "]"] = v;
         });
-        defaultFuncs
-          .post("https://www.facebook.com/chat/user_info/", ctx.jar, form)
+      defaultFuncs
+        .post("https://www.facebook.com/chat/user_info/", ctx.jar, form)
           .then(utils.parseAndCheckLogin(ctx, defaultFuncs))
-          .then(function (resData) {
-            if (resData.error) throw resData;
-            callback(null, formatData(resData.payload.profiles));
-          })
-          .catch(function (err) {
-            log.error("getUserInfo", "Lỗi: getUserInfo Có Thể Do Bạn Spam Quá Nhiều !,Hãy Thử Lại !");
-            callback(err, formatData(resData.payload.profiles));
-          });
-        return returnPromise;
+            .then(function (resData) {
+              if (resData.error) throw resData;
+                if (AlreadyGet.length > 0) {
+                  AlreadyGet.push(formatData(resData.payload.profiles));
+                }
+                else if (AlreadyGet.length <= 0 && NeedGet.length == 1) {
+                  AlreadyGet = formatData(resData.payload.profiles);
+                }
+                else {
+                  AlreadyGet.push(formatData(resData.payload.profiles));
+                }
+                callback(null, AlreadyGet);
+              })
+            .catch(function (err) {
+          log.error("getUserInfo", "Lỗi: getUserInfo Có Thể Do Bạn Spam Quá Nhiều !,Hãy Thử Lại !");
+        callback(err, null);
+      });
     }
+    else if (AlreadyGet.length == 1) {
+      callback(null,AlreadyGet[0]);
+    }
+    else if (AlreadyGet.length > 1) {
+      callback(null, AlreadyGet);
+    }
+    return returnPromise;
   };
 };

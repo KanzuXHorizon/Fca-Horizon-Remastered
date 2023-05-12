@@ -69,8 +69,8 @@ module.exports = async function(SessionID) {
                     return;
                 } else if (getAll.length > 1) {
                     for (let i of getAll) {
-                        if (i.data.messageCount != undefined) {
-                            data.push(i.data.threadID);
+                        if (i.json || JSON.parse(i.json).messageCount != undefined) {
+                            data.push(JSON.parse(i.json).threadID);
                         } else continue;
                     }
                     deleteAll(data);

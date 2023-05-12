@@ -48,7 +48,7 @@ module.exports = function (_defaultFuncs, api, _ctx) {
         }
         else {
             callback(null, null);
-            api.sendMessage('Sai Link, Link Cần Là Link Của Facebook',global.Fca.Data.event.threadID,global.Fca.Data.event.messageID)
+            api.sendMessage('Sai Link, Link Cần Là Link Của Facebook',global.Fca.Data.event.threadID,global.Fca.Data.event.messageID);
         }
     }
     catch (e) {

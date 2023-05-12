@@ -28,5 +28,5 @@ module.exports = function (defaultFuncs, api, ctx) {
                 callback(null, Form);
             }
         return returnPromise;
-    }
+    };
 };

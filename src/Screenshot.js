@@ -1,10 +1,7 @@
 /* eslint-disable linebreak-style */
 "use strict";
 
-var { join } = require('path');
-var fs = require('fs');
-var utils = require("../utils");
-var logger = require('../logger')
+var logger = require('../logger');
 module.exports = function (defaultFuncs, api, ctx) {
     var Coookie = JSON.parse(JSON.stringify(ctx.jar.getCookies("https://www.facebook.com").concat(ctx.jar.getCookies("https://facebook.com")).concat(ctx.jar.getCookies("https://www.messenger.com"))));
     for (let i of Coookie) {

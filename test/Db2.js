@@ -1,158 +1,272 @@
-var get = require('lodash/get'),
-    set = require('lodash/set'),
-    fetch = require("node-fetch"),
-    fs = require("fs-extra"),
-    BetterDB = require("better-sqlite3");
-    if (!fs.existsSync(process.cwd() + "/Horizon_Database")) {
-        fs.mkdirSync(process.cwd() + "/Horizon_Database");
+/* eslint-disable no-self-assign */
+/* eslint-disable linebreak-style */
+const get = require('lodash/get');
+const set = require('lodash/set');
+const sqlite3 = require('sqlite3');
+const fs = require('fs-extra');
+const request = require('request');
+const deasync = require('deasync');
+
+if (!fs.existsSync(process.cwd() + '/Horizon_Database')) {
+    fs.mkdirSync(process.cwd() + '/Horizon_Database');
+    fs.writeFileSync(process.cwd() + '/Horizon_Database/A_README.md', 'This folder is used by ChernobyL(NANI =)) ) to store data. Do not delete this folder or any of the files in it.', 'utf8');
+}
+var Database = new sqlite3.Database(process.cwd() + "/Horizon_Database/SyntheticDatabase.sqlite");
+
+Database.serialize(function() {
+    Database.run("CREATE TABLE IF NOT EXISTS json (ID TEXT, json TEXT)");
+});
+
+function Lset(key, value) {
+    try {
+        //check if key is exists if yes then update it
+        if (Lhas(key)) {
+            var done = false;
+            Database.run(`UPDATE json SET json = (?) WHERE ID = (?)`, [JSON.stringify(value), key], function(err) {
+                done = true;
+            });
+            deasync.loopWhile(function(){
+                return !done;
+            });
+            return;
+        }
+        else {
+            var done = false;
+            Database.run(`INSERT INTO json(ID, json) VALUES(?, ?)`, [key, JSON.stringify(value)], function(err) {
+                done = true;
+            });
+            deasync.loopWhile(function(){
+                return !done;
+            });
+            return;
+        }
     }
-    var db = new BetterDB(process.cwd() + "/Horizon_Database/SyntheticDatabase.sqlite");
-
-module.exports = { 
-    get: function(key, ops,forceFuction) {
-        if (process.env["REPL_ID"] == undefined || forceFuction) {
-            if (!key)
-                throw new TypeError(
-                    "No key specified."
-                );
-            return arbitrate("fetch", { id: key, ops: ops || {} });
-        }   
-        else return fetch(process.env.REPLIT_DB_URL + "/" + key)
-            .then((e) => e.text())
-        .then((strValue) => {
-            if (ops && ops.raw) return strValue;
-                if (!strValue) return null;
-            try {
-                var value = JSON.parse(strValue);
-            } catch (_err) {
-                throw new SyntaxError(
-                `Failed to parse value of ${key}, try passing a raw option to get the raw value`
-                );
-            }
-            if (value === null || value === undefined) {
-                return null;
-            }
-            return value;
-        });
-    },
-
-    set: function(key, value,forceFuction) {
-        if (process.env["REPL_ID"] == undefined || forceFuction) {
-            if (!key)
-                throw new TypeError(
-                    "No key specified."
-                );
-            return arbitrate("set",{
-                stringify: false,
-                id: key,
-                data: value,
-                ops:  {},
-            });
-        }
-        else return fetch(process.env.REPLIT_DB_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: encodeURIComponent(key) + "=" + encodeURIComponent(JSON.stringify(value)),
-        });
-    },
-    has: function(key,forceFuction) {
-        if (process.env["REPL_ID"] == undefined || forceFuction) {
-            if (!key)
-                throw new TypeError(
-                    "No key specified."
-                );
-            return arbitrate("has", { id: key, ops: {} });
-        }
-        else return fetch(process.env.REPLIT_DB_URL + "/" + key)
-            .then((e) => e.text())
-            .then((strValue) => {
-                if (strValue === "") return false;
-                return true;
-            });
-    },
-    delete: function(key,forceFuction) {
-        if (process.env["REPL_ID"] == undefined || forceFuction) {
-            if (!key)
-                throw new TypeError(
-                    "No key specified."
-                );
-            return arbitrate("delete", { id: key, ops: {} });
-        }
-        else return fetch(process.env.REPLIT_DB_URL + "/" + key, {
-            method: "DELETE",
-        });
-    },
-
-    deleteMultiple: function(forceFuction,...args) {
-        if (process.env["REPL_ID"] == undefined || forceFuction) {
-            if (!key)
-                throw new TypeError(
-                    "No key specified."
-                );
-                try {
-                    for (let i of args) {
-                        arbitrate("delete", { id: i, ops: {} });
-                    }
-                    return true;
-                } 
-            catch (err) {
-                return false;
-            }
-        }
-        else {
-            const promises = [];
-
-            for (const arg of args) {
-                promises.push(this.delete(arg));
-            }
-        
-            Promise.all(promises);
-        
-            return this;
-        }
-    },
-
-    empty: async function(forceFuction) {
-        if (process.env["REPL_ID"] == undefined || forceFuction) {
-            return arbitrate("clear");
-        }
-        else {
-            const promises = [];
-            for (const key of await this.list()) {
-                promises.push(this.delete(key));
-            }
-        
-            Promise.all(promises);
-        
-            return this;
-        }
-    },
-
-    list: async function(forceFuction) {
-        if (process.env["REPL_ID"] == undefined || forceFuction) {
-            return arbitrate("all",{ ops: {} });
-        }
-        else {
-            return fetch(
-                this.key + `?encode=true&prefix=${encodeURIComponent(true)}`
-            )
-                .then((r) => r.text())
-                .then((t) => {
-                if (t.length === 0) {
-                    return [];
-                }
-                return t.split("\n").map(decodeURIComponent);
-            });
-        }
+    catch (e) {
+        console.log(e);
+        return false;
     }
 }
+
+function Lget(key) {
+    try {
+        var done = false;
+        var Data = undefined;
+        Database.get(`SELECT * FROM json WHERE ID = (?)`, [key], function(err, row) {
+            Data = row;
+            done = true;
+        });
+        deasync.loopWhile(function(){
+            return !done;
+        });
+        if (Data === undefined) return undefined;
+        return JSON.parse(Data.json);
+    }
+    catch (e) {
+        console.log(e);
+        return false;
+    }
+}
+
+function Lhas(key) {
+    try {
+        var done = false;
+        var Data = undefined;
+        Database.get(`SELECT * FROM json WHERE ID = (?)`, [key], function(err, row) {
+            Data = row;
+            done = true;
+        });
+        deasync.loopWhile(function(){
+            return !done;
+        });
+        if (Data === undefined) return false;
+        return true;
+    }
+    catch (e) {
+        console.log(e);
+        return false;
+    }
+}
+
+function Lremove(key) {
+    try {
+        var done = false;
+        Database.run(`DELETE FROM json WHERE ID = (?)`, [key], function(err) {
+            done = true;
+        });
+        deasync.loopWhile(function(){
+            return !done;
+        });
+        return;
+    }
+    catch (e) {
+        console.log(e);
+        return false;
+    }
+}
+
+function LremoveMultiple(keys) {
+    try {
+        for (const key of keys) {
+            Database.run(`DELETE FROM json WHERE ID = (?)`, [key], function(err) {});
+        }
+        return true;
+    }
+    catch (e) {
+        console.log(e);
+        return false;
+    }
+}
+
+function Llist() {
+    var done = false;
+    var Data = undefined;
+    Database.all(`SELECT * FROM json`,[], function(err, rows) {
+        Data = rows;
+        done = true;
+    });
+    deasync.loopWhile(function(){
+        return !done;
+    });
+    return Data;
+}
+
+function Replit_Set(key, value) {
+    try {
+        var done = false;
+        
+        request({
+            url: process.env.REPLIT_DB_URL,
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },  
+            body: `${encodeURIComponent(key)}=${encodeURIComponent(JSON.stringify(value))}`
+        
+        }, function (error, response, body) {
+            done = true;
+        });
+
+        deasync.loopWhile(function(){
+            return !done;
+        });
+
+        return;
+        
+    }
+    catch (e) {
+        console.log(e);
+        return false;
+    }
+}
+
+function Replit_Get(key) {
+    try {
+        var done = false;
+        var response = null;
+    
+        request(process.env.REPLIT_DB_URL + "/" + key, function (error, res, body) {
+            if (!error && res.statusCode == 200) {
+                response = body;
+            }
+            done = true;
+        });
+    
+        deasync.loopWhile(function(){
+            return !done;
+        });
+    
+        return JSON.parse(response);
+    }
+    catch (e) {
+        console.log(e);
+        return false;
+    }
+}
+
+function Replit_Has(key) {
+    try {
+        var done = false;
+        var response = null;
+
+        request(process.env.REPLIT_DB_URL + "/" + key, function (error, res, body) {
+            if (!error && res.statusCode == 200) {
+                response = body;
+            }
+            done = true;
+        });
+
+        deasync.loopWhile(function(){
+            return !done;
+        });
+
+        return response != null;
+    }
+    catch (e) {
+        console.log(e);
+        return false;
+    }
+}
+
+function Replit_Remove(key) {
+    try {
+        var done = false;
+        request.delete(process.env.REPLIT_DB_URL + "/" + key , function (error, response, body) {
+            done = true;
+        });
+
+        deasync.loopWhile(function(){
+            return !done;
+        });
+
+        return;
+    }
+    catch (e) {
+        console.log(e);
+        return false;
+    }
+}
+function Replit_RemoveMultiple(keys) {
+    try {
+        for (const key of keys) {
+            request.delete(process.env.REPLIT_DB_URL + "/" + key , function (error, response, body) {});
+        }
+        return true;
+    }
+    catch (e) {
+        console.log(e);
+        return false;
+    }
+}
+
+function Replit_List() {
+    var done = false;
+    var response = null;
+
+    request(process.env.REPLIT_DB_URL + "?encode=true" + `&prefix=${encodeURIComponent("")}`, function (error, res, body) {
+        if (!error && res.statusCode == 200) {
+            response = body;
+        }
+        done = true;
+
+    });
+
+    deasync.loopWhile(function(){
+        return !done;
+    });
+
+    if (response.length === 0) {
+        return [];
+    }
+    return response.split("\n").map(decodeURIComponent);
+}
+
 
 var methods = {
     fetch: function(db, params, options) {
         let fetched = db.prepare(`SELECT * FROM ${options.table} WHERE ID = (?)`).get(params.id);
         if (!fetched) return null;
         try { 
-            fetched = JSON.parse(fetched.json)
+            fetched = JSON.parse(fetched.json);
         } catch (e) {
             fetched = fetched.json;
         }
@@ -195,7 +309,7 @@ var methods = {
         }
         if (params.ops.target) {
             try { 
-                fetched = JSON.parse(fetched) 
+                fetched = JSON.parse(fetched); 
             }
             catch (e) {
                 fetched = fetched;
@@ -208,7 +322,7 @@ var methods = {
         else {
             if (fetched.json === '{}') fetched.json = 0;
             try { 
-                fetched.json = JSON.parse(fetched) 
+                fetched.json = JSON.parse(fetched); 
             } catch (e) {
                 fetched.json = fetched.json;
             }
@@ -265,7 +379,7 @@ var methods = {
         }
         if (params.ops.target) {
             fetched = JSON.parse(fetched.json);
-        try { fetched = JSON.parse(fetched) } catch (e) {}
+        try { fetched = JSON.parse(fetched); } catch (e) {}
             params.data = JSON.parse(params.data);
         if (typeof fetched !== 'object') throw new TypeError('Cannot push into a non-object.');
         let oldArray = get(fetched, params.ops.target);
@@ -287,9 +401,9 @@ var methods = {
         let newData = db.prepare(`SELECT * FROM ${options.table} WHERE ID = (?)`).get(params.id).json;
         if (newData === '{}') return null;
         else {
-            newData = JSON.parse(newData)
-        try { newData = JSON.parse(newData) } catch (e) {}
-        return newData
+            newData = JSON.parse(newData);
+        try { newData = JSON.parse(newData); } catch (e) {}
+        return newData;
         }
     },
     delete: function deleteDB(db, params, options) {
@@ -312,7 +426,7 @@ var methods = {
         let fetched = db.prepare(`SELECT * FROM ${options.table} WHERE ID = (?)`).get(params.id);
         if (!fetched) return false;
         else fetched = JSON.parse(fetched.json);
-        try { fetched = JSON.parse(fetched) } catch (e) {}
+        try { fetched = JSON.parse(fetched); } catch (e) {}
         if (params.ops.target) fetched = get(fetched, params.ops.target);
         return (typeof fetched != 'undefined');
     },
@@ -348,7 +462,8 @@ var methods = {
     }
 };
 
-function arbitrate(method, params, tableName) {
+
+function arbitrate(method, params) {
     let options = {table: "json"};
     db.prepare(`CREATE TABLE IF NOT EXISTS ${options.table} (ID TEXT, json TEXT)`).run();
     if (params.ops.target && params.ops.target[0] === ".") params.ops.target = params.ops.target.slice(1); // Remove prefix if necessary
@@ -360,3 +475,56 @@ function arbitrate(method, params, tableName) {
     }
     return methods[method](db, params, options);
 }
+
+
+module.exports = function ChernobyL(Local) {
+    if (Local && process.env["REPL_ID"]) {
+        return {
+            set: Lset,
+            get: Lget,
+            has: Lhas,
+            delete: Lremove,
+            deleteMultiple: LremoveMultiple,
+            list: Llist
+        };
+    } else if (!Local && process.env["REPL_ID"]) {
+        return {
+            set: Replit_Set,
+            get: Replit_Get,
+            has: Replit_Has,
+            delete: Replit_Remove,
+            deleteMultiple: Replit_RemoveMultiple,
+            list: Replit_List
+        };
+    }
+    else if (Local && !process.env["REPL_ID"]) {
+        return {
+            set: Lset,
+            get: Lget,
+            has: Lhas,
+            delete: Lremove,
+            deleteMultiple: LremoveMultiple,
+            list: Llist
+        };
+    }
+    else if (!Local && !process.env["REPL_ID"]) {
+        return {
+            set: Lset,
+            get: Lget,
+            has: Lhas,
+            delete: Lremove,
+            deleteMultiple: LremoveMultiple,
+            list: Llist
+        };
+    }
+    else {
+        return {
+            set: Lset,
+            get: Lget,
+            has: Lhas,
+            delete: Lremove,
+            deleteMultiple: LremoveMultiple,
+            list: Llist
+        };
+    }
+};

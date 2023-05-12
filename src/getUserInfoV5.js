@@ -57,5 +57,5 @@ module.exports = function(defaultFuncs, api, ctx) {
     return callback(err);
   });
     return returnPromise;
-    }
+    };
 };

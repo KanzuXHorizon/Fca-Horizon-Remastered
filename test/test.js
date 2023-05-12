@@ -358,7 +358,7 @@ describe('Login:', function() {
         assert(getType(v.type) === "String");
         assert(v.hasOwnProperty("profileUrl"));  // This can be null if the account is disabled
         assert(getType(v.isBirthday) === "Boolean");
-      })
+      });
       done();
     } catch(e){
       done(e);

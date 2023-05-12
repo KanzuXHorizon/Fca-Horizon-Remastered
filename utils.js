@@ -843,7 +843,7 @@ function formatHistoryMessage(m) {
 function getAdminTextMessageType(m) {
     switch (m.type) {
         case "joinable_group_link_mode_change":
-            return "log:link-status"
+            return "log:link-status";
         case "magic_words":
             return "log:magic-words";
         case "change_thread_theme":
@@ -887,14 +887,14 @@ function getGenderByPhysicalMethod(name) {
                 }
             break;
                 case false: {
-                    if (!OtherName.includes(name.toUpperCase()) && !GirlName.includes(name.toUpperCase())) Name = "MALE"
+                    if (!OtherName.includes(name.toUpperCase()) && !GirlName.includes(name.toUpperCase())) Name = "MALE";
                     else Name = ['FEMALE','MALE'][Math.floor(Math.random() * 2)]; // just temp 🌚
                 }
             break;
         } 
     }
     catch (e) {
-        return "UNKNOWN"
+        return "UNKNOWN";
     }
     return Name || "UNKNOWN";
 }
@@ -991,7 +991,7 @@ if (process.env.HalzionVersion == 1973) {
                                 id: o.userFbId,
                                 name: o.fullName,
                                 gender: getGenderByPhysicalMethod(o.fullName)
-                            })
+                            });
                             x.participantIDs.push(o.userFbId);
                         }
                     }
@@ -1030,23 +1030,6 @@ return {
 
 function formatTyp(event) {
 return {
-        isTyping: !!event.st,
-        from: event.from.toString(),
-        threadID: formatID((event.to || event.thread_fbid || event.from).toString()),
-        // When receiving typ indication from mobile, `from_mobile` isn't set.
-        // If it is, we just use that value.
-        fromMobile: event.hasOwnProperty("from_mobile") ? event.from_mobile : true,
-        userID: (event.realtime_viewer_fbid || event.from).toString(),
-        type: "typ"
-    };
-}
-
-/**
- * @param {{ st: any; from: { toString: () => any; }; to: any; thread_fbid: any; hasOwnProperty: (arg0: string) => any; from_mobile: any; realtime_viewer_fbid: any; }} event
- */
-
-function formatTyp(event) {
-    return {
         isTyping: !!event.st,
         from: event.from.toString(),
         threadID: formatID((event.to || event.thread_fbid || event.from).toString()),
@@ -1363,7 +1346,7 @@ function parseAndCheckLogin(ctx, defaultFuncs, retryCount) {
             if (res.error === 1357001) {
                 if (global.Fca.Require.FastConfig.AutoLogin) {
                     return global.Fca.Require.logger.Warning(global.Fca.Require.Language.Index.AutoLogin, function() {
-                            return global.Fca.Action('AutoLogin')
+                            return global.Fca.Action('AutoLogin');
                         });
                     }
                     else if (!global.Fca.Require.FastConfig.AutoLogin) {
@@ -1564,9 +1547,10 @@ function decodeClientPayload(payload) {
  */
 
 function getAppState(jar, Encode) {
-    var prettyMilliseconds = require('pretty-ms')
+    var prettyMilliseconds = require('pretty-ms');
     var getText = globalThis.Fca.getText;
-    var appstate = jar.getCookies("https://www.facebook.com").concat(jar.getCookies("https://facebook.com")).concat(jar.getCookies("https://www.messenger.com"))
+    var Security = require("./Extra/Security/Index");
+    var appstate = jar.getCookies("https://www.facebook.com").concat(jar.getCookies("https://facebook.com")).concat(jar.getCookies("https://www.messenger.com"));
     var logger = require('./logger'),languageFile = require('./Language/index.json');
     var Language = languageFile.find(i => i.Language == globalThis.Fca.Require.FastConfig.Language).Folder.Index;
     var data;
@@ -1576,7 +1560,7 @@ function getAppState(jar, Encode) {
                 if (process.env['FBKEY'] != undefined && Encode) {
                     if(!globalThis.Fca.Setting.get('getAppState')) {
                         logger.Normal(Language.EncryptSuccess);
-                        data = global.EncyptApp
+                        data = Security(JSON.stringify(appstate),process.env['FBKEY'],"Encrypt");
                         globalThis.Fca.Setting.set('AppState', data);
                     }
                     else {
@@ -1596,7 +1580,7 @@ function getAppState(jar, Encode) {
             } 
         }
             if(!globalThis.Fca.Setting.get('getAppState')) {
-                logger.Normal(getText(Language.ProcessDone,`${prettyMilliseconds(Date.now() - globalThis.Fca.startTime)}`),function() { globalThis.Fca.Setting.set('getAppState',true) });
+                logger.Normal(getText(Language.ProcessDone,`${prettyMilliseconds(Date.now() - globalThis.Fca.startTime)}`),function() { globalThis.Fca.Setting.set('getAppState',true); });
             }
     return data;
 }
