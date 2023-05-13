@@ -55,10 +55,9 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
             origin: 'https://www.facebook.com',
             protocolVersion: 13
         },
-        keepalive: 10,
+        keepalive: 60,
         reschedulePings: true,
-        connectTimeout: 10000,
-        reconnectPeriod: 1000
+        reconnectPeriod: 3
     };
 
     if (typeof ctx.globalOptions.proxy != "undefined") {
@@ -68,108 +67,14 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     ctx.mqttClient = new mqtt.Client(_ => websocket(host, options.wsOptions), options);
     var mqttClient = ctx.mqttClient;
 
-    if (process.env.OnStatus == undefined && global.Fca.Require.FastConfig.RestartMQTT_Minutes != 0) { 
+    if (global.Fca.Require.FastConfig.RestartMQTT_Minutes != 0) { 
         setInterval(() => {
-            mqttClient.end();
-            global.Fca.Require.logger.Normal('Restarting MQTT Client...');
-            restartMQTT();
-        }, global.Fca.Require.FastConfig.RestartMQTT_Minutes * 60000);
-    }
-
-    function restartMQTT() {
-        global.Fca.Require.logger.Normal('Restarting MQTT Client Sucessfully');
-
-        const newClient = new mqtt.Client(_ => websocket(host, options.wsOptions), options);
-
-        mqttClient = newClient;
-        ctx.mqttClient = newClient;
-
-        mqttClient.on('connect', function () {
-        
-        topics.forEach(topicsub => mqttClient.subscribe(topicsub));
-
-        var topic;
-        var queue = {
-            sync_api_version: 11,
-            max_deltas_able_to_process: 100,
-            delta_batch_size: 500,
-            encoding: "JSON",
-            entity_fbid: ctx.userID,
-        };
-
-        if (ctx.syncToken) {
-            topic = "/messenger_sync_get_diffs";
-            queue.last_seq_id = ctx.lastSeqId;
-            queue.sync_token = ctx.syncToken;
-        } else {
-            topic = "/messenger_sync_create_queue";
-            queue.initial_titan_sequence_id = ctx.lastSeqId;
-            queue.device_params = null;
-        }
-        mqttClient.publish(topic, JSON.stringify(queue), { qos: 1, retain: false });
-
-        var rTimeout = setTimeout(function () {
-            mqttClient.end();
-            getSeqID();
-        }, 3000);
-
-        ctx.tmsWait = function () {
-            clearTimeout(rTimeout);
-            ctx.globalOptions.emitReady ? globalCallback({type: "ready",error: null}) : '';
-            delete ctx.tmsWait;
-        };
-    });
-
-    mqttClient.on('message', function (topic, message, _packet) {
-            const jsonMessage = JSON.parse(message.toString());
-        if (topic === "/t_ms") {
-            if (ctx.tmsWait && typeof ctx.tmsWait == "function") ctx.tmsWait();
-
-            if (jsonMessage.firstDeltaSeqId && jsonMessage.syncToken) {
-                ctx.lastSeqId = jsonMessage.firstDeltaSeqId;
-                ctx.syncToken = jsonMessage.syncToken;
-            }
-
-            if (jsonMessage.lastIssuedSeqId) ctx.lastSeqId = parseInt(jsonMessage.lastIssuedSeqId);
-            //If it contains more than 1 delta
-            for (var i in jsonMessage.deltas) {
-                var delta = jsonMessage.deltas[i];
-                parseDelta(defaultFuncs, api, ctx, globalCallback, { "delta": delta });
-            }
-        } else if (topic === "/thread_typing" || topic === "/orca_typing_notifications") {
-            var typ = {
-                type: "typ",
-                isTyping: !!jsonMessage.state,
-                from: jsonMessage.sender_fbid.toString(),
-                threadID: utils.formatID((jsonMessage.thread || jsonMessage.sender_fbid).toString())
-            };
-            (function () { globalCallback(null, typ); })();
-        } else if (topic === "/orca_presence") {
-            if (!ctx.globalOptions.updatePresence) {
-                for (var i in jsonMessage.list) {
-                    var data = jsonMessage.list[i];
-                    var userID = data["u"];
-
-                    var presence = {
-                        type: "presence",
-                        userID: userID.toString(),
-                        //Convert to ms
-                        timestamp: data["l"] * 1000,
-                        statuses: data["p"]
-                    };
-                    (function () { globalCallback(null, presence); })();
-                }
-            }
-        }
-
-    });
-        newClient.on('error', (error) => {
-            console.log(`MQTT client error: ${error}`);
-            newClient.end(); // Close the new client connection
-            setTimeout(restartMQTT, 5000); // Wait for 5 seconds before retrying
-        });
-        mqttClient = newClient;
-        return ctx.mqttClient = newClient; 
+            global.Fca.Require.logger.Warning("Closing MQTT Client...");
+            ctx.mqttClient.end(false, function () {
+                global.Fca.Require.logger.Warning("Reconnecting MQTT Client...");
+                ctx.mqttClient.reconnect();
+            });
+        }, Number(global.Fca.Require.FastConfig.RestartMQTT_Minutes) * 60000);
     }
 
     mqttClient.on('error', function (err) {
@@ -241,7 +146,8 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     });
 
     mqttClient.on('message', function (topic, message, _packet) {
-            const jsonMessage = JSON.parse(message.toString());
+        const jsonMessage = JSON.parse(message.toString());
+
         if (topic === "/t_ms") {
             if (ctx.tmsWait && typeof ctx.tmsWait == "function") ctx.tmsWait();
 

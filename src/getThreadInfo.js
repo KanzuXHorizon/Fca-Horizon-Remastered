@@ -180,29 +180,24 @@ module.exports = function(defaultFuncs, api, ctx) {
     var SpecialMethod = function(TID) {
       var All = getAll();
       var Real = [];
-
       for (let i of All) {
-          if (JSON.parse(i.json).threadID != undefined) {
-            Real.push(JSON.parse(i.json).threadID);
+          if (i.data.threadID != undefined) {
+            Real.push(i.data.threadID);
           } else continue;
       }
-
-      var AllofThread = [];
-
-      if (Real.length == 0) return;
-      else if (Real.length == 1) {
-        return DefaultMethod(TID);
-      } 
-      else if (All.length > 1) {
-
-        for (let i of All) {
-            if (JSON.parse(i.json).threadID != undefined) {
-              AllofThread.push(JSON.parse(i.json).threadID);
-            } else continue;
-        }
-
-        var Form = {};
-        var ThreadInfo = [];
+    var AllofThread = [];
+    if (Real.length == 0) return;
+    else if (Real.length == 1) {
+      return DefaultMethod(TID);
+    } 
+    else if (All.length > 1) {
+      for (let i of All) {
+        if (i.data.threadID != undefined) {
+          AllofThread.push(i.data.threadID);
+        } else continue;
+      }
+      var Form = {};
+      var ThreadInfo = [];
         
         AllofThread.map(function (x,y) {
           Form["o" + y] = {

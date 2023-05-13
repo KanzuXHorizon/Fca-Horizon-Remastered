@@ -65,15 +65,13 @@ module.exports = async function(SessionID) {
         try {
             let data = [];
             var getAll = await getAll()
-                if (getAll.length == 1) {
-                    return;
-                } else if (getAll.length > 1) {
-                    for (let i of getAll) {
-                        if (i.json || JSON.parse(i.json).messageCount != undefined) {
-                            data.push(JSON.parse(i.json).threadID);
-                        } else continue;
+            if (getAll.length > 1) {
+                getAll.forEach((i) => {
+                    if (i.data.messageCount !== undefined) {
+                        data.push(i.data.threadID);
                     }
-                    deleteAll(data);
+                });
+                deleteAll(data);
                 }
         } catch (e) {
             console.log(e);
