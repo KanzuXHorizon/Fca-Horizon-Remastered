@@ -43,7 +43,11 @@ global.Fca = new Object({
                 "HTML": true,
                 "UserName": "Guest",
                 "MusicLink": "https://drive.google.com/uc?id=1zlAALlxk1TnO7jXtEP_O6yvemtzA2ukA&export=download"
-            }   
+            },
+            "AntiGetInfo": {
+                "AntiGetThreadInfo": true,
+                "AntiGetUserInfo": true
+            }
         },
         CountTime: function() {
             var fs = global.Fca.Require.fs;
@@ -115,8 +119,8 @@ catch (e) {
 }
     if (global.Fca.Require.fs.existsSync(process.cwd() + '/FastConfigFca.json')) {
         try { 
-            if (DataLanguageSetting.RestartMQTT_Minutes == undefined || utils.getType(DataLanguageSetting.RestartMQTT_Minutes) != "Number") {
-                    DataLanguageSetting.RestartMQTT_Minutes = 30;
+            if (DataLanguageSetting.AntiGetInfo == undefined || utils.getType(DataLanguageSetting.AntiGetInfo) != "Object" || DataLanguageSetting.AntiGetInfo.AntiGetThreadInfo == undefined || DataLanguageSetting.AntiGetInfo.AntiGetUserInfo == undefined || utils.getType(DataLanguageSetting.AntiGetInfo.AntiGetThreadInfo) != "Boolean" || utils.getType(DataLanguageSetting.AntiGetInfo.AntiGetUserInfo) != "Boolean") {
+                    DataLanguageSetting.AntiGetInfo = global.Fca.Data.ObjFastConfig.AntiGetInfo;
                 global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));        
             }
         }

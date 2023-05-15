@@ -65,21 +65,20 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
         options.wsOptions.agent = agent;
     }
     ctx.mqttClient = new mqtt.Client(_ => websocket(host, options.wsOptions), options);
-    var mqttClient = ctx.mqttClient;
-
+    global.mqttClient = ctx.mqttClient;
     if (global.Fca.Require.FastConfig.RestartMQTT_Minutes != 0) { 
-        setInterval(() => {
+        setTimeout(() => {
             global.Fca.Require.logger.Warning("Closing MQTT Client...");
-            ctx.mqttClient.end(false, function () {
-                global.Fca.Require.logger.Warning("Reconnecting MQTT Client...");
-                ctx.mqttClient.reconnect();
-            });
+            ctx.mqttClient.end();
+            global.Fca.Require.logger.Warning("Reconnecting MQTT Client...");
+            getSeqID();
         }, Number(global.Fca.Require.FastConfig.RestartMQTT_Minutes) * 60000);
     }
 
-    mqttClient.on('error', function (err) {
+    global.mqttClient.on('error', function (err) {
         log.error("listenMqtt", err);
-        mqttClient.end();
+        global.mqttClient.end();
+
         if (ctx.globalOptions.autoReconnect) getSeqID();
         else {
             globalCallback({ type: "stop_listen", error: "Server Đã Sập - Auto Restart" }, null);
@@ -87,7 +86,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
         }
     });
 
-    mqttClient.on('connect', function () {
+    global.mqttClient.on('connect', function () {
         if (process.env.OnStatus == undefined) {
             global.Fca.Require.logger.Normal(global.Fca.Data.PremText || "Hiện Status Lỗi :s");
             if (Number(global.Fca.Require.FastConfig.AutoRestartMinutes) == 0) {
@@ -111,7 +110,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
             process.env.OnStatus = true;
         }
         
-        topics.forEach(topicsub => mqttClient.subscribe(topicsub));
+        topics.forEach(topicsub => global.mqttClient.subscribe(topicsub));
 
         var topic;
         var queue = {
@@ -122,19 +121,14 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
             entity_fbid: ctx.userID,
         };
 
-        if (ctx.syncToken) {
-            topic = "/messenger_sync_get_diffs";
-            queue.last_seq_id = ctx.lastSeqId;
-            queue.sync_token = ctx.syncToken;
-        } else {
-            topic = "/messenger_sync_create_queue";
-            queue.initial_titan_sequence_id = ctx.lastSeqId;
-            queue.device_params = null;
-        }
-        mqttClient.publish(topic, JSON.stringify(queue), { qos: 1, retain: false });
+        topic = "/messenger_sync_create_queue";
+        queue.initial_titan_sequence_id = ctx.lastSeqId;
+        queue.device_params = null;
+
+        global.mqttClient.publish(topic, JSON.stringify(queue), { qos: 1, retain: false });
 
         var rTimeout = setTimeout(function () {
-            mqttClient.end();
+            global.mqttClient.end();
             getSeqID();
         }, 3000);
 
@@ -145,7 +139,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
         };
     });
 
-    mqttClient.on('message', function (topic, message, _packet) {
+    global.mqttClient.on('message', function (topic, message, _packet) {
         const jsonMessage = JSON.parse(message.toString());
 
         if (topic === "/t_ms") {
@@ -656,7 +650,6 @@ module.exports = function (defaultFuncs, api, ctx) {
                     ctx.mqttClient.unsubscribe("/onevc");
                     ctx.mqttClient.publish("/browser_close", "{}");
                     ctx.mqttClient.end(false, function (...data) {
-                        callback(data);
                         ctx.mqttClient = undefined;
                     });
                 }
