@@ -105,7 +105,8 @@ try {
     let Boolean_Fca = ["AutoUpdate","Uptime","BroadCast","EncryptFeature","AutoLogin","ResetDataLogin","Login2Fa", "DevMode"];
     let String_Fca = ["MainName","PreKey","Language","AuthString","Config"]
     let Number_Fca = ["AutoRestartMinutes","RestartMQTT_Minutes"];
-    let All_Variable = Boolean_Fca.concat(String_Fca,Number_Fca);
+    let Object_Fca = ["HTML","Stable_Version","AntiGetInfo"];
+    let All_Variable = Boolean_Fca.concat(String_Fca,Number_Fca,Object_Fca);
 
 
     if (!global.Fca.Require.fs.existsSync(process.cwd() + '/FastConfigFca.json')) {
@@ -135,11 +136,9 @@ catch (e) {
             global.Fca.Require.logger.Warning("Not Support Language: " + DataLanguageSetting.Language + " Only 'en' and 'vi'");
             process.exit(0); 
         }
-        global.Fca.Require.Language = global.Fca.Require.languageFile.find((/** @type {{ Language: string; }} */i) => i.Language == DataLanguageSetting.Language).Folder;
-    } else process.exit(1);
         for (let i of All_Variable) {
-            if (DataLanguageSetting[All_Variable[i]] == undefined) {
-                DataLanguageSetting[All_Variable[i]] = global.Fca.Data.ObjFastConfig[All_Variable[i]];
+            if (DataLanguageSetting[i] == undefined) {
+                DataLanguageSetting[i] = global.Fca.Data.ObjFastConfig[i];
                 global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));
             }
             else continue; 
@@ -157,7 +156,16 @@ catch (e) {
                 if (global.Fca.Require.utils.getType(DataLanguageSetting[i]) != "Number") return logger.Error(i + " Is Not A Number, Need To Be Number !", function() { process.exit(0) });
                 else continue;
             }
+            else if (Object_Fca.includes(i)) {
+                if (global.Fca.Require.utils.getType(DataLanguageSetting[i]) != "Object") {
+                    DataLanguageSetting[i] = global.Fca.Data.ObjFastConfig[i];
+                    global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));
+                }
+                else continue;
+            }
         }
+        global.Fca.Require.Language = global.Fca.Require.languageFile.find((/** @type {{ Language: string; }} */i) => i.Language == DataLanguageSetting.Language).Folder;
+    } else process.exit(1);
     global.Fca.Require.FastConfig = DataLanguageSetting;
 }
 catch (e) {
