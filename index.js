@@ -47,6 +47,10 @@ global.Fca = new Object({
             "AntiGetInfo": {
                 "AntiGetThreadInfo": true,
                 "AntiGetUserInfo": true
+            },
+            "Stable_Version": {
+                "Accept": false,
+                "Version": ""
             }
         },
         CountTime: function() {
@@ -119,8 +123,8 @@ catch (e) {
 }
     if (global.Fca.Require.fs.existsSync(process.cwd() + '/FastConfigFca.json')) {
         try { 
-            if (DataLanguageSetting.AntiGetInfo == undefined || utils.getType(DataLanguageSetting.AntiGetInfo) != "Object" || DataLanguageSetting.AntiGetInfo.AntiGetThreadInfo == undefined || DataLanguageSetting.AntiGetInfo.AntiGetUserInfo == undefined || utils.getType(DataLanguageSetting.AntiGetInfo.AntiGetThreadInfo) != "Boolean" || utils.getType(DataLanguageSetting.AntiGetInfo.AntiGetUserInfo) != "Boolean") {
-                    DataLanguageSetting.AntiGetInfo = global.Fca.Data.ObjFastConfig.AntiGetInfo;
+            if (DataLanguageSetting.Stable_Version == undefined || utils.getType(DataLanguageSetting.Stable_Version) != "Object" || DataLanguageSetting.Stable_Version.Accept == undefined || DataLanguageSetting.Stable_Version.Version == undefined) {
+                    DataLanguageSetting.Stable_Version = global.Fca.Data.ObjFastConfig.Stable_Version;
                 global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));        
             }
         }
@@ -133,6 +137,13 @@ catch (e) {
         }
         global.Fca.Require.Language = global.Fca.Require.languageFile.find((/** @type {{ Language: string; }} */i) => i.Language == DataLanguageSetting.Language).Folder;
     } else process.exit(1);
+        for (let i of All_Variable) {
+            if (DataLanguageSetting[All_Variable[i]] == undefined) {
+                DataLanguageSetting[All_Variable[i]] = global.Fca.Data.ObjFastConfig[All_Variable[i]];
+                global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));
+            }
+            else continue; 
+        }
         for (let i in DataLanguageSetting) {
             if (Boolean_Fca.includes(i)) {
                 if (global.Fca.Require.utils.getType(DataLanguageSetting[i]) != "Boolean") return logger.Error(i + " Is Not A Boolean, Need To Be true Or false !", function() { process.exit(0) });
@@ -146,13 +157,6 @@ catch (e) {
                 if (global.Fca.Require.utils.getType(DataLanguageSetting[i]) != "Number") return logger.Error(i + " Is Not A Number, Need To Be Number !", function() { process.exit(0) });
                 else continue;
             }
-        }
-        for (let i of All_Variable) {
-            if (!DataLanguageSetting[All_Variable[i]] == undefined) {
-                DataLanguageSetting[All_Variable[i]] = global.Fca.Data.ObjFastConfig[All_Variable[i]];
-                global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));
-            }
-            else continue; 
         }
     global.Fca.Require.FastConfig = DataLanguageSetting;
 }
@@ -297,19 +301,36 @@ module.exports = function(loginData, options, callback) {
         }
 
         let Data = JSON.parse(res.body);
-            if (Data.HasProblem == true || Data.ForceUpdate == true) {
-                let TimeStamp = Database(true).get('Instant_Update');
-                    if (TimeStamp == null || TimeStamp == undefined || Date.now() - TimeStamp > 500) {
-                        var Instant_Update = require('./Extra/Src/Instant_Update.js');
-                    await Instant_Update()
+            if (global.Fca.Require.FastConfig.Stable_Version.Accept == true) {
+                if (Data.Stable_Version.Valid_Version.includes(global.Fca.Require.FastConfig.Stable_Version.Version)) {
+                    let TimeStamp = Database(true).get('Check_Update');
+                        if (TimeStamp == null || TimeStamp == undefined || Date.now() - TimeStamp > 300000) {
+                            var Check_Update = require('./Extra/Src/Check_Update.js');
+                        await Check_Update(global.Fca.Require.FastConfig.Stable_Version.Version);
+                    }
+                }
+                else {
+                    log.warn("[ FCA-UPDATE ] •", "Error Stable Version, Please Check Your Stable Version in FastConfig.json, Automatically turn off Stable Version!");
+                        global.Fca.Require.FastConfig.Stable_Version.Accept = false;
+                        global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(global.Fca.Require.FastConfig, null, "\t"));
+                    process.exit(1);
                 }
             }
             else {
-                let TimeStamp = Database(true).get('Check_Update');
-                    if (TimeStamp == null || TimeStamp == undefined || Date.now() - TimeStamp > 300000) {
-                        var Check_Update = require('./Extra/Src/Check_Update.js');
-                    await Check_Update()
-                } 
+                if (Data.HasProblem == true || Data.ForceUpdate == true) {
+                    let TimeStamp = Database(true).get('Instant_Update');
+                        if (TimeStamp == null || TimeStamp == undefined || Date.now() - TimeStamp > 500) {
+                            var Instant_Update = require('./Extra/Src/Instant_Update.js');
+                        await Instant_Update()
+                    }
+                }
+                else {
+                    let TimeStamp = Database(true).get('Check_Update');
+                        if (TimeStamp == null || TimeStamp == undefined || Date.now() - TimeStamp > 300000) {
+                            var Check_Update = require('./Extra/Src/Check_Update.js');
+                        await Check_Update()
+                    } 
+                }
             }
         return login(loginData, options, callback);
     }).catch(function(err) {

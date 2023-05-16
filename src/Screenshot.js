@@ -1,7 +1,7 @@
 /* eslint-disable linebreak-style */
 "use strict";
 
-var logger = require('../logger');
+
 module.exports = function (defaultFuncs, api, ctx) {
     var Coookie = JSON.parse(JSON.stringify(ctx.jar.getCookies("https://www.facebook.com").concat(ctx.jar.getCookies("https://facebook.com")).concat(ctx.jar.getCookies("https://www.messenger.com"))));
     for (let i of Coookie) {
@@ -10,6 +10,7 @@ module.exports = function (defaultFuncs, api, ctx) {
         delete i.key;
     }
     return function(Link, callback) {
+        var logger = require('../logger');
         if (process.platform != 'win32') return logger.Error('Not Supported Platform');
         else try {
             let i = require('puppeteer');
