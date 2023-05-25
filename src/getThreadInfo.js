@@ -178,14 +178,46 @@ module.exports = function(defaultFuncs, api, ctx) {
 
 
     var SpecialMethod = function(TID) {
-      var All = getAll();
-      var Real = [];
+      const All = getAll();
+      const Real = [];
+      const Average = [];
       for (let i of All) {
-          if (i.data.threadID != undefined) {
+        if (i.data.threadID != undefined) {
+          if (i.data.TimeCreate + 900 * 1000 <= Date.now()) {
             Real.push(i.data.threadID);
-          } else continue;
+          }
+          else {
+            Average.push({
+              threadID: i.data.threadID,
+              TimeCreate: i.data.TimeCreate
+            });
+            continue;
+          }
+        } else continue;
       }
-    var AllofThread = [];
+    const AllofThread = [];
+    if (Average.length > 0) {
+      var Time = 0;
+      for (let i of Average) {
+        Time += i.TimeCreate;
+      }
+      Time = Time / Average.length;
+      if (Time + 900 * 1000 <= Date.now()) {
+        for (let i of Average) {
+          Real.push(i.threadID);
+        }
+      } //can't =))
+      else {
+        setTimeout(function () {
+          SpecialMethod(TID);
+        }, Time + 900 * 1000 - Date.now());
+      }
+    }
+    else {
+      setTimeout(function () {
+        SpecialMethod(TID);
+      }, 900 * 1000);
+    }
     if (Real.length == 0) return;
     else if (Real.length == 1) {
       return DefaultMethod(TID);
@@ -381,15 +413,11 @@ module.exports = function(defaultFuncs, api, ctx) {
         throw err;
       });
     };
-    if (global.Fca.Data.Already != true) SpecialMethod(threadID); 
-    global.Fca.Data.Already = true;
+    if (global.Fca.Data.Already != true) { SpecialMethod(threadID); global.Fca.Data.Already = true; } 
+    
 
 
-    setInterval(function(){
-      Database(true).set('UserInfo', global.Fca.Data.Userinfo);
-        global.Fca.Data.Userinfo = [];
-      SpecialMethod(threadID);
-    }, 900 * 1000);
+    setInterval(function(){Database(true).set('UserInfo', global.Fca.Data.Userinfo);global.Fca.Data.Userinfo = [];}, 900 * 1000);
     try {
       for (let i of threadID) {
         switch (hasData(i)) {

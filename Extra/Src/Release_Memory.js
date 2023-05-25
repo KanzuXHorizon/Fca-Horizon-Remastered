@@ -18,7 +18,7 @@ var releaseMemory = function () {
         global.gc();
     } else {
         var v8 = require("v8");
-        var vm = require('vm');
+        var vm = require('node:vm');
         v8.setFlagsFromString('--expose_gc');
         vm.runInNewContext('gc');
     }

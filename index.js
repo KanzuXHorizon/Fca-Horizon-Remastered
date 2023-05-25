@@ -45,6 +45,7 @@ global.Fca = new Object({
                 "MusicLink": "https://drive.google.com/uc?id=1zlAALlxk1TnO7jXtEP_O6yvemtzA2ukA&export=download"
             },
             "AntiGetInfo": {
+                "Database_Type": "default", //json or default
                 "AntiGetThreadInfo": true,
                 "AntiGetUserInfo": true
             },
@@ -115,7 +116,7 @@ try {
     }
 
 try {
-    var DataLanguageSetting = require(process.cwd() + "/FastConfigFca.json");
+    var Data_Setting = require(process.cwd() + "/FastConfigFca.json");
 }
 catch (e) {
     global.Fca.Require.logger.Error('Detect Your FastConfigFca Settings Invalid!, Carry out default restoration');
@@ -124,49 +125,49 @@ catch (e) {
 }
     if (global.Fca.Require.fs.existsSync(process.cwd() + '/FastConfigFca.json')) {
         try { 
-            if (DataLanguageSetting.Stable_Version == undefined || utils.getType(DataLanguageSetting.Stable_Version) != "Object" || DataLanguageSetting.Stable_Version.Accept == undefined || DataLanguageSetting.Stable_Version.Version == undefined) {
-                    DataLanguageSetting.Stable_Version = global.Fca.Data.ObjFastConfig.Stable_Version;
-                global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));        
+            if (Data_Setting.AntiGetInfo != undefined && Data_Setting.AntiGetInfo.Database_Type == undefined) {
+                    Data_Setting.AntiGetInfo.Database_Type = "Default";
+                global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(Data_Setting, null, "\t"));        
             }
         }
         catch (e) {
             console.log(e);
         }
-        if (!global.Fca.Require.languageFile.some((/** @type {{ Language: string; }} */i) => i.Language == DataLanguageSetting.Language)) { 
-            global.Fca.Require.logger.Warning("Not Support Language: " + DataLanguageSetting.Language + " Only 'en' and 'vi'");
+        if (!global.Fca.Require.languageFile.some((/** @type {{ Language: string; }} */i) => i.Language == Data_Setting.Language)) { 
+            global.Fca.Require.logger.Warning("Not Support Language: " + Data_Setting.Language + " Only 'en' and 'vi'");
             process.exit(0); 
         }
         for (let i of All_Variable) {
-            if (DataLanguageSetting[i] == undefined) {
-                DataLanguageSetting[i] = global.Fca.Data.ObjFastConfig[i];
-                global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));
+            if (Data_Setting[i] == undefined) {
+                Data_Setting[i] = global.Fca.Data.ObjFastConfig[i];
+                global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(Data_Setting, null, "\t"));
             }
             else continue; 
         }
-        for (let i in DataLanguageSetting) {
+        for (let i in Data_Setting) {
             if (Boolean_Fca.includes(i)) {
-                if (global.Fca.Require.utils.getType(DataLanguageSetting[i]) != "Boolean") return logger.Error(i + " Is Not A Boolean, Need To Be true Or false !", function() { process.exit(0) });
+                if (global.Fca.Require.utils.getType(Data_Setting[i]) != "Boolean") return logger.Error(i + " Is Not A Boolean, Need To Be true Or false !", function() { process.exit(0) });
                 else continue;
             }
             else if (String_Fca.includes(i)) {
-                if (global.Fca.Require.utils.getType(DataLanguageSetting[i]) != "String") return logger.Error(i + " Is Not A String, Need To Be String!", function() { process.exit(0) });
+                if (global.Fca.Require.utils.getType(Data_Setting[i]) != "String") return logger.Error(i + " Is Not A String, Need To Be String!", function() { process.exit(0) });
                 else continue;
             }
             else if (Number_Fca.includes(i)) {
-                if (global.Fca.Require.utils.getType(DataLanguageSetting[i]) != "Number") return logger.Error(i + " Is Not A Number, Need To Be Number !", function() { process.exit(0) });
+                if (global.Fca.Require.utils.getType(Data_Setting[i]) != "Number") return logger.Error(i + " Is Not A Number, Need To Be Number !", function() { process.exit(0) });
                 else continue;
             }
             else if (Object_Fca.includes(i)) {
-                if (global.Fca.Require.utils.getType(DataLanguageSetting[i]) != "Object") {
-                    DataLanguageSetting[i] = global.Fca.Data.ObjFastConfig[i];
-                    global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(DataLanguageSetting, null, "\t"));
+                if (global.Fca.Require.utils.getType(Data_Setting[i]) != "Object") {
+                    Data_Setting[i] = global.Fca.Data.ObjFastConfig[i];
+                    global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(Data_Setting, null, "\t"));
                 }
                 else continue;
             }
         }
-        global.Fca.Require.Language = global.Fca.Require.languageFile.find((/** @type {{ Language: string; }} */i) => i.Language == DataLanguageSetting.Language).Folder;
+        global.Fca.Require.Language = global.Fca.Require.languageFile.find((/** @type {{ Language: string; }} */i) => i.Language == Data_Setting.Language).Folder;
     } else process.exit(1);
-    global.Fca.Require.FastConfig = DataLanguageSetting;
+    global.Fca.Require.FastConfig = Data_Setting;
 }
 catch (e) {
     console.log(e);

@@ -64,7 +64,7 @@ module.exports = async function(SessionID) {
     if (process.env.HalzionVersion == 1973) {
         try {
             let data = [];
-            var getAll = await getAll()
+            var getAll = await getAll();
             if (getAll.length > 1) {
                 getAll.forEach((i) => {
                     if (i.data.messageCount !== undefined) {
@@ -72,7 +72,7 @@ module.exports = async function(SessionID) {
                     }
                 });
                 deleteAll(data);
-                }
+            }
         } catch (e) {
             console.log(e);
         }
