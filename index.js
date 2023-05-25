@@ -126,7 +126,7 @@ catch (e) {
     if (global.Fca.Require.fs.existsSync(process.cwd() + '/FastConfigFca.json')) {
         try { 
             if (Data_Setting.AntiGetInfo != undefined && Data_Setting.AntiGetInfo.Database_Type == undefined) {
-                    Data_Setting.AntiGetInfo.Database_Type = "Default";
+                    Data_Setting.AntiGetInfo.Database_Type = "default";
                 global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(Data_Setting, null, "\t"));        
             }
         }
