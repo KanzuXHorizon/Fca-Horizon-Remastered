@@ -1,16 +1,20 @@
 /* eslint-disable no-redeclare */
 "use strict";
-var utils = require("../utils");
-var log = require("npmlog");
-var mqtt = require('mqtt');
-var websocket = require('websocket-stream');
-var HttpsProxyAgent = require('https-proxy-agent');
+const utils = require("../utils");
+const log = require("npmlog");
+const mqtt = require('mqtt');
+const Websocket = require('ws');
+const HttpsProxyAgent = require('https-proxy-agent');
 const EventEmitter = require('events');
+const Duplexify = require('duplexify');
+const Transform = require('readable-stream').Transform;
+const Buffer = require('safe-buffer').Buffer;
 var identity = function () { };
 var form = {};
 var getSeqID = function () { };
 
-var topics = ["/legacy_web","/webrtc","/rtc_multi","/onevc","/br_sr","/sr_res","/t_ms","/thread_typing","/orca_typing_notifications","/notify_disconnect","/orca_presence","/inbox","/mercury", "/messaging_events", "/orca_message_notifications", "/pp","/webrtc_response"];
+
+var topics = ["/ls_req","/ls_resp","/legacy_web","/webrtc","/rtc_multi","/onevc","/br_sr","/sr_res","/t_ms","/thread_typing","/orca_typing_notifications","/notify_disconnect","/orca_presence","/inbox","/mercury", "/messaging_events", "/orca_message_notifications", "/pp","/webrtc_response"];
 
 /* [ Noti ? ]
 !   "/br_sr", //Notification
@@ -23,8 +27,78 @@ var topics = ["/legacy_web","/webrtc","/rtc_multi","/onevc","/br_sr","/sr_res","
     * => Will receive /sr_res right here.
   */
 
+var WebSocket_Global;
+
+function buildProxy() {
+    var Proxy = new Transform({
+        objectMode: false
+    });
+
+    Proxy._write = function socketWriteNode(chunk, enc, next) {
+        if (WebSocket_Global.readyState !== WebSocket_Global.OPEN) {
+            return next();
+        }
+    
+        if (typeof chunk === 'string') {
+            chunk = Buffer.from(chunk, 'utf8');
+        }
+        WebSocket_Global.send(chunk, next);
+    };
+
+    Proxy._flush = function(done) {
+        WebSocket_Global.close();
+        done();
+    };
+
+    Proxy._writev = function(chunks, cb) {
+        var buffers = new Array(chunks.length);
+        for (var i = 0; i < chunks.length; i++) {
+            if (typeof chunks[i].chunk === 'string') {
+                buffers[i] = Buffer.from(chunks[i], 'utf8');
+            } else {
+                buffers[i] = chunks[i].chunk;
+            }
+        }
+        this._write(Buffer.concat(buffers), 'binary', cb);
+    };
+
+    return Proxy;
+}
+
+function buildStream(options, WebSocket, Proxy) {
+    const Stream = Duplexify(undefined, undefined, options);
+    Stream.socket = WebSocket;
+    
+    WebSocket 
+        .onclose = function() {
+            Stream.end();
+            Stream.destroy();
+        };
+    WebSocket
+        .onerror = function(err) {
+            Stream.destroy(err);
+        };
+    WebSocket
+        .onmessage = function(event) {
+            var data = event.data;
+            if (data instanceof ArrayBuffer) data = Buffer.from(data);
+            else data = Buffer.from(data, 'utf8');
+            Stream.push(data);
+        };
+    WebSocket
+        .onopen = function() {
+            Stream.setReadable(Proxy);
+            Stream.setWritable(Proxy);
+            Stream.emit('connect');
+        };
+    WebSocket_Global = WebSocket;
+    Proxy.on('close', function() { WebSocket.close(); });
+    return Stream;
+}
+
+
 function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
-    //Don't really know what this does but I think it's for the active state?
+    //Don't really know what this does but I think it's for the act`ive state?
     //TODO: Move to ctx when implemented
     var chatOn = ctx.globalOptions.online;
     var foreground = false;
@@ -53,7 +127,8 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
                 'Host': new URL(host).hostname //'edge-chat.facebook.com'
             },
             origin: 'https://www.facebook.com',
-            protocolVersion: 13
+            protocolVersion: 13,
+            binaryType: 'arraybuffer',
         },
         keepalive: 60,
         reschedulePings: true,
@@ -64,7 +139,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
         var agent = new HttpsProxyAgent(ctx.globalOptions.proxy);
         options.wsOptions.agent = agent;
     }
-    ctx.mqttClient = new mqtt.Client(_ => websocket(host, options.wsOptions), options);
+    ctx.mqttClient = new mqtt.Client(_ => buildStream(options, new Websocket(host, options.wsOptions), buildProxy()), options);
     global.mqttClient = ctx.mqttClient;
 
     global.mqttClient.on('error', function (err) {
@@ -216,7 +291,7 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
         if (ctx.globalOptions.pageID && ctx.globalOptions.pageID != v.queue) return;
 
         (function resolveAttachmentUrl(i) {
-            if (v.delta.attachments && (i == v.delta.attachments.length)) {
+            if (v.delta.attachments && (i == v.delta.attachments.length) || utils.getType(v.delta.attachments) !== "Array") {
                 var fmtMsg;
                 try {
                     fmtMsg = utils.formatDeltaMessage(v);
@@ -426,10 +501,8 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
             return;
         }
     }
-
-    if (v.delta.class !== "NewMessage" && !ctx.globalOptions.listenEvents) return;
     switch (v.delta.class) {
-        case "ReadReceipt":
+        case "ReadReceipt": {
             var fmtMsg;
             try {
                 fmtMsg = utils.formatDeltaReadReceipt(v.delta);
@@ -437,10 +510,12 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
                 return log.error("Lỗi Nhẹ", err);
             }
             return (function () { globalCallback(null, fmtMsg); })();
-        case "AdminTextMessage":
+        }
+        case "AdminTextMessage": {
             switch (v.delta.type) {
                 case "joinable_group_link_mode_change":
                 case "magic_words":
+                case "pin_messages_v2":
                 case "change_thread_theme":
                 case "change_thread_icon":
                 case "change_thread_nickname":
@@ -453,14 +528,15 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
                     try {
                         fmtMsg = utils.formatDeltaEvent(v.delta);
                     } catch (err) {
+                        console.log(v.delta)
                         return log.error("Lỗi Nhẹ", err);
                     }
                     return (function () { globalCallback(null, fmtMsg); })();
-                default:
-                    return;
-            }
+                }
+            break;
+        }
         //For group images
-        case "ForcedFetch":
+        case "ForcedFetch": {
             if (!v.delta.threadKey) return;
             var mid = v.delta.messageId;
             var tid = v.delta.threadKey.threadFbId;
@@ -576,18 +652,35 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
                         } else log.error("forcedFetch", fetchData);
                     })
                     .catch((err) => log.error("forcedFetch", err));
+                }
             }
             break;
         case "ThreadName":
         case "ParticipantsAddedToGroupThread":
-        case "ParticipantLeftGroupThread":
+        case "ParticipantLeftGroupThread": {
             var formattedEvent;
             try {
                 formattedEvent = utils.formatDeltaEvent(v.delta);
             } catch (err) {
+                console.log(err)
                 return log.error("Lỗi Nhẹ", err);
             }
             return (!ctx.globalOptions.selfListen && formattedEvent.author.toString() === ctx.userID) || !ctx.loggedIn ? undefined : (function () { globalCallback(null, formattedEvent); })();
+        }
+        case "NewMessage": {
+            if (v.delta.attachments != undefined && v.delta.attachments.length == 1 && v.delta.attachments[0].mercury.extensible_attachment != undefined && v.delta.attachments[0].mercury.extensible_attachment.story_attachment.style_list.includes("message_live_location")) {
+                v.delta.class = "UserLocation";
+                var fmtMsg;
+                try {
+                    fmtMsg = utils.formatDeltaEvent(v.delta);
+                } catch (err) {
+                    console.log(v.delta);
+                    return log.error("Lỗi Nhẹ", err);
+                }
+                return (function () { globalCallback(null, fmtMsg); })();
+            }
+        }
+        break;
     }
 }
 

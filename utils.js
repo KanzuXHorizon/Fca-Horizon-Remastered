@@ -861,6 +861,8 @@ function getAdminTextMessageType(m) {
         case "messenger_call_log":
         case "participant_joined_group_call":
             return "log:thread-call";
+        case "pin_messages_v2":
+            return "log:thread-pinned";
     }
 }
 
@@ -925,6 +927,15 @@ switch (m.class) {
         logMessageType = "log:unsubscribe";
         logMessageData = { leftParticipantFbId: m.leftParticipantFbId };
     break;
+    case "UserLocation": {
+        logMessageType = "log:user-location";
+        logMessageData = {
+            Image: m.attachments[0].mercury.extensible_attachment.story_attachment.media.image,
+            Location: m.attachments[0].mercury.extensible_attachment.story_attachment.target.location_title,
+            coordinates: m.attachments[0].mercury.extensible_attachment.story_attachment.target.coordinate,
+            url: m.attachments[0].mercury.extensible_attachment.story_attachment.url
+        };
+    }
 }
 
 if (process.env.HalzionVersion == 1973) { 

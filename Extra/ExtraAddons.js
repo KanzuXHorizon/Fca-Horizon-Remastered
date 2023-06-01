@@ -6,7 +6,7 @@ var OTP = require('totp-generator');
 
 module.exports.getInfo = async function (id,jar,ctx,defaultFuncs) {
     var AccessToken = await module.exports.getAccessToken(jar,ctx,defaultFuncs);
-    var { body:Data } = await utils.get(`https://graph.facebook.com/${id}?fields=name,first_name,email,about,birthday,gender,website,hometown,link,location,quotes,relationship_status,significant_other,username,subscribers.limite(0)&access_token=${AccessToken}`,jar,null,ctx.globalOptions);
+    var { body:Data } = await utils.get(`https://graph.facebook.com/${id}?fields=age_range,picture,cover,name,first_name,email,about,birthday,gender,website,hometown,link,location,quotes,relationship_status,significant_other,username,subscribers.limite(0)&access_token=${AccessToken}`,jar,null,ctx.globalOptions);
     var Format = {
         id: JSON.parse(Data).id || "Không Có Dữ Liệu",
         name: JSON.parse(Data).name || "Không Có Dữ Liệu",
@@ -15,8 +15,10 @@ module.exports.getInfo = async function (id,jar,ctx,defaultFuncs) {
         link: JSON.parse(Data).link || "Không Có Dữ Liệu",
         verified: JSON.parse(Data).verified || "Không Có Dữ Liệu",
         about: JSON.parse(Data).about || "Không Có Dữ Liệu",
-        avatar: `https://graph.facebook.com/${id}/picture?height=1500&width=1500&access_token=1449557605494892|aaf0a865c8bafc314ced5b7f18f3caa6` || "Không Có Dữ Liệu",
+        avatar: JSON.parse(Data).picture.data.url || "Không Có Dữ Liệu",
+        cover: JSON.parse(Data).cover.source || "Không Có Dữ Liệu",
         birthday: JSON.parse(Data).birthday || "Không Có Dữ Liệu",
+        age: JSON.parse(Data).age_range.min || "Không Có Dữ Liệu",
         follow: JSON.parse(Data).subscribers.summary.total_count || "Không Có Dữ Liệu",
         gender: JSON.parse(Data).gender || "Không Có Dữ Liệu",
         hometown: JSON.parse(Data).hometown || "Không Có Dữ Liệu",

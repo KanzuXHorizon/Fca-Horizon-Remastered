@@ -1,6 +1,6 @@
 {
   "name": "fca-horizon-remastered",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "Facebook-chat-api protect and deploy by Kanzu and HZI Team",
   "main": "Index.js",
   "scripts": {
@@ -21,32 +21,35 @@
   "dependencies": {
     "aes-js": "latest",
     "assert": "latest",
+    "better-sqlite3": "7.6.2",
     "bluebird": "latest",
     "chalk": "4.1.2",
     "cheerio": "latest",
     "crypto-js": "latest",
     "deasync": "^0.1.28",
+    "duplexify": "^4.1.2",
     "encode32": "latest",
     "express": "latest",
     "file-url": "^3.0.0",
     "got": "^11.8.6",
     "https-proxy-agent": "latest",
     "is-hexcolor": "^1.0.0",
+    "lodash": "latest",
     "moment": "^2.29.4",
     "mqtt": "latest",
     "npmlog": "latest",
     "os": "latest",
     "path": "latest",
     "pretty-ms": "7.0.1",
+    "readable-stream": "^4.4.0",
     "readline": "latest",
     "request": "latest",
+    "safe-buffer": "^5.2.1",
     "semver": "^7.4.0",
     "totp-generator": "latest",
     "tough-cookie": "^4.1.2",
     "uuid": "latest",
-    "lodash": "latest",
-    "better-sqlite3": "7.6.2",
-    "websocket-stream": "latest"
+    "ws": "^8.13.0"
   },
   "engines": {
     "node": ">=14.x"
