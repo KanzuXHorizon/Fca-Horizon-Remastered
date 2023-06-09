@@ -160,7 +160,6 @@ catch (e) {
         for (let i of Object_Fca) {
             const All_Paths = utils.getPaths(global.Fca.Data.ObjFastConfig[i]);
             const Mission = { Main_Path: i, Data_Path: All_Paths }
-
             for (let i of Mission.Data_Path) {
                 if (Data_Setting[Mission.Main_Path] == undefined) {
                     Data_Setting[Mission.Main_Path] = global.Fca.Data.ObjFastConfig[Mission.Main_Path];
@@ -168,7 +167,7 @@ catch (e) {
                 }
                 const User_Data = (utils.getData_Path(Data_Setting[Mission.Main_Path], i, 0))
                 const User_Data_Type = utils.getType(User_Data);
-                if (User_Data_Type != "Object") {
+                if (User_Data_Type == "Number") {
                     const Mission_Path = User_Data == 0 ? i : i.slice(0, User_Data); 
                     const Mission_Obj = utils.getData_Path(global.Fca.Data.ObjFastConfig[Mission.Main_Path], Mission_Path, 0);
                     Data_Setting[Mission.Main_Path] = utils.setData_Path(Data_Setting[Mission.Main_Path], Mission_Path, Mission_Obj)

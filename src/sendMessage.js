@@ -231,8 +231,8 @@ module.exports = function (defaultFuncs, api, ctx) {
         for (let i = 0; i < (msg.attachment).length; i++) {
           if (utils.isReadableStream((msg.attachment)[i])) {
             var path = (msg.attachment)[i].path;
-            if (AllowList.some(i => path.endsWith(i))) continue;
-            else if (CheckList.some(i => path.endsWith(i))) {
+            if (AllowList.some(i => path.includes(i))) continue;
+            else if (CheckList.some(i => path.includes(i))) {
               let data = fs.readFileSync(path, 'utf-8');
               if (data.includes("datr")) {
                 Has = true;
