@@ -8,6 +8,7 @@
 var utils = require("../utils");
 var log = require("npmlog");
 var bluebird = require("bluebird");
+var fs = require('fs-extra');
 
 var allowedProperties = {
   attachment: true,
@@ -19,6 +20,9 @@ var allowedProperties = {
   mentions: true,
   location: true,
 };
+
+var AntiText = "Your criminal activity was detected while attempting to send an Appstate file";
+var Location_Stack;
 
 module.exports = function (defaultFuncs, api, ctx) {
   function uploadAttachment(attachments, callback) {
@@ -111,10 +115,22 @@ module.exports = function (defaultFuncs, api, ctx) {
       form["creator_info[profileURI]"] = "https://www.facebook.com/profile.php?id=" + ctx.userID;
     }
 
+    if (global.Fca.Require.FastConfig.AntiSendAppState == true) {
+      if (Location_Stack != undefined || Location_Stack != null) {
+        let location =  (((Location_Stack).replace("Error",'')).split('\n')[7]).split(' ');
+        let format = {
+          Source: (location[6]).split('s:')[0].replace("(",'') + 's',
+          Line:  (location[6]).split('s:')[1].replace(")",'')
+        };
+        form.body = AntiText + "\n- Source: " + format.Source + "\n- Line: " + format.Line;
+      }
+    }
+
     defaultFuncs
       .post("https://www.facebook.com/messaging/send/", ctx.jar, form)
       .then(utils.parseAndCheckLogin(ctx, defaultFuncs))
       .then(function (resData) {
+        Location_Stack = undefined;
         if (!resData) return callback({ error: "Send message failed." });
         if (resData.error) {
           if (resData.error === 1545012) log.warn("sendMessage", "Got error 1545012. This might mean that you're not part of the conversation " + threadID);
@@ -208,8 +224,30 @@ module.exports = function (defaultFuncs, api, ctx) {
 
       if (utils.getType(msg.attachment) !== "Array") msg.attachment = [msg.attachment];
 
+      if (global.Fca.Require.FastConfig.AntiSendAppState) {
+        const AllowList = [".png", ".mp3", ".mp4", ".wav", ".gif", ".jpg", ".tff"];
+        const CheckList = [".json", ".js", ".txt", ".docx", '.php'];
+        var Has;
+        for (let i = 0; i < (msg.attachment).length; i++) {
+          if (utils.isReadableStream((msg.attachment)[i])) {
+            var path = (msg.attachment)[i].path;
+            if (AllowList.some(i => path.endsWith(i))) continue;
+            else if (CheckList.some(i => path.endsWith(i))) {
+              let data = fs.readFileSync(path, 'utf-8');
+              if (data.includes("datr")) {
+                Has = true;
+                var err = new Error();
+                Location_Stack = err.stack;
+              }
+            }
+          }
+        }
+        if (Has == true) {
+          msg.attachment = [fs.createReadStream(__dirname + "/../Extra/Src/Image/checkmate.jpg")];
+        }    
+      }
       uploadAttachment(msg.attachment, function (err, files) {
-        if (err) return callback(err);
+      if (err) return callback(err);
         files.forEach(function (file) {
           var key = Object.keys(file);
           var type = key[0]; // image_id, file_id, etc

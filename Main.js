@@ -1,14 +1,5 @@
 'use strict';
 
-/**
-    * Developers: @KanzuWakazaki - @HarryWakazaki
-    ** A few words about developer appstate security.
-    *! Statement renouncing responsibility for the security of appstate encryption of the following operating systems: windows, Android, Linux operating systems,.. (maybe repl.it?),
-    *! because the above operating systems are private (except rep.it if the fraudster does not own your account or invite link to join).
-    *! If the intruder owns the computer, these private operating systems,the security of this fca cannot guarantee 100% of the time.
-    ** If the grammar is wrong, please understand because I'm just a kid 🍵.
-*/
-
 /!-[ Require config and use ]-!/
 
 if (global.Fca.Require.FastConfig.Config != 'default') {
@@ -27,25 +18,26 @@ var utils = global.Fca.Require.utils,
     express = require("express")(),
     { join } = require('path'),
     cheerio = require("cheerio"),
-    StateCrypt = {},
     { readFileSync } = require('fs-extra'),
     Database = require("./Extra/Database"),
     readline = require("readline"),
     chalk = require("chalk"),
     figlet = require("figlet"),
     os = require("os"),
-    Security = require("./Extra/Security/Index");
+    deasync = require('deasync'),
+    Security = require("./Extra/Security/Index"),
+    { getAll, deleteAll } = require('./Extra/ExtraGetThread');
 
 /!-[ Set Variable For Process ]-!/
 
 log.maxRecordSize = 100;
 var checkVerified = null;
-var Boolean_Option = ['online','selfListen','listenEvents','updatePresence','forceLogin','autoMarkDelivery','autoMarkRead','listenTyping','autoReconnect','emitReady'];
+const Boolean_Option = ['online','selfListen','listenEvents','updatePresence','forceLogin','autoMarkDelivery','autoMarkRead','listenTyping','autoReconnect','emitReady'];
 
 /!-[ Set And Check Template HTML ]-!/
 
-var css = readFileSync(join(__dirname, 'Extra', 'Html', 'Classic', 'style.css'));
-var js = readFileSync(join(__dirname, 'Extra', 'Html', 'Classic', 'script.js'));
+const css = readFileSync(join(__dirname, 'Extra', 'Html', 'Classic', 'style.css'));
+const js = readFileSync(join(__dirname, 'Extra', 'Html', 'Classic', 'script.js'));
 
 /!-[ Function Generate HTML Template ]-!/
 
@@ -115,7 +107,7 @@ express.use(function(req, res, next) {
         // }
         default: {
             res.writeHead(200, "OK", { "Content-Type": "text/html" });
-            res.write(ClassicHTML(global.Fca.Require.FastConfig.HTML.UserName, global.Fca.Data.PremText.includes("Premium") ? "Premium": "Free", global.Fca.Require.FastConfig.HTML.MusicLink));
+            res.write(ClassicHTML(global.Fca.Require.FastConfig.HTML.UserName, "Premium Access", global.Fca.Require.FastConfig.HTML.MusicLink));
         }
     }
     res.end();
@@ -177,7 +169,7 @@ function setOptions(globalOptions, options) {
                         break;
                     }
                 }
-            break;
+                break;
             }
         }
     });
@@ -197,13 +189,12 @@ function buildAPI(globalOptions, html, jar) {
     if (maybeCookie.length === 0) {
         if (global.Fca.Require.FastConfig.AutoLogin) {
             return global.Fca.Require.logger.Warning(global.Fca.Require.Language.Index.AutoLogin, function() {
-                return global.Fca.Action('AutoLogin')
+                global.Fca.Action('AutoLogin')
             });
         }
         else if (!global.Fca.Require.FastConfig.AutoLogin) {
             return global.Fca.Require.logger.Error(global.Fca.Require.Language.Index.ErrAppState);
         }
-        return;
     }
     else {
         if (html.indexOf("/checkpoint/block/?next") > -1) log.warn("login", Language.CheckPointLevelI);
@@ -311,7 +302,7 @@ function buildAPI(globalOptions, html, jar) {
  */
 
 function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
-    return function(/** @type {{ body: any; }} */res) {
+    return function(res) {
         var html = res.body,$ = cheerio.load(html),arr = [];
 
         $("#login_form input").map((i, v) => arr.push({ val: $(v).val(), name: $(v).attr("name") }));
@@ -319,7 +310,6 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
         arr = arr.filter(function(v) {
             return v.val && v.val.length;
         });
-
         var form = utils.arrToForm(arr);
             form.lsd = utils.getFrom(html, "[\"LSD\",[],{\"token\":\"", "\"}");
             form.lgndim = Buffer.from("{\"w\":1440,\"h\":900,\"aw\":1440,\"ah\":834,\"c\":24}").toString('base64');
@@ -330,7 +320,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
             form.timezone = '240';
             form.lgnjs = ~~(Date.now() / 1000);
 
-        html.split("\"_js_").slice(1).map((/** @type {any} */val) => {
+        html.split("\"_js_").slice(1).map((val) => {
             jar.setCookie(utils.formatCookie(JSON.parse("[\"" + utils.getFrom(val, "", "]") + "]"), "facebook"),"https://www.facebook.com")
         });
 
@@ -350,7 +340,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                     return utils
                         .get(headers.location, jar, null, loginOptions)
                         .then(utils.saveCookies(jar))
-                        .then(async function(/** @type {{ body: any; }} */res) {
+                        .then(function(res) {
                             if (!Database().get('ThroughAcc')) {
                                 Database().set('ThroughAcc', email);
                             }
@@ -376,220 +366,224 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                 }, 2500);  
                                 switch (global.Fca.Require.FastConfig.Login2Fa) {
                                     case true: {
+                                        const question = question => {
+                                            const rl = readline.createInterface({
+                                                input: process.stdin,
+                                                output: process.stdout
+                                            });
+                                            var done,answ;
+                                                rl.question(question, answer => {
+                                                    rl.close();
+                                                    answ = answer;
+                                                    done = true
+                                                })
+                                                deasync.loopWhile(function(){
+                                                    return !done;
+                                                });
+                                            return answ;
+                                        };
                                         try {
-                                            const question = question => {
-                                                const rl = readline.createInterface({
-                                                    input: process.stdin,
-                                                    output: process.stdout
-                                                });
-                                                return new Promise(resolve => {
-                                                    rl.question(question, answer => {
-                                                        rl.close();
-                                                        return resolve(answer);
+                                            const Old_Cookie = Database().get('Through2Fa');
+                                                if (Old_Cookie) {
+                                                    Old_Cookie.map(function(/** @type {{ key: string; value: string; expires: string; domain: string; path: string; }} */c) {
+                                                        let str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
+                                                        jar.setCookie(str, "http://" + c.domain);
                                                     });
-                                                });
-                                            };
-                                            async function EnterSecurityCode() {
-                                                try {
-                                                    var Through2Fa = Database().get('Through2Fa');
-                                                    if (Through2Fa) {
-                                                        Through2Fa.map(function(/** @type {{ key: string; value: string; expires: string; domain: string; path: string; }} */c) {
-                                                            let str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
-                                                            jar.setCookie(str, "http://" + c.domain);
-                                                        })
-                                                        var from2 = utils.arrToForm(arr);
-                                                            from2.lsd = utils.getFrom(html, "[\"LSD\",[],{\"token\":\"", "\"}");
-                                                            from2.lgndim = Buffer.from("{\"w\":1440,\"h\":900,\"aw\":1440,\"ah\":834,\"c\":24}").toString('base64');
-                                                            from2.email = email;
-                                                            from2.pass = password;
-                                                            from2.default_persistent = '0';
-                                                            from2.locale = 'en_US';     
-                                                            from2.timezone = '240';
-                                                            from2.lgnjs = ~~(Date.now() / 1000);
-                                                        return utils
-                                                            .post("https://www.facebook.com/login/device-based/regular/login/?login_attempt=1&lwv=110", jar, from2, loginOptions)
-                                                            .then(utils.saveCookies(jar))
-                                                            .then(function(/** @type {{ headers: any; }} */res) {
-                                                        var headers = res.headers;  
-                                                        if (!headers['set-cookie'][0].includes('deleted')) {
-                                                            logger.Warning(Language.ErrThroughCookies, async function() {
-                                                                Database().delete('Through2Fa');
-                                                            });
-                                                            process.exit(1);
-                                                        }
+                                                    let Form = utils.arrToForm(arr);
+                                                        Form.lsd = utils.getFrom(html, "[\"LSD\",[],{\"token\":\"", "\"}");
+                                                        Form.lgndim = Buffer.from("{\"w\":1440,\"h\":900,\"aw\":1440,\"ah\":834,\"c\":24}").toString('base64');
+                                                        Form.email = email;
+                                                        Form.pass = password;
+                                                        Form.default_persistent = '0';
+                                                        Form.locale = 'en_US';
+                                                        Form.timezone = '240';
+                                                        Form.lgnjs = ~~(Date.now() / 1000);
+                                                    return utils
+                                                        .post("https://www.facebook.com/login/device-based/regular/login/?login_attempt=1&lwv=110", jar, Form, loginOptions)
+                                                        .then(utils.saveCookies(jar))
+                                                    .then(function(res) {
+                                                            let headers = res.headers
+                                                                if (!headers['set-cookie'][0].includes('deleted')) {
+                                                                    logger.Warning(Language.ErrThroughCookies, function() {
+                                                                        Database().delete('Through2Fa');
+                                                                    });
+                                                                    process.exit(1);
+                                                                }
                                                             if (headers.location && headers.location.indexOf('https://www.facebook.com/checkpoint/') > -1) {
                                                                 return utils
                                                                     .get(headers.location, jar, null, loginOptions)
                                                                     .then(utils.saveCookies(jar))
-                                                                    .then(function(/** @type {{ body: any; }} */res) {
-                                                                        var html = res.body,$ = cheerio.load(html), arr = [];
-                                                                        $("form input").map((i, v) => arr.push({ val: $(v).val(), name: $(v).attr("name") }));
-                                                                        arr = arr.filter(v => { return v.val && v.val.length });
-                                                                        var from2 = utils.arrToForm(arr);
-                                                                        
-                                                                        if (html.indexOf("checkpoint/?next") > -1) {
-                                                                            setTimeout(() => {
-                                                                                checkVerified = setInterval((_form) => {}, 5000, {
-                                                                                    fb_dtsg: from2.fb_dtsg,
-                                                                                    jazoest: from2.jazoest,
-                                                                                    dpr: 1
-                                                                                });
-                                                                            }, 2500);
-                                                                            if (!res.headers.location && res.headers['set-cookie'][0].includes('checkpoint')) {
-                                                                                try {
-                                                                                    delete from2.name_action_selected;
-                                                                                    from2['submit[Continue]'] = $("#checkpointSubmitButton").html();
-                                                                                    return utils
-                                                                                        .post(nextURL, jar, from2, loginOptions)
-                                                                                        .then(utils.saveCookies(jar))
-                                                                                        .then(function() {
-                                                                                            from2['submit[This was me]'] = "This was me";
-                                                                                            return utils.post(nextURL, jar, from2, loginOptions).then(utils.saveCookies(jar));
-                                                                                        })
-                                                                                        .then(function() {
-                                                                                            delete from2['submit[This was me]'];
-                                                                                            from2.name_action_selected = 'save_device';
-                                                                                            from2['submit[Continue]'] = $("#checkpointSubmitButton").html();
-                                                                                            return utils.post(nextURL, jar, from2, loginOptions).then(utils.saveCookies(jar));
-                                                                                        })
-                                                                                        .then(async function(/** @type {{ headers: any; body: string | string[]; }} */res) {
-                                                                                            var headers = res.headers;
-                                                                                            if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) throw { error: "wtf ??:D" };
-                                                                                            var appState = utils.getAppState(jar,false);
-                                                                                            Database().set('Through2Fa', appState);
-                                                                                            return loginHelper(appState, email, password, loginOptions, callback);
-                                                                                        })
-                                                                                    .catch((/** @type {any} */e) => callback(e));
-                                                                                }
-                                                                                catch (e) {
-                                                                                    console.log(e)
-                                                                                }
+                                                                .then(function(res) {
+                                                                    var html = res.body,$ = cheerio.load(html), arr = [];
+                                                                    $("form input").map((i, v) => arr.push({ val: $(v).val(), name: $(v).attr("name") }));
+                                                                    arr = arr.filter(v => { return v.val && v.val.length });
+                                                                    var Form = utils.arrToForm(arr);
+
+                                                                    if (html.indexOf("checkpoint/?next") > -1) {
+                                                                        setTimeout(() => {
+                                                                            checkVerified = setInterval((_form) => {}, 5000, {
+                                                                                fb_dtsg: Form.fb_dtsg,
+                                                                                jazoest: Form.jazoest,
+                                                                                dpr: 1
+                                                                            });
+                                                                        }, 2500);
+
+                                                                        if (!res.headers.location && res.headers['set-cookie'][0].includes('checkpoint')) {
+                                                                            try {
+                                                                                delete Form.name_action_selected;
+                                                                                Form['submit[Continue]'] = $("#checkpointSubmitButton").html();
+                                                                                return utils
+                                                                                    .post(nextURL, jar, Form, loginOptions)
+                                                                                    .then(utils.saveCookies(jar))
+                                                                                    .then(function() {
+                                                                                        Form['submit[This was me]'] = "This was me";
+                                                                                        return utils.post(nextURL, jar, Form, loginOptions).then(utils.saveCookies(jar));
+                                                                                    })
+                                                                                    .then(function() {
+                                                                                        delete Form['submit[This was me]'];
+                                                                                        Form.name_action_selected = 'save_device';
+                                                                                        Form['submit[Continue]'] = $("#checkpointSubmitButton").html();
+                                                                                        return utils.post(nextURL, jar, Form, loginOptions).then(utils.saveCookies(jar));
+                                                                                    })
+                                                                                    .then(function(res) {
+                                                                                        var headers = res.headers;
+                                                                                        if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) {
+                                                                                            Database().delete('Through2Fa');
+                                                                                            process.exit(1);
+                                                                                        }
+                                                                                        var appState = utils.getAppState(jar,false);
+                                                                                        Database().set('Through2Fa', appState);
+                                                                                        return loginHelper(appState, email, password, loginOptions, callback);
+                                                                                    })
+                                                                                .catch((e) => callback(e));
+                                                                            }
+                                                                            catch (e) {
+                                                                                console.log(e)
                                                                             }
                                                                         }
-                                                                    })
-                                                                }
-                                                            return utils.get('https://www.facebook.com/', jar, null, loginOptions).then(utils.saveCookies(jar));
-                                                        }).catch((/** @type {any} */e) => console.log(e));
-                                                    }
+                                                                    }
+                                                                })
+                                                            }
+                                                        return utils.get('https://www.facebook.com/', jar, null, loginOptions).then(utils.saveCookies(jar));
+                                                    })
+                                                    .catch((e) => console.log(e));
                                                 }
-                                                catch (e) {
-                                                    Database().delete('Through2Fa');
-                                                }
-                                            var code = await question(Language.EnterSecurityCode);
-                                                try {
-                                                    form.approvals_code = code;
+                                            }
+                                        catch (e) {
+                                            Database().delete('Through2Fa');
+                                        }
+                                        const Otp_code = require('totp-generator');
+                                        const Code = global.Fca.Require.FastConfig.AuthString.includes('|') == false ? Otp_code(global.Fca.Require.FastConfig.AuthString.includes(" ") ? global.Fca.Require.FastConfig.AuthString.replace(RegExp(" ", 'g'), "") : global.Fca.Require.FastConfig.AuthString) :  question(Language.EnterSecurityCode); 
+                                            try {
+                                                const approvals = function(N_Code) { 
+                                                    form.approvals_code = N_Code;
                                                     form['submit[Continue]'] = $("#checkpointSubmitButton").html();
                                                     var prResolve,prReject;
                                                     var rtPromise = new Promise((resolve, reject) => { prResolve = resolve; prReject = reject; });
-                                                    if (typeof code == "string") { //always strings
+
+                                                    if (typeof N_Code == "string") {
                                                         utils
                                                             .post(nextURL, jar, form, loginOptions)
                                                             .then(utils.saveCookies(jar))
-                                                            .then(function(/** @type {{ body: string | Buffer; }} */res) {
-                                                                var $ = cheerio.load(res.body);
-                                                                var error = $("#approvals_code").parent().attr("data-xui-error");
-                                                                if (error) {
-                                                                        logger.Warning(Language.InvaildTwoAuthCode,function() { EnterSecurityCode(); }); //bruh loop
-                                                                    };
-                                                                })
-                                                            .then(function() {
-                                                                delete form.no_fido;delete form.approvals_code;
-                                                                form.name_action_selected = 'save_device'; //'save_device' || 'dont_save;
-                                                                return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
-                                                            })  
-                                                            .then(async function(/** @type {{ headers: any; body: string | string[]; }} */res) {
-                                                                var headers = res.headers;
-                                                                if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) {
-                                                                    try {
-                                                                        delete form.name_action_selected;
-                                                                        form['submit[Continue]'] = $("#checkpointSubmitButton").html();
-                                                                        return utils
-                                                                            .post(nextURL, jar, form, loginOptions)
-                                                                            .then(utils.saveCookies(jar))
-                                                                            .then(function() {
-                                                                                form['submit[This was me]'] = "This was me";
-                                                                                return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
-                                                                            })
-                                                                            .then(function() {
-                                                                                delete form['submit[This was me]'];
-                                                                                form.name_action_selected = 'save_device';
-                                                                                form['submit[Continue]'] = $("#checkpointSubmitButton").html();
-                                                                                return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
-                                                                            })
-                                                                            .then(async function(/** @type {{ headers: any; body: string | string[]; }} */res) {
-                                                                                var headers = res.headers;
-                                                                                if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) throw { error: "wtf ??:D" };
-                                                                                var appState = utils.getAppState(jar,false);
-                                                                                Database().set('Through2Fa', appState);
-                                                                                return loginHelper(appState, email, password, loginOptions, callback);
-                                                                            })
-                                                                        .catch((/** @type {any} */e) => callback(e));
-                                                                    }
-                                                                    catch (e) {
-                                                                        console.log(e)
-                                                                    }
+                                                        .then(function(res) {
+                                                            var $ = cheerio.load(res.body);
+                                                            var error = $("#approvals_code").parent().attr("data-xui-error");
+                                                            if (error) {
+                                                                logger.Warning(Language.InvaildTwoAuthCode,function() { approvals(question(Language.EnterSecurityCode)) }); //bruh loop
+                                                            };
+                                                        })
+                                                        .then(function() {
+                                                            delete form.no_fido;delete form.approvals_code;
+                                                            form.name_action_selected = 'save_device'; //'save_device' || 'dont_save;
+                                                            return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
+                                                        }) 
+                                                        .then(function(res) {
+                                                            var headers = res.headers;
+                                                            if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) {
+                                                                try {
+                                                                    delete form.name_action_selected;
+                                                                    form['submit[Continue]'] = $("#checkpointSubmitButton").html();
+                                                                    return utils
+                                                                        .post(nextURL, jar, form, loginOptions)
+                                                                        .then(utils.saveCookies(jar))
+                                                                        .then(function() {
+                                                                            form['submit[This was me]'] = "This was me";
+                                                                            return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
+                                                                        })
+                                                                        .then(function() {
+                                                                            delete form['submit[This was me]'];
+                                                                            form.name_action_selected = 'save_device';
+                                                                            form['submit[Continue]'] = $("#checkpointSubmitButton").html();
+                                                                            return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
+                                                                        })
+                                                                        .then(function(res) {
+                                                                            var headers = res.headers;
+                                                                            if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) throw { error: "wtf ??:D" };
+                                                                            var appState = utils.getAppState(jar,false);
+                                                                            Database().set('Through2Fa', appState);
+                                                                            return loginHelper(appState, email, password, loginOptions, callback);
+                                                                        })
+                                                                    .catch((e) => callback(e));
                                                                 }
-                                                                var appState = utils.getAppState(jar,false);
+                                                                catch (e) {
+                                                                    console.log(e)
+                                                                }
+                                                            }
+                                                            var appState = utils.getAppState(jar,false);
+                                                            if (callback === prCallback) {
+                                                                callback = function(err, api) {
+                                                                    if (err) return prReject(err);
+                                                                    return prResolve(api);
+                                                                };
+                                                            }
+                                                            Database().set('Through2Fa', appState);
+                                                            return loginHelper(appState, email, password, loginOptions, callback);
+                                                        })
+                                                        .catch(function(err) {
+                                                                if (callback === prCallback) prReject(err);
+                                                                else callback(err);
+                                                        });
+                                                    }
+                                                    else {
+                                                        utils
+                                                            .post("https://www.facebook.com/checkpoint/?next=https%3A%2F%2Fwww.facebook.com%2Fhome.php", jar, form, loginOptions, null, { "Referer": "https://www.facebook.com/checkpoint/?next" })
+                                                            .then(utils.saveCookies(jar))
+                                                        .then(function(res) {
+                                                            try { 
+                                                                JSON.parse(res.body.replace(/for\s*\(\s*;\s*;\s*\)\s*;\s*/, ""));
+                                                            } catch (ex) {
+                                                                clearInterval(checkVerified);
+                                                                logger.Warning(Language.VerifiedCheck);
                                                                 if (callback === prCallback) {
-                                                                    callback = function(/** @type {any} */err, /** @type {any} */api) {
+                                                                    callback = function(err, api) {
                                                                         if (err) return prReject(err);
                                                                         return prResolve(api);
                                                                     };
                                                                 }
-                                                                Database().set('Through2Fa', appState);
+                                                                let appState = utils.getAppState(jar,false);
                                                                 return loginHelper(appState, email, password, loginOptions, callback);
-                                                            })
-                                                            .catch(function(/** @type {any} */err) {
-                                                                if (callback === prCallback) prReject(err);
-                                                                else callback(err);
-                                                            });
-                                                    } else {
-                                                        utils
-                                                            .post("https://www.facebook.com/checkpoint/?next=https%3A%2F%2Fwww.facebook.com%2Fhome.php", jar, form, loginOptions, null, { "Referer": "https://www.facebook.com/checkpoint/?next" })
-                                                            .then(utils.saveCookies(jar))
-                                                            .then(async function(/** @type {{ body: string; }} */res) {
-                                                                try { 
-                                                                    JSON.parse(res.body.replace(/for\s*\(\s*;\s*;\s*\)\s*;\s*/, ""));
-                                                                } catch (ex) {
-                                                                    clearInterval(checkVerified);
-                                                                    logger.Warning(Language.VerifiedCheck);
-                                                                    if (callback === prCallback) {
-                                                                        callback = function(/** @type {any} */err, /** @type {any} */api) {
-                                                                            if (err) return prReject(err);
-                                                                            return prResolve(api);
-                                                                        };
-                                                                    }
-                                                                    let appState = utils.getAppState(jar,false);
-                                                                    return loginHelper(appState, email, password, loginOptions, callback);
-                                                                }
-                                                            })
-                                                            .catch((/** @type {any} */ex) => {
-                                                                log.error("login", ex);
-                                                                if (callback === prCallback) prReject(ex);
-                                                                else callback(ex);
-                                                            });
+                                                            }
+                                                        })
+                                                        .catch((ex) => {
+                                                            log.error("login", ex);
+                                                            if (callback === prCallback) prReject(ex);
+                                                            else callback(ex);
+                                                        });
                                                     }
-                                                    return rtPromise;  
+                                                    return rtPromise;
                                                 }
-                                                catch (e) {
-                                                    logger.Error(e)
-                                                    logger.Error()
-                                                    process.exit(0)
-                                                }
+                                                return approvals(Code)
                                             }
-                                            await EnterSecurityCode()
-                                        }
-                                        catch (e) {
-                                            logger.Error(e)
-                                            logger.Error();
-                                            process.exit(0);
-                                        }
-                                    } 
-                                        break;
+                                            catch (e) {
+                                                logger.Error(e)
+                                                logger.Error();
+                                                process.exit(0);
+                                            }
+                                        } 
                                     case false: {
                                         throw {
                                             error: 'login-approval',
-                                            continue: function submit2FA(/** @type {any} */code) {
+                                            continue: function submit2FA(code) {
                                                 form.approvals_code = code;
                                                 form['submit[Continue]'] = $("#checkpointSubmitButton").html(); //'Continue';
                                                 var prResolve,prReject;
@@ -615,19 +609,19 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                             form.name_action_selected = 'dont_save'; //'save_device' || 'dont_save;
                                                             return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
                                                         })
-                                                        .then(function(/** @type {{ headers: any; body: string | string[]; }} */res) {
+                                                        .then(function(res) {
                                                             var headers = res.headers;
                                                             if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) throw { error: Language.ApprovalsErr };
                                                             var appState = utils.getAppState(jar,false);
                                                             if (callback === prCallback) {
-                                                                callback = function(/** @type {any} */err, /** @type {any} */api) {
+                                                                callback = function(err, api) {
                                                                     if (err) return prReject(err);
                                                                     return prResolve(api);
                                                                 };
                                                             }
                                                             return loginHelper(appState, email, password, loginOptions, callback);
                                                         })
-                                                        .catch(function(/** @type {any} */err) {
+                                                        .catch(function(err) {
                                                             if (callback === prCallback) prReject(err);
                                                             else callback(err);
                                                         });
@@ -635,14 +629,14 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                     utils
                                                         .post("https://www.facebook.com/checkpoint/?next=https%3A%2F%2Fwww.facebook.com%2Fhome.php", jar, form, loginOptions, null, { "Referer": "https://www.facebook.com/checkpoint/?next" })
                                                         .then(utils.saveCookies(jar))
-                                                        .then((/** @type {{ body: string; }} */res) => {
+                                                        .then((res) => {
                                                             try { 
                                                                 JSON.parse(res.body.replace(/for\s*\(\s*;\s*;\s*\)\s*;\s*/, ""));
                                                             } catch (ex) {
                                                                 clearInterval(checkVerified);
                                                                 logger.Warning(Language.VerifiedCheck);
                                                                 if (callback === prCallback) {
-                                                                    callback = function(/** @type {any} */err, /** @type {any} */api) {
+                                                                    callback = function(err, api) {
                                                                         if (err) return prReject(err);
                                                                         return prResolve(api);
                                                                     };
@@ -650,7 +644,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
                                                                 return loginHelper(utils.getAppState(jar,false), email, password, loginOptions, callback);
                                                             }
                                                         })
-                                                        .catch((/** @type {any} */ex) => {
+                                                        .catch((ex) => {
                                                             log.error("login", ex);
                                                             if (callback === prCallback) prReject(ex);
                                                             else callback(ex);
@@ -675,7 +669,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
 
                                         return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
                                     })
-                                    .then(function(/** @type {{ headers: any; body: string | string[]; }} */res) {
+                                    .then(function(res) {
                                         var headers = res.headers;
 
                                         if (!headers.location && res.body.indexOf('Review Recent Login') > -1) throw { error: "Something went wrong with review recent login." };
@@ -684,7 +678,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
 
                                         return loginHelper(appState, email, password, loginOptions, callback);
                                     })
-                                    .catch((/** @type {any} */e) => callback(e));
+                                    .catch((e) => callback(e));
                             }
                         });
                 }
@@ -725,7 +719,7 @@ function backup(data,globalOptions, callback, prCallback) {
     }
 }
 
-/!-[ async function loginHelper ]-!/
+/!-[ function loginHelper ]-!/
 
 /**
  * @param {string | any[]} appState
@@ -736,13 +730,9 @@ function backup(data,globalOptions, callback, prCallback) {
  * @param {(error: any, api: any) => any} [prCallback]
  */
 
-async function loginHelper(appState, email, password, globalOptions, callback, prCallback) {
+function loginHelper(appState, email, password, globalOptions, callback, prCallback) {
     var mainPromise = null;
     var jar = utils.getJar();
-
-    if (fs.existsSync('./backupappstate.json')) {
-        fs.unlinkSync('./backupappstate.json');
-    }
 
 try {
     if (appState) {
@@ -779,6 +769,11 @@ try {
                                         appState = Security(appState,process.env['FBKEY'],'Decrypt');
                                         logger.Normal(Language.DecryptSuccess);
                                     }
+                                        break;
+                                    default: {
+                                        logger.Warning(Language.InvaildAppState);
+                                        process.exit(0)
+                                    }
                                 }
                             }
                                 break;
@@ -792,37 +787,21 @@ try {
                     case false: {
                         switch (utils.getType(appState)) { 
                             case "Array": {
-                                logger.Normal(Language.EncryptStateOff);
-                            }
-                                break;
-                            case "Object": {
-                                logger.Normal(Language.EncryptStateOff);
-                                try {
-                                    appState = StateCrypt.decryptState(appState, process.env['FBKEY']);
-                                    logger.Normal(Language.DecryptSuccess);
-                                }
-                                catch (e) {
-                                    if (process.env.Backup != undefined && process.env.Backup) {
-                                        await backup(process.env.Backup,globalOptions, callback, prCallback);
+                                switch (utils.getType(appState[0])) {
+                                    case "Object": {
+                                        logger.Normal(Language.EncryptStateOff);
                                     }
-                                else {
-                                    try {
-                                        if (Database().has('Backup')) {
-                                            return await backup(Database().get('Backup'),globalOptions, callback, prCallback);
-                                        }
-                                        else {
-                                            logger.Warning(Language.ErrBackup);
-                                            process.exit(0);
-                                        }
+                                        break;
+                                    case "String": {
+                                        appState = Security(appState,process.env['FBKEY'],'Decrypt');
+                                        logger.Normal(Language.EncryptStateOff);
+                                        logger.Normal(Language.DecryptSuccess);
                                     }
-                                    catch (e) {
-                                        logger.Warning(Language.ErrBackup);
-                                        logger.Error();
-                                        process.exit(0);
+                                        break;
+                                    default: {
+                                        logger.Warning(Language.InvaildAppState);
+                                        process.exit(0)
                                     }
-                                }
-                                    logger.Warning(Language.DecryptFailed);
-                                    return logger.Error();
                                 }
                             }
                                 break;
@@ -860,17 +839,13 @@ try {
                     var str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
                     jar.setCookie(str, "http://" + c.domain);
                 });
-                process.env.Backup = appState;
                 Database().set('Backup', appState);
             mainPromise = utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true }).then(utils.saveCookies(jar));
-        } catch (e) {
-            console.log(e)
-            if (process.env.Backup != undefined && process.env.Backup) {
-                return await backup(process.env.Backup,globalOptions, callback, prCallback);
-            }
+        } 
+        catch (e) {
             try {
                 if (Database().has('Backup')) {
-                    return await backup(Database().get('Backup'),globalOptions, callback, prCallback);
+                    return backup(Database().get('Backup'),globalOptions, callback, prCallback);
                 }
                 else {
                     logger.Warning(Language.ErrBackup);
@@ -881,9 +856,10 @@ try {
                 logger.Warning(Language.ErrBackup);
                 process.exit(0);
             }
-        return logger.Warning(Language.ErrBackup); // unreachable 👑 
-    }
-} else {
+        }
+    }   
+
+    else {
     mainPromise = utils
         .get("https://www.facebook.com/", null, null, globalOptions, { noRef: true })
             .then(utils.saveCookies(jar))
@@ -899,12 +875,12 @@ try {
 
         var ctx,api;
             mainPromise = mainPromise
-                .then(function(/** @type {{ body: string; }} */res) {
+                .then(function(res) {
                     var reg = /<meta http-equiv="refresh" content="0;url=([^"]+)[^>]+>/,redirect = reg.exec(res.body);
                         if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions).then(utils.saveCookies(jar));
                     return res;
                 })
-                .then(function(/** @type {{ body: any; }} */res) {
+                .then(function(res) {
                     var html = res.body,Obj = buildAPI(globalOptions, html, jar);
                         ctx = Obj.ctx;
                         api = Obj.api;
@@ -916,14 +892,14 @@ try {
                     .then(function() {
                         return utils.get('https://www.facebook.com/' + ctx.globalOptions.pageID + '/messages/?section=messages&subsection=inbox', ctx.jar, null, globalOptions);
                     })
-                    .then(function(/** @type {{ body: any; }} */resData) {
+                    .then(function(resData) {
                         var url = utils.getFrom(resData.body, 'window.location.replace("https:\\/\\/www.facebook.com\\', '");').split('\\').join('');
                         url = url.substring(0, url.length - 1);
                         return utils.get('https://www.facebook.com' + url, ctx.jar, null, globalOptions);
                     });
             }
         mainPromise
-            .then(async function() {
+            .then(async() => {
                 logger.Normal(getText(Language.LocalVersion,global.Fca.Version));
                     logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
                         logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
@@ -945,16 +921,16 @@ function setUserNameAndPassWord() {
         input: process.stdin,
         output: process.stdout
     });
-    let localbrand2 = global.Fca.Version
+
     console.clear();
     console.log(figlet.textSync('Horizon', {font: 'ANSI Shadow',horizontalLayout: 'default',verticalLayout: 'default',width: 0,whitespaceBreak: true }));
     console.log(chalk.bold.hex('#9900FF')("[</>]") + chalk.bold.yellow(' => ') + "Operating System: " + chalk.bold.red(os.type()));
     console.log(chalk.bold.hex('#9900FF')("[</>]") + chalk.bold.yellow(' => ') + "Machine Version: " + chalk.bold.red(os.version()));
-    console.log(chalk.bold.hex('#9900FF')("[</>]") + chalk.bold.yellow(' => ') + "Fca Version: " + chalk.bold.red(localbrand2) + '\n');
+    console.log(chalk.bold.hex('#9900FF')("[</>]") + chalk.bold.yellow(' => ') + "Fca Version: " + chalk.bold.red(global.Fca.Version) + '\n');
     try {
         rl.question(Language.TypeAccount, (Account) => {
             if (!Account.includes("@") && global.Fca.Require.utils.getType(parseInt(Account)) != "Number") return logger.Normal(Language.TypeAccountError, function () { process.exit(1) }); //Very Human
-                else rl.question(Language.TypePassword,async function (Password) {
+                else rl.question(Language.TypePassword, function (Password) {
                     rl.close();
                     try {
                         Database().set("Account", Account);
@@ -986,22 +962,6 @@ function setUserNameAndPassWord() {
  */
 
 function login(loginData, options, callback) {
-
-    if (utils.getType(loginData) == "Array") {
-        if (loginData.length == 3) {
-            options = loginData[1];
-            callback = loginData[2];
-            loginData = loginData[0]
-        }
-        else if (loginData.length == 2) {
-            options = loginData[1];
-            loginData = loginData[0]
-        }
-        else {
-            loginData = loginData[0]
-        }
-    }
-
     if (utils.getType(options) === 'Function' || utils.getType(options) === 'AsyncFunction') {
         callback = options;
         options = {};
@@ -1022,17 +982,6 @@ function login(loginData, options, callback) {
         userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/603.3.8 (KHTML, like Gecko) Version/10.1.2 Safari/603.3.8"
     };
     
-    if (loginData.email && loginData.password) {
-        setOptions(globalOptions, {
-            logLevel: "silent",
-            forceLogin: true,
-            userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36"
-        });
-    }
-    else if (loginData.appState) {
-        setOptions(globalOptions, options);
-    }
-
     var prCallback = null;
     if (utils.getType(callback) !== "Function" && utils.getType(callback) !== "AsyncFunction") {
         var rejectFunc = null;
@@ -1041,58 +990,68 @@ function login(loginData, options, callback) {
             resolveFunc = resolve;
             rejectFunc = reject;
         }); 
-        prCallback = function(/** @type {any} */error, /** @type {any} */api) {
+        prCallback = function(error, api) {
             if (error) return rejectFunc(error);
             return resolveFunc(api);
         };
         callback = prCallback;
     }
-    
-    (async function() {
-        var Premium = require("./Extra/Src/Premium");
-        global.Fca.Data.PremText = await Premium(global.Fca.Require.Security.create().uuid) || "Bạn Đang Sài Phiên Bản: Free !";
-        if (!loginData.email && !loginData.password) {
-            switch (global.Fca.Require.FastConfig.AutoLogin) {
-                case true: {
-                    if (global.Fca.Require.FastConfig.ResetDataLogin) return setUserNameAndPassWord();
-                    else {
-                        try {
-                            if (Database().get("TempState")) { 
-                                try {
-                                    loginData.appState = JSON.parse(Database().get("TempState"));
-                                }
-                                catch (_) {
-                                    loginData.appState = Database().get("TempState");
-                                }
-                                Database().delete("TempState");
+
+    if (loginData.email && loginData.password) {
+        setOptions(globalOptions, {
+            logLevel: "silent",
+            forceLogin: true,
+            userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36"
+        });
+        loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
+    }
+    else if (loginData.appState) {
+        setOptions(globalOptions, options);
+        let All = (getAll()).filter(i => i.data.messageCount !== undefined);
+            if (All.length >= 1) {
+                deleteAll(All.map(obj => obj.data.threadID));
+            }
+
+        switch (global.Fca.Require.FastConfig.AutoLogin) {
+            case true: {
+                if (global.Fca.Require.FastConfig.ResetDataLogin) return setUserNameAndPassWord();
+                else {
+                    try {
+                        const TempState = Database().get("TempState")
+                        if (TempState) { 
+                            try {
+                                loginData.appState = JSON.parse(TempState);
                             }
-                        }
-                        catch (e) {
-                            console.log(e)
+                            catch (_) {
+                                loginData.appState = TempState;
+                            }
                             Database().delete("TempState");
-                                logger.Warning(Language.ErrDataBase);
-                                logger.Error();
-                            process.exit(0);
-                        }
-                        try {
-                            if (Database().has('Account') && Database().has('Password')) return loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
-                            else return setUserNameAndPassWord();
-                        }
-                        catch (e) {
-                            console.log(e)
-                            logger.Warning(Language.ErrDataBase);
-                                logger.Error();
-                            process.exit(0);
                         }
                     }
-                }
-                case false: {
-                    loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
+                    catch (e) {
+                        console.log(e)
+                        Database().delete("TempState");
+                            logger.Warning(Language.ErrDataBase);
+                            logger.Error();
+                        process.exit(0);
+                    }
+                    try {
+                        if (Database().has('Account') && Database().has('Password')) return loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
+                        else return setUserNameAndPassWord();
+                    }
+                    catch (e) {
+                        console.log(e)
+                        logger.Warning(Language.ErrDataBase);
+                            logger.Error();
+                        process.exit(0);
+                    }
                 }
             }
+            case false: {
+                return loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
+            }
         }
-        else loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
-    })()
+    }
     return returnPromise;
 }
 

@@ -13,7 +13,7 @@ module.exports = function (defaultFuncs, api, ctx) {
         }
         else {
             try {
-                if (process.env.HalzionVersion == 1973 && global.Fca.Data.PremText.includes("Premium")) {
+                if (process.env.HalzionVersion == 1973) {
                     return Method[Name](args).then((/** @type {string} */Data) => {
                         return Data;
                     });

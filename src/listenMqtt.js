@@ -8,7 +8,6 @@ const HttpsProxyAgent = require('https-proxy-agent');
 const EventEmitter = require('events');
 const Duplexify = require('duplexify');
 const Transform = require('readable-stream').Transform;
-const Buffer = require('safe-buffer').Buffer;
 var identity = function () { };
 var form = {};
 var getSeqID = function () { };
@@ -40,7 +39,7 @@ function buildProxy() {
         }
     
         if (typeof chunk === 'string') {
-            chunk = Buffer.from(chunk, 'utf8');
+            chunk = new Buffer.from(chunk, 'utf8');
         }
         WebSocket_Global.send(chunk, next);
     };
@@ -54,12 +53,12 @@ function buildProxy() {
         var buffers = new Array(chunks.length);
         for (var i = 0; i < chunks.length; i++) {
             if (typeof chunks[i].chunk === 'string') {
-                buffers[i] = Buffer.from(chunks[i], 'utf8');
+                buffers[i] = new Buffer.from(chunks[i], 'utf8');
             } else {
                 buffers[i] = chunks[i].chunk;
             }
         }
-        this._write(Buffer.concat(buffers), 'binary', cb);
+        this._write(new Buffer.concat(buffers), 'binary', cb);
     };
 
     return Proxy;
@@ -81,8 +80,8 @@ function buildStream(options, WebSocket, Proxy) {
     WebSocket
         .onmessage = function(event) {
             var data = event.data;
-            if (data instanceof ArrayBuffer) data = Buffer.from(data);
-            else data = Buffer.from(data, 'utf8');
+            if (data instanceof ArrayBuffer) data = new Buffer.from(data);
+            else data = new Buffer.from(data, 'utf8');
             Stream.push(data);
         };
     WebSocket
@@ -103,7 +102,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     var chatOn = ctx.globalOptions.online;
     var foreground = false;
 
-    var sessionID = Math.floor(Math.random() * 9007199254740991) + 1;
+    var sessionID = Math.floor((Math.random() * Number.MAX_SAFE_INTEGER)+1);
     var username = {u: ctx.userID,s: sessionID,chat_on: chatOn,fg: foreground,d: utils.getGUID(),ct: "websocket",aid: "219994525426954", mqtt_sid: "",cp: 3,ecp: 10,st: [],pm: [],dc: "",no_auto_fg: true,gas: null,pack: []};
     var cookies = ctx.jar.getCookies('https://www.facebook.com').join("; ");
 
@@ -112,11 +111,11 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     else if (ctx.region) host = `wss://edge-chat.facebook.com/chat?region=${ctx.region.toLocaleLowerCase()}&sid=${sessionID}`;
     else host = `wss://edge-chat.facebook.com/chat?sid=${sessionID}`;
 
-    var options = {
+    var options = { 
         clientId: "mqttwsclient",
         protocolId: 'MQIsdp',
         protocolVersion: 3,
-        username: JSON.stringify(username),
+        username: JSON.stringify(username), 
         clean: true,
         wsOptions: {
             headers: {
@@ -167,7 +166,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
             }        
         }
         if (process.env.OnStatus == undefined) {
-            global.Fca.Require.logger.Normal(global.Fca.Data.PremText || "Hiện Status Lỗi :s");
+            global.Fca.Require.logger.Normal("Bạn Đang Sài Phiên Bản: Premium Access");
             if (Number(global.Fca.Require.FastConfig.AutoRestartMinutes) == 0) {
                 // something
             }
@@ -300,14 +299,12 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, v) {
                 }
                 global.Fca.Data.event = fmtMsg;
                 try {
-                    if (process.env.HalzionVersion == 1973) { 
-                        var { updateMessageCount,getData,hasData } = require('../Extra/ExtraGetThread');
-                        if (hasData(fmtMsg.threadID)) {
-                            var x = getData(fmtMsg.threadID);
-                            x.messageCount+=1;
-                            updateMessageCount(fmtMsg.threadID,x);
-                        }   
-                    }    
+                    var { updateMessageCount,getData,hasData } = require('../Extra/ExtraGetThread');
+                    if (hasData(fmtMsg.threadID)) {
+                        var x = getData(fmtMsg.threadID);
+                        x.messageCount+=1;
+                        updateMessageCount(fmtMsg.threadID,x);
+                    }   
                 }
                 catch (e) {
                     //temp

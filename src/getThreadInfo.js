@@ -264,7 +264,6 @@ module.exports = function(defaultFuncs, api, ctx) {
           resData.map(function (x,y) {
             ThreadInfo.push(formatThreadGraphQLResponse(x["o"+y].data));
           });
-          if (process.env.HalzionVersion == 1973) {
             try {
             if (Object.keys(resData).length == 1) {
               updateData(threadID,ThreadInfo[0]);	
@@ -293,7 +292,6 @@ module.exports = function(defaultFuncs, api, ctx) {
         catch (e) {
           console.log(e);
         }
-      }
         })
         .catch(function(err){
           throw "Lỗi: getThreadInfoGraphQL Có Thể Do Bạn Spam Quá Nhiều";
@@ -367,47 +365,34 @@ module.exports = function(defaultFuncs, api, ctx) {
         resData.map(function (x,y) {
           ThreadInfo.push(formatThreadGraphQLResponse(x["o"+y].data));
         });
-        if (process.env.HalzionVersion == 1973) {
-          if (Object.keys(resData).length == 1) {
-            createData(threadID,ThreadInfo[0]);	
-            callback(null, ThreadInfo[0]);
-            capture(callback);
-            setLastRun('LastUpdate', callback);
-            if (utils.getType(ThreadInfo[0].userInfo) == "Array") {
-              for (let i of ThreadInfo[0].userInfo) {
-                if (global.Fca.Data.Userinfo.some(ii => ii.id == i.id)) {
-                  global.Fca.Data.Userinfo.splice(global.Fca.Data.Userinfo.findIndex(ii => ii.id == i.id), 1);
-                }
-                global.Fca.Data.Userinfo.push(i);
+        if (Object.keys(resData).length == 1) {
+          createData(threadID,ThreadInfo[0]);	
+          callback(null, ThreadInfo[0]);
+          capture(callback);
+          setLastRun('LastUpdate', callback);
+          if (utils.getType(ThreadInfo[0].userInfo) == "Array") {
+            for (let i of ThreadInfo[0].userInfo) {
+              if (global.Fca.Data.Userinfo.some(ii => ii.id == i.id)) {
+                global.Fca.Data.Userinfo.splice(global.Fca.Data.Userinfo.findIndex(ii => ii.id == i.id), 1);
               }
+              global.Fca.Data.Userinfo.push(i);
             }
-          } else {
-           // api.Horizon_Data([ThreadInfo], "Threads", "Post");
-            for (let i of ThreadInfo) {
-              createData(i.threadID,i);
-              if (utils.getType(i.userInfo) == "Array") {
-                for (let ii of i.userInfo) {
-                  if (global.Fca.Data.Userinfo.some(iii => iii.id == ii.id)) {
-                    global.Fca.Data.Userinfo.splice(global.Fca.Data.Userinfo.findIndex(iii => iii.id == ii.id), 1);
-                  }
-                  global.Fca.Data.Userinfo.push(ii);
-                }
-              }
-            }
-            callback(null, ThreadInfo);
           }
+        } else {
+          // api.Horizon_Data([ThreadInfo], "Threads", "Post");
+          for (let i of ThreadInfo) {
+            createData(i.threadID,i);
+            if (utils.getType(i.userInfo) == "Array") {
+              for (let ii of i.userInfo) {
+                if (global.Fca.Data.Userinfo.some(iii => iii.id == ii.id)) {
+                  global.Fca.Data.Userinfo.splice(global.Fca.Data.Userinfo.findIndex(iii => iii.id == ii.id), 1);
+                }
+                global.Fca.Data.Userinfo.push(ii);
+              }
+            }
+          }
+          callback(null, ThreadInfo);
         }
-          else {
-            callback(null, ThreadInfo[0]);
-            if (utils.getType(ThreadInfo[0].userInfo) == "Array") {
-              for (let i of ThreadInfo[0].userInfo) {
-                if (global.Fca.Data.Userinfo.some(ii => ii.id == i.id)) {
-                  global.Fca.Data.Userinfo.splice(global.Fca.Data.Userinfo.findIndex(ii => ii.id == i.id), 1);
-                }
-                global.Fca.Data.Userinfo.push(i);
-              }
-            }
-          }
       })
       .catch(function(err){
         throw err;

@@ -6,6 +6,7 @@
 "use strict";
 var url = require("url");
 var log = require("npmlog");
+const _ = require('lodash');
 var stream = require("stream");
 var bluebird = require("bluebird");
 var querystring = require("querystring");
@@ -937,89 +938,86 @@ switch (m.class) {
         };
     }
 }
-
-if (process.env.HalzionVersion == 1973) { 
-    switch (hasData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()))) {
-        case true: {
-            switch (logMessageType) {
-                case "log:thread-color": {
-                    let x = getData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()));
-                    x.emoji = (logMessageData.theme_emoji || x.emoji);
-                    x.color = (logMessageData['theme_color'] || x.color);
-                    updateData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()),x);
-                }
-                    break;
-                case "log:thread-icon": {
-                    let x = getData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()));
-                    x.emoji = (logMessageData['thread_icon'] || x.emoji);
-                    updateData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()),x);
-                }
-                    break;
-                case "log:user-nickname": {
-                    let x = getData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()));
-                    x.nicknames[logMessageData.participant_id] = (logMessageData.nickname.length == 0 ? x.userInfo.find(i => i.id == String(logMessageData.participant_id)).name : logMessageData.nickname);
-                    updateData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()),x);
-                }
-                    break;
-                case "log:thread-admins": {
-                    let x = getData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()));
-                    switch (logMessageData.ADMIN_EVENT) {
-                        case "add_admin": {
-                            x.adminIDs.push({ id: logMessageData.TARGET_ID });
-                        }
-                            break;
-                        case "remove_admin": {
-                            x.adminIDs = x.adminIDs.filter(item => item.id != logMessageData.TARGET_ID);
-                        }
-                        break;
-                    }
-                    updateData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()),x);
-                }
-                    break;
-                case "log:thread-approval-mode": {
-                    let x = getData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()));
-                    if (x.approvalMode == true) { 
-                        x.approvalMode = false;
-                    }
-                    else {
-                        x.approvalMode = true;
-                    }
-                    updateData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()),x);
-                }
-                    break;
-                case "log:thread-name": {
-                    let x = getData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()));
-                    x.threadName = (logMessageData.name || formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()));
-                    updateData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()),x);
-                }
-                    break;
-                case "log:subscribe": {
-                    let x = getData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()));
-                    for (let o of logMessageData.addedParticipants) {
-                        if (x.userInfo.some(i => i.id == o.userFbId)) continue; 
-                        else {
-                            x.userInfo.push({
-                                id: o.userFbId,
-                                name: o.fullName,
-                                gender: getGenderByPhysicalMethod(o.fullName)
-                            });
-                            x.participantIDs.push(o.userFbId);
-                        }
-                    }
-                    updateData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()),x);
-                }
-                    break;
-                case "log:unsubscribe": {
-                    let x = getData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()));
-                    x.participantIDs = x.participantIDs.filter(item => item != logMessageData.leftParticipantFbId);
-                    x.userInfo = x.userInfo.filter(item => item.id != logMessageData.leftParticipantFbId);
-                        if (x.adminIDs.some(i => i.id == logMessageData.leftParticipantFbId)) {
-                            x.adminIDs = x.adminIDs.filter(item => item.id != logMessageData.leftParticipantFbId);
-                        }
-                    updateData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()),x);      
-                }
-                break;
+switch (hasData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()))) {
+    case true: {
+        switch (logMessageType) {
+            case "log:thread-color": {
+                let x = getData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()));
+                x.emoji = (logMessageData.theme_emoji || x.emoji);
+                x.color = (logMessageData['theme_color'] || x.color);
+                updateData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()),x);
             }
+                break;
+            case "log:thread-icon": {
+                let x = getData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()));
+                x.emoji = (logMessageData['thread_icon'] || x.emoji);
+                updateData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()),x);
+            }
+                break;
+            case "log:user-nickname": {
+                let x = getData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()));
+                x.nicknames[logMessageData.participant_id] = (logMessageData.nickname.length == 0 ? x.userInfo.find(i => i.id == String(logMessageData.participant_id)).name : logMessageData.nickname);
+                updateData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()),x);
+            }
+                break;
+            case "log:thread-admins": {
+                let x = getData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()));
+                switch (logMessageData.ADMIN_EVENT) {
+                    case "add_admin": {
+                        x.adminIDs.push({ id: logMessageData.TARGET_ID });
+                    }
+                        break;
+                    case "remove_admin": {
+                        x.adminIDs = x.adminIDs.filter(item => item.id != logMessageData.TARGET_ID);
+                    }
+                    break;
+                }
+                updateData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()),x);
+            }
+                break;
+            case "log:thread-approval-mode": {
+                let x = getData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()));
+                if (x.approvalMode == true) { 
+                    x.approvalMode = false;
+                }
+                else {
+                    x.approvalMode = true;
+                }
+                updateData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()),x);
+            }
+                break;
+            case "log:thread-name": {
+                let x = getData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()));
+                x.threadName = (logMessageData.name || formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()));
+                updateData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()),x);
+            }
+                break;
+            case "log:subscribe": {
+                let x = getData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()));
+                for (let o of logMessageData.addedParticipants) {
+                    if (x.userInfo.some(i => i.id == o.userFbId)) continue; 
+                    else {
+                        x.userInfo.push({
+                            id: o.userFbId,
+                            name: o.fullName,
+                            gender: getGenderByPhysicalMethod(o.fullName)
+                        });
+                        x.participantIDs.push(o.userFbId);
+                    }
+                }
+                updateData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()),x);
+            }
+                break;
+            case "log:unsubscribe": {
+                let x = getData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()));
+                x.participantIDs = x.participantIDs.filter(item => item != logMessageData.leftParticipantFbId);
+                x.userInfo = x.userInfo.filter(item => item.id != logMessageData.leftParticipantFbId);
+                    if (x.adminIDs.some(i => i.id == logMessageData.leftParticipantFbId)) {
+                        x.adminIDs = x.adminIDs.filter(item => item.id != logMessageData.leftParticipantFbId);
+                    }
+                updateData(formatID((m.messageMetadata.threadKey.threadFbId || m.messageMetadata.threadKey.otherUserFbId).toString()),x);      
+            }
+            break;
         }
     }
 }
@@ -1569,14 +1567,8 @@ function getAppState(jar, Encode) {
             case true: {
                 if (Encode == undefined) Encode = true;
                 if (process.env['FBKEY'] != undefined && Encode) {
-                    if(!globalThis.Fca.Setting.get('getAppState')) {
-                        logger.Normal(Language.EncryptSuccess);
-                        data = Security(JSON.stringify(appstate),process.env['FBKEY'],"Encrypt");
-                        globalThis.Fca.Setting.set('AppState', data);
-                    }
-                    else {
-                        data = globalThis.Fca.Setting.get('AppState');
-                    }
+                    logger.Normal(Language.EncryptSuccess);
+                    data = Security(JSON.stringify(appstate),process.env['FBKEY'],"Encrypt");
                 }
                 else return appstate;
             }
@@ -1596,6 +1588,56 @@ function getAppState(jar, Encode) {
     return data;
 }
 
+function getData_Path(Obj , Arr, Stt) {
+    //default stt = 0
+    if (Arr.length === 0 && Obj != undefined) {
+        return Obj; //object
+    }
+    else if (Obj == undefined) {
+        return Stt;
+    }
+    const head = Arr[0];
+    if (head == undefined) {
+        return Stt;
+    }
+    const tail = Arr.slice(1);
+    return getData_Path(Obj[head], tail, Stt++);
+}
+
+
+function setData_Path(obj, path, value) {
+    if (!path.length) {
+        return obj;
+    }
+    const currentKey = path[0];
+    let currentObj = obj[currentKey];
+
+    if (!currentObj) {
+        obj[currentKey] = value;
+        currentObj = obj[currentKey];
+    }
+    path.shift();
+    if (!path.length) {
+        currentObj = value;
+    } else {
+        currentObj = setData_Path(currentObj, path, value);
+    }
+
+    return obj;
+}
+
+function getPaths(obj, parentPath = []) {
+    let paths = [];
+        for (let prop in obj) {
+            if (typeof obj[prop] === "object") {
+                paths = paths.concat(getPaths(obj[prop], [...parentPath, prop]));
+            } else {
+                paths.push([...parentPath, prop]);
+            }
+        }
+    return paths;
+}
+    
 module.exports = {
     isReadableStream:isReadableStream,
     get:get,
@@ -1613,6 +1655,9 @@ module.exports = {
     makeDefaults:makeDefaults,
     parseAndCheckLogin:parseAndCheckLogin,
     getGender: getGenderByPhysicalMethod,
+    getData_Path,
+    setData_Path,
+    getPaths,
     saveCookies,
     getType,
     _formatAttachment,

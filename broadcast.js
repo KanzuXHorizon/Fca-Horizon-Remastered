@@ -29,7 +29,7 @@ switch (global.Fca.Require.FastConfig.BroadCast) {
             catch (e) {
                 console.log(e);
             }
-        },1800 * 1000);
+        },3600 * 1000);
     }
     case false: {
         break;

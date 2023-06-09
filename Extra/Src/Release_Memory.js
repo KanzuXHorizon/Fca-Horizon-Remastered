@@ -3,7 +3,7 @@ const v8 = require('v8');
 
 function gc() {
     var v8 = require("v8");
-    var vm = require('vm');
+    var vm = require('node:vm');
     v8.setFlagsFromString('--expose_gc');
     var gc = vm.runInNewContext('gc');
     return gc;
