@@ -120,7 +120,7 @@ __Hướng Dẫn Với Appstate__
 
 ```js
 const fs = require("fs");
-const login = require("fca-horizon-remastered");
+const login = require("fca-farebii-amir");
 
 var credentials = {email: "FB_EMAIL", password: "FB_PASSWORD"}; // thông tin tk
 
