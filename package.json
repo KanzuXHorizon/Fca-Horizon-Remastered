@@ -1,6 +1,6 @@
 {
   "name": "fca-horizon-remastered",
-  "version": "1.4.8",
+  "version": "1.4.9",
   "description": "Facebook-chat-api protect and deploy by Kanzu and HZI Team",
   "main": "Index.js",
   "scripts": {
@@ -47,6 +47,7 @@
     "totp-generator": "latest",
     "tough-cookie": "^4.1.2",
     "uuid": "latest",
+    "speakeasy": "latest",
     "ws": "^8.13.0"
   },
   "engines": {

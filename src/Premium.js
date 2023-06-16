@@ -13,14 +13,9 @@ module.exports = function (defaultFuncs, api, ctx) {
         }
         else {
             try {
-                if (process.env.HalzionVersion == 1973) {
-                    return Method[Name](args).then((/** @type {string} */Data) => {
-                        return Data;
-                    });
-                }
-                else {
-                    return ("Mua Premium Đi Rồi Sài Ông Cháu Ơi !!");
-                }
+                return Method[Name](args).then((/** @type {string} */Data) => {
+                    return Data;
+                });
             }
             catch (e) {
                 console.log(e);

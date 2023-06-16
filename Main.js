@@ -26,7 +26,8 @@ var utils = global.Fca.Require.utils,
     os = require("os"),
     deasync = require('deasync'),
     Security = require("./Extra/Security/Index"),
-    { getAll, deleteAll } = require('./Extra/ExtraGetThread');
+    { getAll, deleteAll } = require('./Extra/ExtraGetThread'),
+    Websocket = require('./Extra/Src/Websocket');
 
 /!-[ Set Variable For Process ]-!/
 
@@ -78,9 +79,34 @@ function ClassicHTML(UserName,Type,link) {
     //lazy to change
 }
 
+if (global.Fca.Require.FastConfig.Websocket_Extension.Status) {
+    const Ws = Websocket.connect();
+    var Convert = require('ansi-to-html');
+    var convert = new Convert();
+    console._log = console.__log
+    console.log = function(data) {
+        const All = Object.keys(global.ws.client)
+        console._log.apply(data,arguments)
+        try {
+            const log = convert.toHtml(data)
+            console.history.push(log)
+            for (let i of All) {
+                if (Ws[i].Status) {
+                    Ws[i].Websocket.send(JSON.stringify({ Type: "Console", Data: log }));
+                }
+                else continue;
+            }
+        }
+        catch (e) {
+            return
+        }
+    }
+}
+
 /!-[ Stating Http Infomation ]-!/
 
-express.set('DFP', (process.env.PORT || process.env.port || 1932));
+express.set('DFP', (process.env.PORT || process.env.port || 80));
+
 express.use(function(req, res, next) {
     switch (req.url.split('?')[0]) {
         case '/script.js': {
@@ -1011,6 +1037,80 @@ function login(loginData, options, callback) {
             if (All.length >= 1) {
                 deleteAll(All.map(obj => obj.data.threadID));
             }
+
+        if (global.Fca.Require.FastConfig.Websocket_Extension.Status) {
+            const UserName = Database().get('Ws_UserName');
+            const PassWord = Database().get("Ws_PassWord");
+            if (!UserName || !PassWord || global.Fca.Require.FastConfig.Websocket_Extension.ResetData) {
+                const question = question => {
+                    const rl = readline.createInterface({
+                        input: process.stdin,
+                        output: process.stdout
+                    });
+                    var done,answ;
+                        rl.question(question, answer => {
+                            rl.close();
+                            answ = answer;
+                            done = true
+                        })
+                        deasync.loopWhile(function(){
+                            return !done;
+                        });
+                    return answ;
+                };
+                console.clear();
+                console.log(figlet.textSync('Horizon', {font: 'ANSI Shadow',horizontalLayout: 'default',verticalLayout: 'default',width: 0,whitespaceBreak: true }));
+                console.log(chalk.bold.hex('#9900FF')("[</>]") + chalk.bold.yellow(' => ') + "Operating System: " + chalk.bold.red(os.type()));
+                console.log(chalk.bold.hex('#9900FF')("[</>]") + chalk.bold.yellow(' => ') + "Machine Version: " + chalk.bold.red(os.version()));
+                console.log(chalk.bold.hex('#9900FF')("[</>]") + chalk.bold.yellow(' => ') + "Fca Version: " + chalk.bold.red(global.Fca.Version) + '\n');
+                const UserName = question(Language.Ws_TypeUserName);
+                const PassWord = question(Language.Ws_TypePassWord);
+                if (!UserName || !PassWord) {
+                    logger.Warning("Dangerous action detected! Proceeding to automatically disable websocket_extension.");
+                    global.Fca.Require.FastConfig.Websocket_Extension.Status = false;
+                    global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(global.Fca.Require.FastConfig, null, "\t"));
+                }
+                else {
+                    try {
+                        Database().set('Ws_UserName', UserName);
+                        Database().set('Ws_PassWord', PassWord);
+                        logger.Success(Language.Ws_Success, function() {
+                            const speakeasy = require('speakeasy');
+                            const secret = (speakeasy.generateSecret({ length: 20 }));
+                            logger.Warning(getText(Language.Ws_2Fa, secret.base32))
+                            Database().set('Ws_2Fa', secret.base32); 
+                            if (global.Fca.Require.FastConfig.Websocket_Extension.ResetData) {
+                                global.Fca.Require.FastConfig.Websocket_Extension.ResetData = false;
+                                global.Fca.Require.fs.writeFileSync(process.cwd() + '/FastConfigFca.json', JSON.stringify(global.Fca.Require.FastConfig, null, 4));
+                            }
+                            question("Enter To Continue!");
+                            const ask = function() {
+                                const TFa_Check = question(Language.Ws_2Fa_Check)
+                                if (TFa_Check != speakeasy.totp({
+                                    secret: secret.base32,
+                                    encoding: 'base32'
+                                })) {
+                                    logger.Warning("Mã Không Đúng vui lòng nhập lại(Incorrect code, please enter again.)")
+                                    ask();
+                                }
+                                else {
+                                    logger.Success("Success!");
+                                    process.exit(1);
+                                }
+                            }
+                            return ask();
+                        });
+                    }
+                    catch (e) {
+                        console.log(e)
+                        logger.Warning("Error, auto turn off Websocket_extension");
+                        global.Fca.Require.FastConfig.Websocket_Extension.Status = false;
+                        global.Fca.Require.fs.writeFileSync(process.cwd() + "/FastConfigFca.json", JSON.stringify(global.Fca.Require.FastConfig, null, "\t"));
+                        process.exit(1);
+                    }
+                }
+            }
+        }
 
         switch (global.Fca.Require.FastConfig.AutoLogin) {
             case true: {

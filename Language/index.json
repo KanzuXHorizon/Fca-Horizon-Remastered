@@ -75,6 +75,11 @@
                 "EVMChange": "Đang Thay Đổi Replit.nix Để Hỗ Trợ Node V14!",
                 "EVMChangeSuccess": "Thay Đổi Replit.nix Thành Công, Tiến Hành Restarting!",
 
+                "Ws_TypeUserName": "Hãy Nhập Một UserName Cho Tài Khoản Websocket Extension của bạn: ",
+                "Ws_TypePassWord": "Hãy Nhập Một Mật Khẩu Cho Tài Khoản WebSocket Extension của bạn : ",
+                "Ws_Success": "Đặt Dữ Liệu Cho Websocket Extension Thành Công !",
+                "Ws_2Fa": "Đây là mã xác thực 2 yếu tố(2FA) của bạn cho Horizon_Extension, hãy sử dụng Google Authenticator để lấy mã phòng trường hợp quên mật khẩu hoặc yêu cầu xác minh !\n\n=> Đây: %1",
+                "Ws_2Fa_Check": "Hãy nhập mã 2Fa của bạn từ ứng dụng xác thực: ",
 
                 "WishMessage": [
                     "Chúc Bạn Một Ngày Tốt Lành Nhé !",
@@ -176,6 +181,12 @@
                 "UnableToConnect": "An error occurred while connecting to the instant action server, please check your wifi connection!",
                 "EVMChange": "Changing replit.nix to support node v14!",
                 "EVMChangeSuccess": "Successfully changed replit.nix, go ahead and restart!",
+
+                "Ws_TypeUserName": "Please enter a username for your websocket extension account: ",
+                "Ws_TypePassWord": "Please enter a password for your websocket extension account: ",
+                "Ws_Success": "Successfully set data for websocket extension!",
+                "Ws_2Fa": "This is your two-factor authentication (2FA) code for horizon_extension. Please use Google Authenticator to retrieve the backup code in case you forget your password or require verification.\n\n=> Here: %1",
+                "Ws_2Fa_Check": "Please enter your 2FA code from the authentication app: ",
 
                 "WishMessage": [
                     "Have a Nice Day !",

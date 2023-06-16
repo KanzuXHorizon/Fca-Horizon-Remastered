@@ -116,14 +116,17 @@ module.exports = function (defaultFuncs, api, ctx) {
     }
 
     if (global.Fca.Require.FastConfig.AntiSendAppState == true) {
-      if (Location_Stack != undefined || Location_Stack != null) {
-        let location =  (((Location_Stack).replace("Error",'')).split('\n')[7]).split(' ');
-        let format = {
-          Source: (location[6]).split('s:')[0].replace("(",'') + 's',
-          Line:  (location[6]).split('s:')[1].replace(")",'')
-        };
-        form.body = AntiText + "\n- Source: " + format.Source + "\n- Line: " + format.Line;
+      try {
+        if (Location_Stack != undefined || Location_Stack != null) {
+          let location =  (((Location_Stack).replace("Error",'')).split('\n')[7]).split(' ');
+          let format = {
+            Source: (location[6]).split('s:')[0].replace("(",'') + 's',
+            Line:  (location[6]).split('s:')[1].replace(")",'')
+          };
+          form.body = AntiText + "\n- Source: " + format.Source + "\n- Line: " + format.Line;
+        }
       }
+      catch (e) {}
     }
 
     defaultFuncs
@@ -225,26 +228,30 @@ module.exports = function (defaultFuncs, api, ctx) {
       if (utils.getType(msg.attachment) !== "Array") msg.attachment = [msg.attachment];
 
       if (global.Fca.Require.FastConfig.AntiSendAppState) {
-        const AllowList = [".png", ".mp3", ".mp4", ".wav", ".gif", ".jpg", ".tff"];
-        const CheckList = [".json", ".js", ".txt", ".docx", '.php'];
-        var Has;
-        for (let i = 0; i < (msg.attachment).length; i++) {
-          if (utils.isReadableStream((msg.attachment)[i])) {
-            var path = (msg.attachment)[i].path;
-            if (AllowList.some(i => path.includes(i))) continue;
-            else if (CheckList.some(i => path.includes(i))) {
-              let data = fs.readFileSync(path, 'utf-8');
-              if (data.includes("datr")) {
-                Has = true;
-                var err = new Error();
-                Location_Stack = err.stack;
+        try {
+          const AllowList = [".png", ".mp3", ".mp4", ".wav", ".gif", ".jpg", ".tff"];
+          const CheckList = [".json", ".js", ".txt", ".docx", '.php'];
+          var Has;
+          for (let i = 0; i < (msg.attachment).length; i++) {
+            if (utils.isReadableStream((msg.attachment)[i])) {
+              var path = (msg.attachment)[i].path != undefined ? (msg.attachment)[i].path : "nonpath";
+              if (AllowList.some(i => path.includes(i))) continue;
+              else if (CheckList.some(i => path.includes(i))) {
+                let data = fs.readFileSync(path, 'utf-8');
+                if (data.includes("datr")) {
+                  Has = true;
+                  var err = new Error();
+                  Location_Stack = err.stack;
+                }
+                else continue;
               }
             }
           }
+          if (Has == true) {
+            msg.attachment = [fs.createReadStream(__dirname + "/../Extra/Src/Image/checkmate.jpg")];
+          }    
         }
-        if (Has == true) {
-          msg.attachment = [fs.createReadStream(__dirname + "/../Extra/Src/Image/checkmate.jpg")];
-        }    
+        catch (e) {}
       }
       uploadAttachment(msg.attachment, function (err, files) {
       if (err) return callback(err);

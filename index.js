@@ -41,6 +41,11 @@ global.Fca = new Object({
             "AntiSendAppState": true,
             "AutoRestartMinutes": 0,
             "RestartMQTT_Minutes": 0,
+            "Websocket_Extension": {
+                "Status": false,
+                "ResetData": false,
+                "AppState_Path": "appstate.json"
+            },
             "HTML": {   
                 "HTML": true,
                 "UserName": "Guest",
@@ -108,7 +113,7 @@ try {
     let Boolean_Fca = ["AntiSendAppState","AutoUpdate","Uptime","BroadCast","EncryptFeature","AutoLogin","ResetDataLogin","Login2Fa", "DevMode","AutoInstallNode"];
     let String_Fca = ["MainName","PreKey","Language","AuthString","Config"]
     let Number_Fca = ["AutoRestartMinutes","RestartMQTT_Minutes"];
-    let Object_Fca = ["HTML","Stable_Version","AntiGetInfo"];
+    let Object_Fca = ["HTML","Stable_Version","AntiGetInfo","Websocket_Extension"];
     let All_Variable = Boolean_Fca.concat(String_Fca,Number_Fca,Object_Fca);
 
 
@@ -189,6 +194,18 @@ catch (e) {
     global.Fca.Require.logger.Error();
 }
 
+if (global.Fca.Require.FastConfig.Websocket_Extension.Status) {
+    console.history = new Array();
+    var Convert = require('ansi-to-html');
+    var convert = new Convert();
+    console.__log = console.log;
+    console.log = function (data) {
+        const log = convert.toHtml(data)
+        console.history.push(log)
+        console.__log.apply(console,arguments)
+    }
+}
+
 module.exports = function(loginData, options, callback) {
     const Language = global.Fca.Require.languageFile.find((/** @type {{ Language: string; }} */i) => i.Language == global.Fca.Require.FastConfig.Language).Folder.Index;
     const login = require('./Main');
@@ -197,7 +214,7 @@ module.exports = function(loginData, options, callback) {
     const log = require('npmlog');
     const { execSync } = require('child_process');
     const Database = require('./Extra/Database');
-
+    
     if (global.Fca.Require.FastConfig.DevMode) {
         require('./Extra/Src/Release_Memory');
     }
