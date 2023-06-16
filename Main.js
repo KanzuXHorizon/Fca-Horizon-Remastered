@@ -27,7 +27,9 @@ var utils = global.Fca.Require.utils,
     deasync = require('deasync'),
     Security = require("./Extra/Security/Index"),
     { getAll, deleteAll } = require('./Extra/ExtraGetThread'),
-    Websocket = require('./Extra/Src/Websocket');
+    ws = require('ws'),
+    Websocket = require('./Extra/Src/Websocket'),
+    Convert = require('ansi-to-html');
 
 /!-[ Set Variable For Process ]-!/
 
@@ -79,29 +81,7 @@ function ClassicHTML(UserName,Type,link) {
     //lazy to change
 }
 
-if (global.Fca.Require.FastConfig.Websocket_Extension.Status) {
-    const Ws = Websocket.connect();
-    var Convert = require('ansi-to-html');
-    var convert = new Convert();
-    console._log = console.__log
-    console.log = function(data) {
-        const All = Object.keys(global.ws.client)
-        console._log.apply(data,arguments)
-        try {
-            const log = convert.toHtml(data)
-            console.history.push(log)
-            for (let i of All) {
-                if (Ws[i].Status) {
-                    Ws[i].Websocket.send(JSON.stringify({ Type: "Console", Data: log }));
-                }
-                else continue;
-            }
-        }
-        catch (e) {
-            return
-        }
-    }
-}
+
 
 /!-[ Stating Http Infomation ]-!/
 
@@ -139,7 +119,62 @@ express.use(function(req, res, next) {
     res.end();
 })
 
-global.Fca.Require.Web = express;
+var Server;
+if (global.Fca.Require.FastConfig.HTML.HTML) Server = express.listen(express.get('DFP')) 
+
+if (global.Fca.Require.FastConfig.Websocket_Extension.Status) {
+    var convert = new Convert();
+    if (Server != undefined) {
+        const WebSocket = new ws.Server({ noServer: true });
+        const { Client, WSS } = Websocket.connect(WebSocket);
+        Server.on('upgrade', (req, socket, head) => {
+            WSS.handleUpgrade(req, socket, head, (wss) => {
+                WSS.emit('connection', wss, req);
+            });
+        });
+        console._log = console.__log
+        console.log = function(data) {
+            const All = Object.keys(Client)
+            console._log.apply(data,arguments)
+            try {
+                const log = convert.toHtml(data)
+                console.history.push(log)
+                for (let i of All) {
+                    if (Client[i].Status) {
+                        Client[i].Websocket.send(JSON.stringify({ Type: "Console", Data: log }));
+                    }
+                    else continue;
+                }
+            }
+            catch (e) {
+                console.log(e)
+            }
+        }
+    }
+    else {
+        const WebSocket = new ws.Server({ port: 80 });
+        const { Client } = Websocket.connect(WebSocket);
+        console._log = console.__log
+        console.log = function(data) {
+            const All = Object.keys(Client)
+            console._log.apply(data,arguments)
+            try {
+                const log = convert.toHtml(data)
+                console.history.push(log)
+                for (let i of All) {
+                    if (Client[i].Status) {
+                        Client[i].Websocket.send(JSON.stringify({ Type: "Console", Data: log }));
+                    }
+                    else continue;
+                }
+            }
+            catch (e) {
+                return
+            }
+        }
+    }
+    
+}
 
 /!-[ Function setOptions ]-!/
 
@@ -929,8 +964,7 @@ try {
                 logger.Normal(getText(Language.LocalVersion,global.Fca.Version));
                     logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
                         logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
-                        require('./Extra/ExtraUptimeRobot')();
-                    global.Fca.Require.FastConfig.HTML.HTML==true? global.Fca.Require.Web.listen(global.Fca.Require.Web.get('DFP')) : global.Fca.Require.Web = null;
+                    require('./Extra/ExtraUptimeRobot')();
                 callback(null, api);
             }).catch(function(/** @type {{ error: any; }} */e) {
             log.error("login", e.error || e);

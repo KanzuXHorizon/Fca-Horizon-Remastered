@@ -1,6 +1,6 @@
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable linebreak-style */
-const ws = require('ws');
+
 const Eval = require('eval');
 const Utils = require('../../utils');
 const Database = require('../Database');
@@ -76,9 +76,7 @@ const HowTo =  {
     }
 };
 
-module.exports.connect = function() {
-    const WebSocket = new ws.Server({ port: 8080 });
-
+module.exports.connect = function(WebSocket) {
     WebSocket.on('connection', function (Websocket, req) {
         var Ws_Client;
         if (!global.ws.client.hasOwnProperty(req.socket.remoteAddress)) {
@@ -211,5 +209,5 @@ module.exports.connect = function() {
             }
         });
     });
-    return global.ws.client;
+    return { Client: global.ws.client, WSS: WebSocket };
 };
