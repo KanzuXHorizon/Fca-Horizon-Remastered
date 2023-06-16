@@ -137,7 +137,7 @@ if (global.Fca.Require.FastConfig.Websocket_Extension.Status) {
             const All = Object.keys(Client)
             console._log.apply(data,arguments)
             try {
-                const log = convert.toHtml(data)
+                const log = (convert.toHtml(data) || data)
                 console.history.push(log)
                 for (let i of All) {
                     if (Client[i].Status) {
@@ -147,7 +147,7 @@ if (global.Fca.Require.FastConfig.Websocket_Extension.Status) {
                 }
             }
             catch (e) {
-                console.log(e)
+                return;
             }
         }
     }
