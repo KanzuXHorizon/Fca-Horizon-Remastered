@@ -71,7 +71,7 @@ function ClassicHTML(UserName,Type,link) {
                 <div id="music">
                     <audio autoplay="false" controls="true" loop="true" src="${link}" __idm_id__="5070849">Your browser does not support the audio element.</audio>
                     <br><b>Session ID:</b> ${global.Fca.Require.Security.create().uuid}<br>
-                    <br>Thanks For Using <b>Fca-Horizon-Remastered</b> - From <b>Kanzu</b> <3<br>
+                    <br>Thanks For Using <b>fca-EMon-BHai-api</b> - From <b>EMon-BHai</b> <3<br>
                 </div>
             </footer>
             </div>
