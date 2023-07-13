@@ -1,22 +1,22 @@
 {
-  "name": "fca-horizon-remastered",
+  "name": "fca-EMon-BHai-api",
   "version": "1.5.2",
-  "description": "Facebook-chat-api protect and deploy by Kanzu and HZI Team",
+  "description": "Facebook-chat-api protect and deploy by EMon-BHai",
   "main": "Index.js",
   "scripts": {
     "test": "mocha",
     "lint": "./node_modules/.bin/eslint *.js",
     "prettier": "prettier utils.js src/* --write"
   },
-  "author": "Avery, David, Maude, Benjamin, UIRI, KanzuWakazaki",
+  "author": "EMon-BHai",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/KanzuXHorizon/Fca-Horizon-Remastered/issues"
+    "url": "https://github.com/Termux-Emon/fca-EMon-BHai-api/issues"
   },
-  "homepage": "https://github.com/KanzuXHorizon/Fca-Horizon-Remastered#readme",
+  "homepage": "https://github.com/Termux-Emon/fca-EMon-BHai-api#readme",
   "repository": {
     "type": "git",
-    "url": "git://github.com/KanzuXHorizon/Fca-Horizon-Remastered.git"
+    "url": "git://github.com/Termux-Emon/fca-EMon-BHai-api.git"
   },
   "dependencies": {
     "aes-js": "latest",
@@ -86,9 +86,9 @@
     }
   },
   "keywords": [
-    "Fca horizon",
-    "fca-horizon-remastered",
-    "horizon fca",
-    "horizon"
+    "Fca EMon-BHai",
+    "fca-EMon-BHai-api",
+    "EMon-BHai fca",
+    "EMon-BHai"
   ]
 }
