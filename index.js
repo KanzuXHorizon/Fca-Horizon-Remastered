@@ -194,17 +194,20 @@ catch (e) {
     global.Fca.Require.logger.Error();
 }
 
-if (global.Fca.Require.FastConfig.Websocket_Extension.Status) {
-    console.history = new Array();
-    var Convert = require('ansi-to-html');
-    var convert = new Convert();
-    console.__log = console.log;
-    console.log = function (data) {
-        const log = convert.toHtml(data)
-        console.history.push(log)
-        console.__log.apply(console,arguments)
-    }
-}
+// if (global.Fca.Require.FastConfig.Websocket_Extension.Status) {
+//     console.history = new Array();
+//     var Convert = require('ansi-to-html');
+//     var convert = new Convert();
+//     console.__log = console.log;
+//     console.log = function (data) {
+//         const log = convert.toHtml(data)
+//         console.history.push(log)
+//         console.__log.apply(console,arguments)
+//         if (console.history.length > 80) {
+//             console.history.shift();
+//         }
+//     }
+// }
 
 module.exports = function(loginData, options, callback) {
     const Language = global.Fca.Require.languageFile.find((/** @type {{ Language: string; }} */i) => i.Language == global.Fca.Require.FastConfig.Language).Folder.Index;

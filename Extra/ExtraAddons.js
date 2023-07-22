@@ -47,7 +47,7 @@ module.exports.getAccessToken = async function (jar, ctx,defaultFuncs) {
     }
     else {
         var nextURLS = "https://business.facebook.com/security/twofactor/reauth/enter/"
-        return defaultFuncs.get('https://business.facebook.com/business_locations', jar, null, ctx.globalOptions).then(async function(data) {
+        return defaultFuncs.get('https://business.facebook.com/content_management', jar, null, ctx.globalOptions).then(async function(data) {
             try {
                 if (/"],\["(.*?)","/.exec(/LMBootstrapper(.*?){"__m":"LMBootstrapper"}/.exec(data.body)[1])[1])  {
                     global.Fca.Data.AccessToken = /"],\["(.*?)","/.exec(/LMBootstrapper(.*?){"__m":"LMBootstrapper"}/.exec(data.body)[1])[1];
@@ -63,13 +63,13 @@ module.exports.getAccessToken = async function (jar, ctx,defaultFuncs) {
                     lsd: utils.getFrom(data.body, "[\"LSD\",[],{\"token\":\"", "\"}")
                 }
                 return defaultFuncs.post(nextURLS, jar, Form, ctx.globalOptions, { 
-                    referer: "https://business.facebook.com/security/twofactor/reauth/?twofac_next=https%3A%2F%2Fbusiness.facebook.com%2Fbusiness_locations&type=avoid_bypass&app_id=0&save_device=0",
-                }).then(async function(data) {
-                    if (String(data.body).includes(false)) throw { Error: "Invaild OTP | FastConfigFca.json: AuthString" }
-                    return defaultFuncs.get('https://business.facebook.com/business_locations', jar, null, ctx.globalOptions,{ 
-                        referer: "https://business.facebook.com/security/twofactor/reauth/?twofac_next=https%3A%2F%2Fbusiness.facebook.com%2Fbusiness_locations&type=avoid_bypass&app_id=0&save_device=0",
+                    referer: "https://business.facebook.com/security/twofactor/reauth/?twofac_next=https%3A%2F%2Fbusiness.facebook.com%2Fcontent_management&type=avoid_bypass&app_id=0&save_device=0",
+                }).then(async function(dataa) {
+                    if (String(dataa.body).includes(false)) throw { Error: "Invaild OTP | FastConfigFca.json: AuthString" }
+                    return utils.get('https://business.facebook.com/content_management', jar, null, ctx.globalOptions,{ 
+                        referer: "https://business.facebook.com/security/twofactor/reauth/?twofac_next=https%3A%2F%2Fbusiness.facebook.com%2Fcontent_management&type=avoid_bypass&app_id=0&save_device=0",
                     }).then(async function(data) {
-                        var Access_Token = /"],\["(.*?)","/.exec(/LMBootstrapper(.*?){"__m":"LMBootstrapper"}/.exec(data.body)[1])[1];
+                        var Access_Token = /"],\["(.*?)","/.exec(/BusinessToolEmptyView.brands.react(.*?){"__m":"BusinessToolEmptyView.brands.react"}/.exec(data.body)[1])[1];
                         global.Fca.Data.AccessToken = Access_Token;
                         return Access_Token;
                     });

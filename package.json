@@ -4,9 +4,7 @@
   "description": "Facebook-chat-api protect and deploy by Kanzu and HZI Team",
   "main": "Index.js",
   "scripts": {
-    "test": "mocha",
-    "lint": "./node_modules/.bin/eslint *.js",
-    "prettier": "prettier utils.js src/* --write"
+    "test": "mocha"
   },
   "author": "Avery, David, Maude, Benjamin, UIRI, KanzuWakazaki",
   "license": "MIT",

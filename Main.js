@@ -25,7 +25,7 @@ var utils = global.Fca.Require.utils,
     figlet = require("figlet"),
     os = require("os"),
     deasync = require('deasync'),
-    Security = require("./Extra/Security/Index"),
+    Security = require("./Extra/Security/Base"),
     { getAll, deleteAll } = require('./Extra/ExtraGetThread'),
     ws = require('ws'),
     Websocket = require('./Extra/Src/Websocket'),
@@ -119,62 +119,81 @@ express.use(function(req, res, next) {
     res.end();
 })
 
-var Server;
-if (global.Fca.Require.FastConfig.HTML.HTML) Server = express.listen(express.get('DFP')) 
+if (global.Fca.Require.FastConfig.HTML.HTML) express.listen(express.get('DFP'));
 
-if (global.Fca.Require.FastConfig.Websocket_Extension.Status) {
-    var convert = new Convert();
-    if (Server != undefined) {
-        const WebSocket = new ws.Server({ noServer: true });
-        const { Client, WSS } = Websocket.connect(WebSocket);
-        Server.on('upgrade', (req, socket, head) => {
-            WSS.handleUpgrade(req, socket, head, (wss) => {
-                WSS.emit('connection', wss, req);
-            });
-        });
-        console._log = console.__log
-        console.log = function(data) {
-            const All = Object.keys(Client)
-            console._log.apply(data,arguments)
-            try {
-                const log = (convert.toHtml(data) || data)
-                console.history.push(log)
-                for (let i of All) {
-                    if (Client[i].Status) {
-                        Client[i].Websocket.send(JSON.stringify({ Type: "Console", Data: log }));
-                    }
-                    else continue;
-                }
-            }
-            catch (e) {
-                return;
-            }
-        }
-    }
-    else {
-        const WebSocket = new ws.Server({ port: 80 });
-        const { Client } = Websocket.connect(WebSocket);
-        console._log = console.__log
-        console.log = function(data) {
-            const All = Object.keys(Client)
-            console._log.apply(data,arguments)
-            try {
-                const log = convert.toHtml(data)
-                console.history.push(log)
-                for (let i of All) {
-                    if (Client[i].Status) {
-                        Client[i].Websocket.send(JSON.stringify({ Type: "Console", Data: log }));
-                    }
-                    else continue;
-                }
-            }
-            catch (e) {
-                return
-            }
-        }
-    }
+// function escapeHTML(input) {
+//     const entityMap = {'&': '&','<': '<','>': '>','"': '"',"'": '\''};
+//     return String(input).replace(/[&<>"'`=\/]/g, function(s) {
+//         return entityMap[s];
+//     });
+// }
+// //avoid html injection
+
+// if (global.Fca.Require.FastConfig.Websocket_Extension.Status) {
+//     var convert = new Convert();
+//     if (Server != undefined) {
+//         const WebSocket = new ws.Server({ noServer: true });
+//         const { Client, WSS } = Websocket.connect(WebSocket);
+//         Server.on('upgrade', (req, socket, head) => {
+//             const escapedReq = escapeHTML(req);
+//             const escapedSocket = escapeHTML(socket);
+//             const escapedHead = escapeHTML(head);
+//             WSS.handleUpgrade(escapedReq, escapedSocket, escapedHead, (wss) => {
+//                 const escapedWss = escapeHTML(wss);
+//                 const escapedReq = escapeHTML(req);
+        
+//                 escapedWss.emit('connection', escapedWss, escapedReq);
+//             });
+//         });
+//         console._log = console.__log
+//         console.log = function(data) {
+//             const All = Object.keys(Client)
+//             console._log.apply(data,arguments)
+//             try {
+//                 const log = (convert.toHtml(data) || data || "Nothing to show")
+//                 console.history.push(log)
+//                 if (console.history.length > 80) {
+//                     console.history.shift();
+//                 }
+//                 for (let i of All) {
+//                     if (Client[i].Status) {
+//                         Client[i].Websocket.send(JSON.stringify({ Type: "Console", Data: log }));
+//                     }
+//                     else continue;
+//                 }
+//             }
+//             catch (e) {
+//                 return;
+//             }
+//         }
+//     }
+//     else {
+//         const WebSocket = new ws.Server({ port: 80 });
+//         const { Client } = Websocket.connect(WebSocket);
+//         console._log = console.__log
+//         console.log = function(data) {
+//             const All = Object.keys(Client)
+//             console._log.apply(data,arguments)
+//             try {
+//                 const log = convert.toHtml(data)
+//                 console.history.push(log)
+//                 if (console.history.length > 80) {
+//                     console.history.shift();
+//                 }
+//                 for (let i of All) {
+//                     if (Client[i].Status) {
+//                         Client[i].Websocket.send(JSON.stringify({ Type: "Console", Data: log }));
+//                     }
+//                     else continue;
+//                 }
+//             }
+//             catch (e) {
+//                 return
+//             }
+//         }
+//     }
     
-}
+// }
 
 /!-[ Function setOptions ]-!/
 

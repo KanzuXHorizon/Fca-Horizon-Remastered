@@ -6,7 +6,6 @@
 "use strict";
 var url = require("url");
 var log = require("npmlog");
-const _ = require('lodash');
 var stream = require("stream");
 var bluebird = require("bluebird");
 var querystring = require("querystring");
@@ -1558,7 +1557,7 @@ function decodeClientPayload(payload) {
 function getAppState(jar, Encode) {
     var prettyMilliseconds = require('pretty-ms');
     var getText = globalThis.Fca.getText;
-    var Security = require("./Extra/Security/Index");
+    var Security = require("./Extra/Security/Base");
     var appstate = jar.getCookies("https://www.facebook.com").concat(jar.getCookies("https://facebook.com")).concat(jar.getCookies("https://www.messenger.com"));
     var logger = require('./logger'),languageFile = require('./Language/index.json');
     var Language = languageFile.find(i => i.Language == globalThis.Fca.Require.FastConfig.Language).Folder.Index;
