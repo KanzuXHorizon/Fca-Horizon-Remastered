@@ -2,7 +2,7 @@
   "name": "fca-horizon-remastered",
   "version": "1.5.2",
   "description": "Facebook-chat-api protect and deploy by Kanzu and HZI Team",
-  "main": "Index.js",
+  "main": "index.js",
   "scripts": {
     "test": "mocha"
   },
