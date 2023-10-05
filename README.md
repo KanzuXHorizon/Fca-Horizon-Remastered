@@ -1,6 +1,10 @@
+
 [![Socket Badge](https://socket.dev/api/badge/npm/package/fca-horizon-remastered)](https://socket.dev/npm/package/fca-horizon-remastered)
 
 ## Important !
+
+<img width="517" alt="Reason" src="https://i.imgur.com/rD3ujmL.png">
+This project is no longer being developed because the project owner lacks high security capabilities, leading to potential security vulnerabilities. Therefore, the project will be permanently suspended.
 
 This package require NodeJS 14.17.0 to work properly.
 
