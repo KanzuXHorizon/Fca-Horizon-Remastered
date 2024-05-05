@@ -81,6 +81,8 @@
                 "Ws_2Fa": "Đây là mã xác thực 2 yếu tố(2FA) của bạn cho Horizon_Extension, hãy sử dụng Google Authenticator để lấy mã phòng trường hợp quên mật khẩu hoặc yêu cầu xác minh !\n\n=> Đây: %1",
                 "Ws_2Fa_Check": "Hãy nhập mã 2Fa của bạn từ ứng dụng xác thực: ",
 
+                "Bypass_956": "Đang thử nghiệm coi bạn có dính checkpoint 956 hay không!",
+
                 "WishMessage": [
                     "Chúc Bạn Một Ngày Tốt Lành Nhé !",
                     "Hãy Báo Cáo Với Admin Khi Có Lỗi Fca Nhé !",
@@ -187,6 +189,8 @@
                 "Ws_Success": "Successfully set data for websocket extension!",
                 "Ws_2Fa": "This is your two-factor authentication (2FA) code for horizon_extension. Please use Google Authenticator to retrieve the backup code in case you forget your password or require verification.\n\n=> Here: %1",
                 "Ws_2Fa_Check": "Please enter your 2FA code from the authentication app: ",
+                
+                "Bypass_956": "Testing to see if you get checkpoint 956 or not!",
 
                 "WishMessage": [
                     "Have a Nice Day !",

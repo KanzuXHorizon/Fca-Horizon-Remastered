@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "aes-js": "latest",
+    "ansi-to-html": "latest",
     "assert": "latest",
     "better-sqlite3": "7.6.2",
     "bluebird": "latest",
@@ -42,12 +43,12 @@
     "readable-stream": "^4.4.0",
     "readline": "latest",
     "request": "latest",
+    "speakeasy": "latest",
     "totp-generator": "latest",
     "tough-cookie": "^4.1.2",
     "uuid": "latest",
-    "speakeasy": "latest",
     "ws": "^8.13.0",
-    "ansi-to-html": "latest"
+    "sqlite3": "^5.0.2"
   },
   "engines": {
     "node": ">=14.x"

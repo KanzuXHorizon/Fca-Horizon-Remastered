@@ -7,7 +7,7 @@ var log = require("npmlog");
 module.exports = function(defaultFuncs, api, ctx) {
     return function getMessage(threadID, messageID, callback) {
       if (!callback) {
-        return callback({ error: "getMessage: need callback" });
+        //return callback({ error: "getMessage: need callback" });
       }
 
       if (!threadID || !messageID) {
@@ -15,7 +15,7 @@ module.exports = function(defaultFuncs, api, ctx) {
       }
 
       const form = {
-        "av": ctx.globalOptions.pageID,
+        "av": ctx.userID,
         "queries": JSON.stringify({
           "o0": {
             //This doc_id is valid as of ? (prob January 18, 2020)
@@ -43,12 +43,35 @@ module.exports = function(defaultFuncs, api, ctx) {
         }
 
         var fetchData = resData[0].o0.data.message;
+        console.log(resData)
         if (fetchData) {
           (!ctx.globalOptions.selfListen &&
             fetchData.message_sender.id.toString() === ctx.userID) ||
             !ctx.loggedIn ?
             undefined :
-            (function () { callback(null, {
+            (function () {
+              console.log( {
+                threadID: threadID,
+                messageID: fetchData.message_id,
+                senderID: fetchData.message_sender.id,
+                attachments: fetchData.blob_attachments.map(att => {
+                    var x;
+                    try {
+                        x = utils._formatAttachment(att);
+                    } catch (ex) {
+                        x = att;
+                        x.error = ex;
+                        x.type = "unknown";
+                    }
+                    return x;
+                }),
+                body: fetchData.message.text,
+                mentions: fetchData.message.ranges,
+                timestamp: fetchData.timestamp_precise,
+                messageReply: fetchData.replied_to_message,
+                raw: fetchData,
+            })
+              callback(null, {
                 threadID: threadID,
                 messageID: fetchData.message_id,
                 senderID: fetchData.message_sender.id,

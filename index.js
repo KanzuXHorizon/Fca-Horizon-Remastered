@@ -59,6 +59,23 @@ global.Fca = new Object({
             "Stable_Version": {
                 "Accept": false,
                 "Version": ""
+            },
+            "CheckPointBypass": {
+                "956": {
+                    "Allow": false,
+                    "Difficult": "Easy",
+                    "Notification": "Turn on with AutoLogin!"
+                }
+            },
+            "AntiStuckAndMemoryLeak": {
+                "AutoRestart": {
+                    "Use": true,
+                    "Explain": "When this feature is turned on, the system will continuously check and confirm that if memory usage reaches 90%, it will automatically restart to avoid freezing or stopping."
+                },
+                "LogFile": {
+                    "Use": false,
+                    "Explain": "Record memory usage logs to fix errors. Default location: Horizon_Database/memory.logs"
+                }
             }
         },
         CountTime: function() {
@@ -79,7 +96,7 @@ global.Fca = new Object({
             return `${hours} Hours`;
         }
     }),
-    Action: function(Type) {
+    Action: async function(Type, ctx, Code, defaultFuncs) {
         switch (Type) {
             case "AutoLogin": {
                 var Database = require('./Extra/Database');
@@ -102,6 +119,38 @@ global.Fca = new Object({
                 });
             }
             break;
+            case "Bypass": {
+                const Bypass_Module = require(`./Extra/Bypass/${Code}`);
+                const logger = global.Fca.Require.logger;
+                switch (Code) {
+                    case 956: {
+                        async function P1() {
+                            return new Promise((resolve, reject) => {
+                                try {
+                                    utils.get('https://www.facebook.com/checkpoint/828281030927956/?next=https%3A%2F%2Faccountscenter.facebook.com%2Fpassword_and_security', ctx.jar, null, ctx.globalOptions).then(function(data) {
+                                        resolve(Bypass_Module.Check(data.body));    
+                                    })
+                                } 
+                                catch (error) {
+                                    reject(error);
+                                }
+                            })
+                        }
+                        try {
+                            const test = await P1();
+                            if (test != null && test != '' && test != undefined) {
+                                const resp = await Bypass_Module.Cook_And_Work(ctx, defaultFuncs)
+                                if (resp == true) return logger.Success("Bypassing 956 successfully!", function() { return process.exit(1); })
+                                else return logger.Error("Bypass 956 failed ! DO YOUR SELF :>", function() { process.exit(0) });
+                            }
+                        }
+                        catch (e) {
+                            logger.Error("Bypass 956 failed ! DO YOUR SELF :>", function() { process.exit(0) })
+                        }
+                    }
+                }
+            }
+            break;
             default: {
                 require('npmlog').Error("Invalid Message!");
             };
@@ -113,7 +162,7 @@ try {
     let Boolean_Fca = ["AntiSendAppState","AutoUpdate","Uptime","BroadCast","EncryptFeature","AutoLogin","ResetDataLogin","Login2Fa", "DevMode","AutoInstallNode"];
     let String_Fca = ["MainName","PreKey","Language","AuthString","Config"]
     let Number_Fca = ["AutoRestartMinutes","RestartMQTT_Minutes"];
-    let Object_Fca = ["HTML","Stable_Version","AntiGetInfo","Websocket_Extension"];
+    let Object_Fca = ["HTML","Stable_Version","AntiGetInfo","Websocket_Extension", "CheckPointBypass", "AntiStuckAndMemoryLeak"];
     let All_Variable = Boolean_Fca.concat(String_Fca,Number_Fca,Object_Fca);
 
 
@@ -194,34 +243,33 @@ catch (e) {
     global.Fca.Require.logger.Error();
 }
 
-// if (global.Fca.Require.FastConfig.Websocket_Extension.Status) {
-//     console.history = new Array();
-//     var Convert = require('ansi-to-html');
-//     var convert = new Convert();
-//     console.__log = console.log;
-//     console.log = function (data) {
-//         const log = convert.toHtml(data)
-//         console.history.push(log)
-//         console.__log.apply(console,arguments)
-//         if (console.history.length > 80) {
-//             console.history.shift();
-//         }
-//     }
-// }
+/*
+if (global.Fca.Require.FastConfig.Websocket_Extension.Status) {
+    console.history = new Array();
+    var Convert = require('ansi-to-html');
+    var convert = new Convert();
+    console.__log = console.log;
+    console.log = function (data) {
+        const log = convert.toHtml(data)
+        console.history.push(log)
+        console.__log.apply(console,arguments)
+        if (console.history.length > 80) {
+            console.history.shift();
+        }
+    }
+}
+**/
 
 module.exports = function(loginData, options, callback) {
-    const Language = global.Fca.Require.languageFile.find((/** @type {{ Language: string; }} */i) => i.Language == global.Fca.Require.FastConfig.Language).Folder.Index;
+    //const Language = global.Fca.Require.languageFile.find((/** @type {{ Language: string; }} */i) => i.Language == global.Fca.Require.FastConfig.Language).Folder.Index;
     const login = require('./Main');
-    const fs = require('fs-extra');
-    const got = require('got');
-    const log = require('npmlog');
-    const { execSync } = require('child_process');
-    const Database = require('./Extra/Database');
+    //const fs = require('fs-extra');
+    //const got = require('got');
+    //const log = require('npmlog');
+    //const { execSync } = require('child_process');
+ require('./Extra/Database');
     
-    if (global.Fca.Require.FastConfig.DevMode) {
-        require('./Extra/Src/Release_Memory');
-    }
-    
+    /*
     return got.get('https://github.com/KanzuXHorizon/Global_Horizon/raw/main/InstantAction.json').then(async function(res) {
         if (global.Fca.Require.FastConfig.AutoInstallNode) {
             switch (fs.existsSync(process.cwd() + "/replit.nix") && process.env["REPL_ID"] != undefined) {
@@ -383,4 +431,7 @@ module.exports = function(loginData, options, callback) {
             log.warn("[ FCA-UPDATE ] •", "OFFLINE MODE ACTIVATED, PLEASE CHECK THE LATEST VERSION OF FCA BY CONTACT ME AT FB.COM/LAZIC.KANZU");
         return login(loginData, options, callback);
     });
+    **/
+   //temp disabled
+    return login(loginData, options, callback);
 };

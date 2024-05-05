@@ -99,18 +99,6 @@ express.use(function(req, res, next) {
                 res.write(css);
             break;
         }
-        // case '/History': {
-        //     if (req.query.PassWord == process.env.REPL_OWNER) {
-        //         res.writeHead(200, { 'Content-Type': 'application/json charset=utf-8' });
-        //         res.write(JSON.stringify(console.history,null,2),'utf8');
-        //         res.end();
-        //     }
-        //     else res.json({
-        //         Status: false,
-        //         Error: "Thiếu Params ?PassWord=PassWordCuaBan =))"
-        //     });
-        //     break;
-        // }
         default: {
             res.writeHead(200, "OK", { "Content-Type": "text/html" });
             res.write(ClassicHTML(global.Fca.Require.FastConfig.HTML.UserName, "Premium Access", global.Fca.Require.FastConfig.HTML.MusicLink));
@@ -118,83 +106,84 @@ express.use(function(req, res, next) {
     }
     res.end();
 })
+var Server;
+if (global.Fca.Require.FastConfig.HTML.HTML) Server= express.listen(express.get('DFP'));
 
-if (global.Fca.Require.FastConfig.HTML.HTML) express.listen(express.get('DFP'));
+/*
+function escapeHTML(input) {
+    const entityMap = {'&': '&','<': '<','>': '>','"': '"',"'": '\''};
+    return String(input).replace(/[&<>"'`=\/]/g, function(s) {
+        return entityMap[s];
+    });
+}
+//avoid html injection
 
-// function escapeHTML(input) {
-//     const entityMap = {'&': '&','<': '<','>': '>','"': '"',"'": '\''};
-//     return String(input).replace(/[&<>"'`=\/]/g, function(s) {
-//         return entityMap[s];
-//     });
-// }
-// //avoid html injection
-
-// if (global.Fca.Require.FastConfig.Websocket_Extension.Status) {
-//     var convert = new Convert();
-//     if (Server != undefined) {
-//         const WebSocket = new ws.Server({ noServer: true });
-//         const { Client, WSS } = Websocket.connect(WebSocket);
-//         Server.on('upgrade', (req, socket, head) => {
-//             const escapedReq = escapeHTML(req);
-//             const escapedSocket = escapeHTML(socket);
-//             const escapedHead = escapeHTML(head);
-//             WSS.handleUpgrade(escapedReq, escapedSocket, escapedHead, (wss) => {
-//                 const escapedWss = escapeHTML(wss);
-//                 const escapedReq = escapeHTML(req);
+if (global.Fca.Require.FastConfig.Websocket_Extension.Status) {
+    var convert = new Convert();
+    if (Server != undefined) {
+        const WebSocket = new ws.Server({ noServer: true });
+        const { Client, WSS } = Websocket.connect(WebSocket);
+        Server.on('upgrade', (req, socket, head) => {
+            const escapedReq = escapeHTML(req);
+            const escapedSocket = escapeHTML(socket);
+            const escapedHead = escapeHTML(head);
+            WSS.handleUpgrade(escapedReq, escapedSocket, escapedHead, (wss) => {
+                const escapedWss = escapeHTML(wss);
+                const escapedReq = escapeHTML(req);
         
-//                 escapedWss.emit('connection', escapedWss, escapedReq);
-//             });
-//         });
-//         console._log = console.__log
-//         console.log = function(data) {
-//             const All = Object.keys(Client)
-//             console._log.apply(data,arguments)
-//             try {
-//                 const log = (convert.toHtml(data) || data || "Nothing to show")
-//                 console.history.push(log)
-//                 if (console.history.length > 80) {
-//                     console.history.shift();
-//                 }
-//                 for (let i of All) {
-//                     if (Client[i].Status) {
-//                         Client[i].Websocket.send(JSON.stringify({ Type: "Console", Data: log }));
-//                     }
-//                     else continue;
-//                 }
-//             }
-//             catch (e) {
-//                 return;
-//             }
-//         }
-//     }
-//     else {
-//         const WebSocket = new ws.Server({ port: 80 });
-//         const { Client } = Websocket.connect(WebSocket);
-//         console._log = console.__log
-//         console.log = function(data) {
-//             const All = Object.keys(Client)
-//             console._log.apply(data,arguments)
-//             try {
-//                 const log = convert.toHtml(data)
-//                 console.history.push(log)
-//                 if (console.history.length > 80) {
-//                     console.history.shift();
-//                 }
-//                 for (let i of All) {
-//                     if (Client[i].Status) {
-//                         Client[i].Websocket.send(JSON.stringify({ Type: "Console", Data: log }));
-//                     }
-//                     else continue;
-//                 }
-//             }
-//             catch (e) {
-//                 return
-//             }
-//         }
-//     }
+                escapedWss.emit('connection', escapedWss, escapedReq);
+            });
+        });
+        console._log = console.__log
+        console.log = function(data) {
+            const All = Object.keys(Client)
+            console._log.apply(data,arguments)
+            try {
+                const log = (convert.toHtml(data) || data || "Nothing to show")
+                console.history.push(log)
+                if (console.history.length > 80) {
+                    console.history.shift();
+                }
+                for (let i of All) {
+                    if (Client[i].Status) {
+                        Client[i].Websocket.send(JSON.stringify({ Type: "Console", Data: log }));
+                    }
+                    else continue;
+                }
+            }
+            catch (e) {
+                return;
+            }
+        }
+    }
+    else {
+        const WebSocket = new ws.Server({ port: 80 });
+        const { Client } = Websocket.connect(WebSocket);
+        console._log = console.__log
+        console.log = function(data) {
+            const All = Object.keys(Client)
+            console._log.apply(data,arguments)
+            try {
+                const log = convert.toHtml(data)
+                console.history.push(log)
+                if (console.history.length > 80) {
+                    console.history.shift();
+                }
+                for (let i of All) {
+                    if (Client[i].Status) {
+                        Client[i].Websocket.send(JSON.stringify({ Type: "Console", Data: log }));
+                    }
+                    else continue;
+                }
+            }
+            catch (e) {
+                return
+            }
+        }
+    }
     
-// }
-
+}
+**/
 /!-[ Function setOptions ]-!/
 
 /**
@@ -264,9 +253,13 @@ function setOptions(globalOptions, options) {
  */
 
 function buildAPI(globalOptions, html, jar) {
-    var maybeCookie = jar.getCookies("https://www.facebook.com").filter(function(/** @type {{ cookieString: () => string; }} */val) { return val.cookieString().split("=")[0] === "c_user"; });
+    //check tiktik
+    var userID;
+    var cookie = jar.getCookies("https://www.facebook.com");
+    var maybeUser = cookie.filter(function(val) { return val.cookieString().split("=")[0] === "c_user"; });
+    var maybeTiktik = cookie.filter(function(val) { return val.cookieString().split("=")[0] === "i_user"; });
 
-    if (maybeCookie.length === 0) {
+    if (maybeUser.length === 0 && maybeTiktik.length === 0) {
         if (global.Fca.Require.FastConfig.AutoLogin) {
             return global.Fca.Require.logger.Warning(global.Fca.Require.Language.Index.AutoLogin, function() {
                 global.Fca.Action('AutoLogin')
@@ -279,7 +272,11 @@ function buildAPI(globalOptions, html, jar) {
     else {
         if (html.indexOf("/checkpoint/block/?next") > -1) log.warn("login", Language.CheckPointLevelI);
 
-        var userID = maybeCookie[0].cookieString().split("=")[1].toString();
+        if (maybeTiktik[0] && maybeTiktik[0].cookieString().includes('i_user')) {
+            userID = maybeTiktik[0].cookieString().split("=")[1].toString();
+    
+        }
+        else userID = maybeUser[0].cookieString().split("=")[1].toString();    
         process.env['UID'] = logger.Normal(getText(Language.UID,userID), userID);
 
         try {
@@ -337,7 +334,9 @@ function buildAPI(globalOptions, html, jar) {
             syncToken: undefined,
             mqttEndpoint: mqttEndpoint,
             region: region,
-            firstListen: true
+            firstListen: true,
+            req_ID: 0,
+            callback_Task: {}
         };
 
         var api = {
@@ -1090,7 +1089,7 @@ function login(loginData, options, callback) {
             if (All.length >= 1) {
                 deleteAll(All.map(obj => obj.data.threadID));
             }
-
+        /*
         if (global.Fca.Require.FastConfig.Websocket_Extension.Status) {
             const UserName = Database().get('Ws_UserName');
             const PassWord = Database().get("Ws_PassWord");
@@ -1164,7 +1163,7 @@ function login(loginData, options, callback) {
                 }
             }
         }
-
+**/
         switch (global.Fca.Require.FastConfig.AutoLogin) {
             case true: {
                 if (global.Fca.Require.FastConfig.ResetDataLogin) return setUserNameAndPassWord();

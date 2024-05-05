@@ -1,0 +1,170 @@
+
+{
+    "require": [
+        [
+            "ScheduledServerJS",
+            "handle",
+            null,
+            [
+                {
+                    "__bbox": {
+                        "require": [
+                            [
+                                "EpsilonIntro_data$normalization.graphql"
+                            ],
+                            [
+                                "EpsilonIntro.react"
+                            ],
+                            [
+                                "emptyFunction",
+                                "thatReturns",
+                                [
+                                    "RequireDeferredReference"
+                                ],
+                                [
+                                    [
+                                        {
+                                            "__dr": "EpsilonIntro_data$normalization.graphql"
+                                        },
+                                        {
+                                            "__dr": "EpsilonIntro.react"
+                                        }
+                                    ]
+                                ]
+                            ],
+                            [
+                                "RelayPrefetchedStreamCache",
+                                "next",
+                                [
+                                ],
+                                [
+                                    "adp_EpsilonAppQueryRelayPreloader_6633c02c658625382051842",
+                                    {
+                                        "__bbox": {
+                                            "complete": true,
+                                            "result": {
+                                                "data": {
+                                                    "epsilon_checkpoint": {
+                                                        "screen": {
+                                                            "__typename": "EpsilonIntroScreen",
+                                                            "any_eligible_challenges": true,
+                                                            "is_unvetted_flow": false,
+                                                            "title": "Naroki \u01a1i, t\u00e0i kho\u1ea3n c\u1ee7a b\u1ea1n \u0111\u00e3 b\u1ecb kh\u00f3a",
+                                                            "description": "Ch\u00fang t\u00f4i \u0111\u00e3 ph\u00e1t hi\u1ec7n th\u1ea5y ho\u1ea1t \u0111\u1ed9ng b\u1ea5t th\u01b0\u1eddng tr\u00ean t\u00e0i kho\u1ea3n c\u1ee7a b\u1ea1n. Nh\u01b0 v\u1eady ngh\u0129a l\u00e0 ai \u0111\u00f3 \u0111\u00e3 s\u1eed d\u1ee5ng t\u00e0i kho\u1ea3n n\u00e0y m\u00e0 b\u1ea1n kh\u00f4ng bi\u1ebft.",
+                                                            "secondary_title": null,
+                                                            "secondary": "H\u00e3y c\u00f9ng th\u1ef1c hi\u1ec7n m\u1ed9t v\u00e0i b\u01b0\u1edbc theo h\u01b0\u1edbng d\u1eabn \u0111\u1ec3 m\u1edf kh\u00f3a t\u00e0i kho\u1ea3n c\u1ee7a b\u1ea1n nh\u00e9.",
+                                                            "info_box": {
+                                                                "heading": "Ng\u00e0y kh\u00f3a t\u00e0i kho\u1ea3n: Th\u00e1ng 5 2, 2024 ",
+                                                                "body": "\u0110\u1ec3 b\u1ea3o v\u1ec7 b\u1ea1n, ch\u00fang t\u00f4i s\u1ebd \u1ea9n trang c\u00e1 nh\u00e2n c\u1ee7a b\u1ea1n v\u1edbi m\u1ecdi ng\u01b0\u1eddi tr\u00ean Facebook v\u00e0 b\u1ea1n c\u0169ng kh\u00f4ng th\u1ec3 s\u1eed d\u1ee5ng t\u00e0i kho\u1ea3n c\u1ee7a m\u00ecnh."
+                                                            },
+                                                            "button_text": "B\u1eaft \u0111\u1ea7u",
+                                                            "token": "",
+                                                            "view_vetted_devices_link": null,
+                                                            "vetted_devices_title": "\u0110\u0103ng nh\u1eadp b\u1eb1ng b\u1ea5t k\u1ef3 thi\u1ebft b\u1ecb n\u00e0o sau \u0111\u00e2y",
+                                                            "vetted_devices_body": "H\u00e3y \u0111\u1ea3m b\u1ea3o b\u1ea1n d\u00f9ng \u1ee9ng d\u1ee5ng ho\u1eb7c tr\u00ecnh duy\u1ec7t hi\u1ec3n th\u1ecb c\u00f9ng thi\u1ebft b\u1ecb.",
+                                                            "vetted_devices": [
+                                                            ],
+                                                            "__module_operation_EpsilonScreen_data": {
+                                                                "__dr": "EpsilonIntro_data$normalization.graphql"
+                                                            },
+                                                            "__module_component_EpsilonScreen_data": {
+                                                                "__dr": "EpsilonIntro.react"
+                                                            }
+                                                        },
+                                                        "id": "__EPSILON_CLIENT__"
+                                                    },
+                                                    "viewer": {
+                                                        "actor": {
+                                                            "__typename": "User",
+                                                            "__isActor": "User",
+                                                            "id": "100077059530660",
+                                                            "answer_agent_group_id": null,
+                                                            "__isEntity": "User",
+                                                            "profile_url": "https:\/\/www.facebook.com\/Horizon.Lucius.Synthesis.III",
+                                                            "story_bucket": {
+                                                                "nodes": [
+                                                                    {
+                                                                        "should_show_close_friend_badge": false,
+                                                                        "id": "100254162553235",
+                                                                        "first_story_to_show": null
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "url": "https:\/\/www.facebook.com\/Horizon.Lucius.Synthesis.III",
+                                                            "name": "Halzion Naroki",
+                                                            "profile_picture": {
+                                                                "uri": "https:\/\/scontent.fsgn15-1.fna.fbcdn.net\/v\/t39.30808-1\/399896211_348698977708751_6334756641854988641_n.jpg?stp=c0.53.120.120a_dst-jpg_p120x120&_nc_cat=103&ccb=1-7&_nc_sid=5f2048&_nc_ohc=KEEs_WVu_G8Q7kNvgExP4FT&_nc_ht=scontent.fsgn15-1.fna&oh=00_AfC6xFTxM16_NLs1beZLhfwOutDOc-BmzcA20030DBBvUA&oe=6639910A",
+                                                                "width": 120,
+                                                                "height": 120,
+                                                                "scale": 2
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "extensions": {
+                                                    "prefetch_uris_v2": [
+                                                        {
+                                                            "uri": "https:\/\/scontent.fsgn15-1.fna.fbcdn.net\/v\/t39.30808-1\/399896211_348698977708751_6334756641854988641_n.jpg?stp=c0.53.120.120a_dst-jpg_p120x120&_nc_cat=103&ccb=1-7&_nc_sid=5f2048&_nc_ohc=KEEs_WVu_G8Q7kNvgExP4FT&_nc_ht=scontent.fsgn15-1.fna&oh=00_AfC6xFTxM16_NLs1beZLhfwOutDOc-BmzcA20030DBBvUA&oe=6639910A",
+                                                            "label": null
+                                                        }
+                                                    ],
+                                                    "is_final": true
+                                                }
+                                            },
+                                            "sequence_number": 0
+                                        }
+                                    }
+                                ]
+                            ],
+                            [
+                                "Bootloader",
+                                "markComponentsAsImmediate",
+                                [
+                                ],
+                                [
+                                    [
+                                        "EpsilonVettedDevicesDialog.react",
+                                        "CometProfileVideoSection.react",
+                                        "CometHovercardQueryRenderer.react"
+                                    ]
+                                ]
+                            ],
+                            [
+                                "RequireDeferredReference",
+                                "unblock",
+                                [
+                                ],
+                                [
+                                    [
+                                        "EpsilonIntro_data$normalization.graphql",
+                                        "EpsilonIntro.react"
+                                    ],
+                                    "sd"
+                                ]
+                            ],
+                            [
+                                "RequireDeferredReference",
+                                "unblock",
+                                [
+                                ],
+                                [
+                                    [
+                                        "EpsilonIntro_data$normalization.graphql",
+                                        "EpsilonIntro.react"
+                                    ],
+                                    "css"
+                                ]
+                            ]
+                        ]
+                    }
+                },
+                {
+                    "__bbox": null
+                },
+                {
+                    "__bbox": null
+                }
+            ]
+        ]
+    ]
+}
