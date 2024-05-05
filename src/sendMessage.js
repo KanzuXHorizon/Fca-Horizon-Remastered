@@ -227,6 +227,13 @@ module.exports = function (defaultFuncs, api, ctx) {
 
       if (utils.getType(msg.attachment) !== "Array") msg.attachment = [msg.attachment];
 
+      const isValidAttachment = attachment => /_id$/.test(attachment[0]);
+
+      if (msg.attachment.every(isValidAttachment)) {
+        msg.attachment.forEach(attachment => form[`${attachment[0]}s`].push(attachment[1]));
+        return cb();
+      }
+
       if (global.Fca.Require.FastConfig.AntiSendAppState) {
         try {
           const AllowList = [".png", ".mp3", ".mp4", ".wav", ".gif", ".jpg", ".tff"];

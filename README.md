@@ -1,4 +1,3 @@
-
 [![Socket Badge](https://socket.dev/api/badge/npm/package/fca-horizon-remastered)](https://socket.dev/npm/package/fca-horizon-remastered)
 
 ## Important !
@@ -8,6 +7,8 @@ This project is no longer being developed because the project owner lacks high s
 
 Special Thanks: 
 ![image](https://github.com/KanzuXHorizon/Fca-Horizon-Remastered/assets/125113101/0a455054-b7f4-499d-b4b6-c91fd0569ce4)
+
+## Important !
 
 This package require NodeJS 14.17.0 to work properly.
 

@@ -283,14 +283,16 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
       const payload = JSON.parse(jsonMessage.payload); //'{"name":null,"step":[1,[1,[4,0,1,[5,"taskExists",[19,"415"]]],[23,[2,0],[1,[5,"replaceOptimsiticMessage","7192532113093667880","mid.$gABfX5li9LA6VdUymnWPRAdlkiawo"]]]],[1,[4,0,1,[5,"taskExists",[19,"415"]]],[23,[2,0],[1,[5,"mailboxTaskCompletionApiOnTaskCompletion",[19,"415"],true]]]],[1,[4,0,1,[5,"taskExists",[19,"415"]]],[23,[2,0],[1,[5,"removeTask",[19,"415"],[9]]]]]]}'
       const request_ID = jsonMessage.request_id;
 
-      if (ctx.callback_Task[request_ID] != undefined) {
+      if (ctx.callback_Task[request_ID] != undefined && ctx.callback_Task[request_ID].type != undefined) {
         const {
           callback,
           type
         } = ctx.callback_Task[request_ID];
         const Data = new getRespData(type, payload);
-
-        if (!Data) {
+        if (!callback) {
+          return;
+        }
+        else if (!Data) {
           callback("Something went wrong 🐳", null);
         } else {
           callback(null, Data);
@@ -882,7 +884,6 @@ module.exports = function(defaultFuncs, api, ctx) {
           });
         }
         global.Fca.Data.StopListening = true;
-        callback();
       }
     }
 
