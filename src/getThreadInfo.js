@@ -266,7 +266,7 @@ module.exports = function(defaultFuncs, api, ctx) {
           });
             try {
             if (Object.keys(resData).length == 1) {
-              updateData(threadID,ThreadInfo[0]);	
+              updateData(threadID,ThreadInfo[0]); 
               if (utils.getType(ThreadInfo[0].userInfo) == "Array") {
                 for (let i of ThreadInfo[0].userInfo) {
                   if (global.Fca.Data.Userinfo.some(ii => ii.id == i.id)) {
@@ -366,7 +366,7 @@ module.exports = function(defaultFuncs, api, ctx) {
           ThreadInfo.push(formatThreadGraphQLResponse(x["o"+y].data));
         });
         if (Object.keys(resData).length == 1) {
-          createData(threadID,ThreadInfo[0]);	
+          createData(threadID,ThreadInfo[0]); 
           callback(null, ThreadInfo[0]);
           capture(callback);
           setLastRun('LastUpdate', callback);
@@ -402,7 +402,7 @@ module.exports = function(defaultFuncs, api, ctx) {
     
 
 
-    setInterval(function(){Database(true).set('UserInfo', global.Fca.Data.Userinfo);global.Fca.Data.Userinfo = [];}, 900 * 1000);
+    setInterval(function(){Database(true).set('UserInfo', global.Fca.Data.Userinfo); delete global.Fca.Data.Userinfo; global.Fca.Data.Userinfo = []}, 900 * 1000);
     try {
       for (let i of threadID) {
         switch (hasData(i)) {
