@@ -223,63 +223,67 @@ module.exports = function(defaultFuncs, api, ctx) {
       return DefaultMethod(TID);
     } 
     else if (All.length > 1) {
-        for (let i of All) {
-            if (i.data.threadID !== undefined) AllofThread.push(i.data.threadID);
-          }
-          
-          const processChunk = (chunk) => {
-            const Form = {};
-            const ThreadInfo = new Map();
-          
-            for (let y = 0; y < chunk.length; y++) {
-              const x = chunk[y];
-              Form["o" + y] = {
-                doc_id: "3449967031715030",
-                query_params: { id: x, message_limit: 0, load_messages: false, load_read_receipts: false, before: null }
-              };
-            }
-          
-            const form = { queries: JSON.stringify(Form), batch_name: "MessengerGraphQLThreadFetcher" };
-          
-            defaultFuncs
-              .post("https://www.facebook.com/api/graphqlbatch/", ctx.jar, form)
-              .then(utils.parseAndCheckLogin(ctx, defaultFuncs))
-              .then(resData => {
-                if (resData.error || resData[resData.length - 1].error_results !== 0) throw "Lỗi: getThreadInfoGraphQL Có Thể Do Bạn Spam Quá Nhiều";
-                for (let i = 0, len = resData.length - 1; i < len; i++) {
-                  const x = resData[i];
-                  const key = Object.keys(x)[0];
-                  ThreadInfo.set(x[key].data.threadID, formatThreadGraphQLResponse(x[key].data));
-                }
-                try {
-                  for (const [threadID, threadInfo] of ThreadInfo) {
-                    updateData(threadID, threadInfo);
-                    if (utils.getType(threadInfo.userInfo) === "Array") {
-                      for (const user of threadInfo.userInfo) {
-                        if (global.Fca.Data.Userinfo.some(u => u.id === user.id)) {
-                          global.Fca.Data.Userinfo.splice(global.Fca.Data.Userinfo.findIndex(u => u.id === user.id), 1);
-                        }
-                        global.Fca.Data.Userinfo.push(user);
-                      }
-                    }
-                  }
-                } catch (e) {
-                  console.log(e);
-                }
-              })
-              .catch(() => { throw "Lỗi: getThreadInfoGraphQL Có Thể Do Bạn Spam Quá Nhiều"; });
-          
+      for (let i of All) {
+        if (i.data.threadID !== undefined) AllofThread.push(i.data.threadID);
+      }
+      
+      const processChunk = (chunk) => {
+        const Form = {};
+        const ThreadInfo = [];
+        chunk.forEach((x, y) => {
+          Form["o" + y] = {
+            doc_id: "3449967031715030",
+            query_params: { id: x, message_limit: 0, load_messages: false, load_read_receipts: false, before: null }
           };
-          for (const chunk of chunkArray(AllofThread, 5)) {
-            processChunk(chunk);
-          }
+        });
+      
+        const form = { queries: JSON.stringify(Form), batch_name: "MessengerGraphQLThreadFetcher" };
+      
+        defaultFuncs
+          .post("https://www.facebook.com/api/graphqlbatch/", ctx.jar, form)
+          .then(utils.parseAndCheckLogin(ctx, defaultFuncs))
+          .then(resData => {
+            if (resData.error || resData[resData.length - 1].error_results !== 0) throw "Lỗi: getThreadInfoGraphQL Có Thể Do Bạn Spam Quá Nhiều";
+            resData = resData.slice(0, -1).sort((a, b) => Object.keys(a)[0].localeCompare(Object.keys(b)[0]));
+            resData.forEach((x, y) => ThreadInfo.push(formatThreadGraphQLResponse(x["o" + y].data)));
+            try {
+              if (ThreadInfo.length === 1) {
+                updateData(threadID, ThreadInfo[0]);
+                if (utils.getType(ThreadInfo[0].userInfo) === "Array") {
+                  ThreadInfo[0].userInfo.forEach(i => {
+                    if (global.Fca.Data.Userinfo.some(ii => ii.id === i.id)) global.Fca.Data.Userinfo.splice(global.Fca.Data.Userinfo.findIndex(ii => ii.id === i.id), 1);
+                    global.Fca.Data.Userinfo.push(i);
+                  });
+                }
+              } else {
+                ThreadInfo.forEach(i => {
+                  updateData(i.threadID, i);
+                  if (utils.getType(i.userInfo) === "Array") {
+                    i.userInfo.forEach(ii => {
+                      if (global.Fca.Data.Userinfo.some(iii => iii.id === ii.id)) global.Fca.Data.Userinfo.splice(global.Fca.Data.Userinfo.findIndex(iii => iii.id === ii.id), 1);
+                      global.Fca.Data.Userinfo.push(ii);
+                    });
+                  }
+                });
+              }
+            } catch (e) {
+              console.log(e);
+            }
+          })
+          .catch(() => { throw "Lỗi: getThreadInfoGraphQL Có Thể Do Bạn Spam Quá Nhiều"; });
+      };
+      
+      if (AllofThread.length > 5) {
+        const chunks = [];
+        for (let i = 0; i < AllofThread.length; i += 5) {
+          chunks.push(AllofThread.slice(i, i + 5));
+        }
+        chunks.forEach(processChunk);
+      } else {
+        processChunk(AllofThread);
+      }
       }
     };
-function* chunkArray(arr, size) {
-    for (let i = 0; i < arr.length; i += size) {
-        yield arr.slice(i, i + size);
-    }
-    }
 
     var DefaultMethod = function(TID) { 
       var ThreadInfo = [];
