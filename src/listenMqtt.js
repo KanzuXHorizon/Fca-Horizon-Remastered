@@ -504,7 +504,7 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, {
             threadID: (delta.deltaMessageReply.message.messageMetadata.threadKey.threadFbId ? delta.deltaMessageReply.message.messageMetadata.threadKey.threadFbId : delta.deltaMessageReply.message.messageMetadata.threadKey.otherUserFbId).toString(),
             messageID: delta.deltaMessageReply.message.messageMetadata.messageId,
             senderID: delta.deltaMessageReply.message.messageMetadata.actorFbId.toString(),
-            attachments: delta.deltaMessageReply.message.attachments
+            attachments: ( delta.deltaMessageReply.message.attachments || [] )
               .map((att) => {
                 const mercury = JSON.parse(att.mercuryJSON);
                 Object.assign(att, mercury);

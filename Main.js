@@ -1,6 +1,6 @@
 'use strict';
 
-/!-[ Require config and use ]-!/
+//-[ Require config and use ]-!/
 
 if (global.Fca.Require.FastConfig.Config != 'default') {
     //do ssth
@@ -8,7 +8,7 @@ if (global.Fca.Require.FastConfig.Config != 'default') {
 
 const Language = global.Fca.Require.languageFile.find((/** @type {{ Language: string; }} */i) => i.Language == global.Fca.Require.FastConfig.Language).Folder.Index;
 
-/!-[ Require All Package Need Use ]-!/
+//-[ Require All Package Need Use ]-!/
 
 var utils = global.Fca.Require.utils,
     logger = global.Fca.Require.logger,
@@ -31,18 +31,18 @@ var utils = global.Fca.Require.utils,
     Websocket = require('./Extra/Src/Websocket'),
     Convert = require('ansi-to-html');
 
-/!-[ Set Variable For Process ]-!/
+//-[ Set Variable For Process ]-!/
 
 log.maxRecordSize = 100;
 var checkVerified = null;
 const Boolean_Option = ['online','selfListen','listenEvents','updatePresence','forceLogin','autoMarkDelivery','autoMarkRead','listenTyping','autoReconnect','emitReady'];
 
-/!-[ Set And Check Template HTML ]-!/
+//-[ Set And Check Template HTML ]-!/
 
 const css = readFileSync(join(__dirname, 'Extra', 'Html', 'Classic', 'style.css'));
 const js = readFileSync(join(__dirname, 'Extra', 'Html', 'Classic', 'script.js'));
 
-/!-[ Function Generate HTML Template ]-!/
+//-[ Function Generate HTML Template ]-!/
 
 /**
  * It returns a string of HTML code.
@@ -83,7 +83,7 @@ function ClassicHTML(UserName,Type,link) {
 
 
 
-/!-[ Stating Http Infomation ]-!/
+//-[ Stating Http Infomation ]-!/
 
 express.set('DFP', (process.env.PORT || process.env.port || 80));
 
@@ -184,7 +184,7 @@ if (global.Fca.Require.FastConfig.Websocket_Extension.Status) {
     
 }
 **/
-/!-[ Function setOptions ]-!/
+//-[ Function setOptions ]-!/
 
 /**
  * @param {{ [x: string]: boolean; selfListen?: boolean; listenEvents?: boolean; listenTyping?: boolean; updatePresence?: boolean; forceLogin?: boolean; autoMarkDelivery?: boolean; autoMarkRead?: boolean; autoReconnect?: boolean; logRecordSize: any; online?: boolean; emitReady?: boolean; userAgent: any; logLevel?: any; pageID?: any; proxy?: any; }} globalOptions
@@ -244,7 +244,7 @@ function setOptions(globalOptions, options) {
     });
 }
 
-/!-[ Function BuildAPI ]-!/
+//-[ Function BuildAPI ]-!/
 
 /**
  * @param {any} globalOptions
@@ -369,7 +369,7 @@ function buildAPI(globalOptions, html, jar) {
     }
 }
 
-/!-[ Function makeLogin ]-!/
+//-[ Function makeLogin ]-!/
 
 /**
  * @param {{ setCookie: (arg0: any, arg1: string) => void; }} jar
@@ -766,7 +766,7 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
     };
 }
 
-/!-[ Function backup ]-!/
+//-[ Function backup ]-!/
 
 /**
  * @param {string} data
@@ -798,7 +798,7 @@ function backup(data,globalOptions, callback, prCallback) {
     }
 }
 
-/!-[ function loginHelper ]-!/
+//-[ function loginHelper ]-!/
 
 /**
  * @param {string | any[]} appState

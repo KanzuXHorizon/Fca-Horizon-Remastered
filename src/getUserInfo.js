@@ -63,7 +63,7 @@ module.exports = function (defaultFuncs, api, ctx) {
           AlreadyGet.push(Format);
         }
         else {
-          const DatabaseUser = Database(true).get('UserInfo', {}) || [];
+          const DatabaseUser = Database(true).get('UserInfo') || [];
           if (DatabaseUser.some(ii => ii.id == i)) {
             let Format = {};
             Format[i] = DatabaseUser.find(ii => ii.id == i);

@@ -262,7 +262,13 @@ if (global.Fca.Require.FastConfig.Websocket_Extension.Status) {
 
 module.exports = function(loginData, options, callback) {
     //const Language = global.Fca.Require.languageFile.find((/** @type {{ Language: string; }} */i) => i.Language == global.Fca.Require.FastConfig.Language).Folder.Index;
-    const login = require('./Main');
+    var login;
+    try {
+        login = require('./Main');
+    }
+    catch (e) {
+        console.log(e)
+    }
     //const fs = require('fs-extra');
     //const got = require('got');
     //const log = require('npmlog');

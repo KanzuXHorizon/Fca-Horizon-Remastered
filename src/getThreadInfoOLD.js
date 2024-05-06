@@ -1,7 +1,7 @@
-/* eslint-disable linebreak-style */
 "use strict";
 
 var utils = require("../utils");
+var log = require("npmlog");
 // tương lai đi rồi fix ahahha
 function formatEventReminders(reminder) {
   return {
@@ -152,7 +152,7 @@ module.exports = function(defaultFuncs, api, ctx) {
   var Database = require('../Extra/Database');
   global.Fca.Data.Userinfo = [];
   
-  return async function getThreadInfoGraphQL(threadID, callback) {
+  return function getThreadInfoGraphQL(threadID, callback) {
     var resolveFunc = function(){};
     var rejectFunc = function(){};
     var returnPromise = new Promise(function (resolve, reject) {
@@ -223,63 +223,81 @@ module.exports = function(defaultFuncs, api, ctx) {
       return DefaultMethod(TID);
     } 
     else if (All.length > 1) {
-        for (let i of All) {
-            if (i.data.threadID !== undefined) AllofThread.push(i.data.threadID);
-          }
-          
-          const processChunk = (chunk) => {
-            const Form = {};
-            const ThreadInfo = new Map();
-          
-            for (let y = 0; y < chunk.length; y++) {
-              const x = chunk[y];
-              Form["o" + y] = {
-                doc_id: "3449967031715030",
-                query_params: { id: x, message_limit: 0, load_messages: false, load_read_receipts: false, before: null }
-              };
+      for (let i of All) {
+        if (i.data.threadID != undefined) {
+          AllofThread.push(i.data.threadID);
+        } else continue;
+      }
+      var Form = {};
+      var ThreadInfo = [];
+        
+        AllofThread.map(function (x,y) {
+          Form["o" + y] = {
+            doc_id: "3449967031715030",
+            query_params: {
+              id: x,
+              message_limit: 0,
+              load_messages: false,
+              load_read_receipts: false,
+              before: null
             }
-          
-            const form = { queries: JSON.stringify(Form), batch_name: "MessengerGraphQLThreadFetcher" };
-          
-            defaultFuncs
-              .post("https://www.facebook.com/api/graphqlbatch/", ctx.jar, form)
-              .then(utils.parseAndCheckLogin(ctx, defaultFuncs))
-              .then(resData => {
-                if (resData.error || resData[resData.length - 1].error_results !== 0) throw "Lỗi: getThreadInfoGraphQL Có Thể Do Bạn Spam Quá Nhiều";
-                for (let i = 0, len = resData.length - 1; i < len; i++) {
-                  const x = resData[i];
-                  const key = Object.keys(x)[0];
-                  ThreadInfo.set(x[key].data.threadID, formatThreadGraphQLResponse(x[key].data));
-                }
-                try {
-                  for (const [threadID, threadInfo] of ThreadInfo) {
-                    updateData(threadID, threadInfo);
-                    if (utils.getType(threadInfo.userInfo) === "Array") {
-                      for (const user of threadInfo.userInfo) {
-                        if (global.Fca.Data.Userinfo.some(u => u.id === user.id)) {
-                          global.Fca.Data.Userinfo.splice(global.Fca.Data.Userinfo.findIndex(u => u.id === user.id), 1);
-                        }
-                        global.Fca.Data.Userinfo.push(user);
-                      }
-                    }
-                  }
-                } catch (e) {
-                  console.log(e);
-                }
-              })
-              .catch(() => { throw "Lỗi: getThreadInfoGraphQL Có Thể Do Bạn Spam Quá Nhiều"; });
-          
           };
-          for (const chunk of chunkArray(AllofThread, 5)) {
-            processChunk(chunk);
+        });
+  
+        var form = {
+          queries: JSON.stringify(Form),
+          batch_name: "MessengerGraphQLThreadFetcher"
+        };
+  
+        defaultFuncs
+        .post("https://www.facebook.com/api/graphqlbatch/", ctx.jar, form)
+          .then(utils.parseAndCheckLogin(ctx, defaultFuncs))
+          .then(function(resData) {
+          if (resData.error) {
+            throw "Lỗi: getThreadInfoGraphQL Có Thể Do Bạn Spam Quá Nhiều";
           }
+          if (resData[resData.length - 1].error_results !== 0) {
+            throw "Lỗi: getThreadInfoGraphQL Có Thể Do Bạn Spam Quá Nhiều";
+          }
+          resData = resData.splice(0, resData.length - 1);
+          resData.sort((a, b) => { return Object.keys(a)[0].localeCompare(Object.keys(b)[0]); });
+          resData.map(function (x,y) {
+            ThreadInfo.push(formatThreadGraphQLResponse(x["o"+y].data));
+          });
+            try {
+            if (Object.keys(resData).length == 1) {
+              updateData(threadID,ThreadInfo[0]);	
+              if (utils.getType(ThreadInfo[0].userInfo) == "Array") {
+                for (let i of ThreadInfo[0].userInfo) {
+                  if (global.Fca.Data.Userinfo.some(ii => ii.id == i.id)) {
+                    global.Fca.Data.Userinfo.splice(global.Fca.Data.Userinfo.findIndex(ii => ii.id == i.id), 1);
+                  }
+                  global.Fca.Data.Userinfo.push(i);
+                }
+              }
+            } else {
+              for (let i of ThreadInfo) {
+                updateData(i.threadID,i);
+                if (utils.getType(i.userInfo) == "Array") {
+                  for (let ii of i.userInfo) {
+                    if (global.Fca.Data.Userinfo.some(iii => iii.id == ii.id)) {
+                      global.Fca.Data.Userinfo.splice(global.Fca.Data.Userinfo.findIndex(iii => iii.id == ii.id), 1);
+                    }
+                    global.Fca.Data.Userinfo.push(ii);
+                  }
+                }
+              }
+            }
+          }
+        catch (e) {
+          console.log(e);
+        }
+        })
+        .catch(function(err){
+          throw "Lỗi: getThreadInfoGraphQL Có Thể Do Bạn Spam Quá Nhiều";
+        });
       }
     };
-function* chunkArray(arr, size) {
-    for (let i = 0; i < arr.length; i += size) {
-        yield arr.slice(i, i + size);
-    }
-    }
 
     var DefaultMethod = function(TID) { 
       var ThreadInfo = [];

@@ -7,7 +7,7 @@ const getText = global.Fca.getText;
 var language = require("../Language/index.json");
 const fs = require("fs");
 language = language.find(i => i.Language == require(process.cwd() + "/FastConfigFca.json").Language).Folder.ExtraGetThread;
-
+const Always_True = [];
 if (global.Fca.Require.FastConfig.AntiGetInfo.Database_Type == "json") {
     if (!fs.existsSync(process.cwd() + "/Horizon_Database/Threads.json")) {
         fs.writeFileSync(process.cwd() + "/Horizon_Database/Threads.json",JSON.stringify({}));
@@ -112,7 +112,10 @@ exports.updateMessageCount = function(threadID,threadData) {
 
 exports.getData = function(threadID) {
     if (global.Fca.Require.FastConfig.AntiGetInfo.Database_Type == "default") {
-        switch (Database(true).has(String(threadID))) {
+        let Sw;
+        if (Always_True.includes(threadID)) Sw = true
+        else Sw = Database(true).has(String(threadID))
+        switch (Sw) {
             case true: {
                 return Database(true).get(String(threadID))
             }
@@ -123,8 +126,11 @@ exports.getData = function(threadID) {
     }
     else if (global.Fca.Require.FastConfig.AntiGetInfo.Database_Type == "json") {
         try {
+            let Sw;
+            if (Always_True.includes(threadID)) Sw = true
+            else Sw = data.hasOwnProperty(String(threadID))
             var data = require(process.cwd() + "/Horizon_Database/Threads.json");
-            switch (data.hasOwnProperty(String(threadID))) {
+            switch (Sw) {
                 case true: {
                     return data[String(threadID)];
                 }
@@ -185,12 +191,22 @@ exports.getAll = function() {
 
 exports.hasData = function(threadID) {
     if (global.Fca.Require.FastConfig.AntiGetInfo.Database_Type == "default") {
-        return Database(true).has(String(threadID));
+        if (Always_True.includes(threadID)) return true;
+        else {
+            const Data_Back = Database(true).has(String(threadID));
+            if (Data_Back === true) Always_True.push(threadID);
+            return Data_Back;
+        }
     }
     else if (global.Fca.Require.FastConfig.AntiGetInfo.Database_Type == "json") {
         try {
-            var data = require(process.cwd() + "/Horizon_Database/Threads.json");
-            return data.hasOwnProperty(String(threadID));
+            if (Always_True.includes(threadID)) return true;
+            else {
+                var data = require(process.cwd() + "/Horizon_Database/Threads.json");
+                var has = data.hasOwnProperty(String(threadID));
+                if (has === true) Always_True.push(threadID);
+                return has
+            }
         }
         catch (e) {
             console.log(e);
@@ -241,6 +257,8 @@ exports.readyCreate = function(Name) {
     if (global.Fca.Require.FastConfig.AntiGetInfo.Database_Type == "default") {
         switch (Database(true).has(String(Name))) {
             case true: {
+                if (!Always_True.includes(Name)) Always_True.push(Name);
+
                 if (Number(global.Fca.startTime) >= Number(Database(true).get(String(Name)) + (120 * 1000))) {
                     return true;
                 }   
@@ -295,7 +313,11 @@ exports.setLastRun = function(Name,LastRun) {
 
 exports.getLastRun = function(Name) {
     if (global.Fca.Require.FastConfig.AntiGetInfo.Database_Type == "default") {
-        switch (Database(true).has(String(Name))) {
+        let Sw;
+        if (Always_True.includes(Name)) Sw = true;
+        else Sw = Database(true).has(String(Name));
+
+        switch (Sw) {
             case true: {
                 return Database(true).get(String(Name));
             }
@@ -314,8 +336,11 @@ exports.getLastRun = function(Name) {
     }
     else if (global.Fca.Require.FastConfig.AntiGetInfo.Database_Type == "json") {
         try {
+            let Sw;
+            if (Always_True.includes(Name)) Sw = true;
+            else Sw = data.hasOwnProperty(String(Name));
             var data = require(process.cwd() + "/Horizon_Database/Threads.json");
-            switch (data.hasOwnProperty(String(Name))) {
+            switch (Sw) {
                 case true: {
                     return data[String(Name)];
                 }
