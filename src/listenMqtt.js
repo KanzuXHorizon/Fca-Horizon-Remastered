@@ -29,20 +29,22 @@ function buildProxy() {
         return next();
       }
 
+      let data;
       if (typeof chunk === 'string') {
-        chunk = Buffer.from(chunk, 'utf8');
+        data = Buffer.from(chunk, 'utf8');
+      } else {
+        data = chunk;
       }
 
-      WebSocket_Global.send(chunk, next);
+      WebSocket_Global.send(data);
+      next();
     },
     flush(done) {
       WebSocket_Global.close();
       done();
     },
     writev(chunks, cb) {
-      const buffers = chunks.map(({
-        chunk
-      }) => {
+      const buffers = chunks.map(({ chunk }) => {
         if (typeof chunk === 'string') {
           return Buffer.from(chunk, 'utf8');
         }
@@ -51,7 +53,6 @@ function buildProxy() {
       this._write(Buffer.concat(buffers), 'binary', cb);
     },
   });
-
   return Proxy;
 }
 
@@ -98,6 +99,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     d: utils.getGUID(),
     ct: 'websocket',
     aid: '219994525426954',
+    aids: null,
     mqtt_sid: '',
     cp: 3,
     ecp: 10,
@@ -107,6 +109,8 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
     no_auto_fg: true,
     gas: null,
     pack: [],
+    p: null,
+    php_override: ""
   };
 
   const cookies = ctx.jar.getCookies('https://www.facebook.com').join('; ');
@@ -797,7 +801,7 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, {
       break;
     }
     case 'NewMessage': {
-      if (delta.attachments !== undefined && delta.attachments.length === 1 && delta.attachments[0].mercury.extensible_attachment !== undefined && delta.attachments[0].mercury.extensible_attachment.story_attachment.style_list.includes('message_live_location')) {
+      if (delta.attachments !== undefined && delta.attachments.length === 1 && delta.attachments[0].mercury.extensible_attachment !== undefined && delta.attachments[0].mercury.extensible_attachment.story_attachment.style_list != null && delta.attachments[0].mercury.extensible_attachment.story_attachment.style_list.includes('message_live_location')) {
         delta.class = 'UserLocation';
         let fmtMsg;
         try {
