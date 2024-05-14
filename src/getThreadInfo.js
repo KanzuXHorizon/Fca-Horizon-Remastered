@@ -384,7 +384,14 @@ module.exports = function(defaultFuncs, api, ctx) {
         throw err;
       });
     };
-    if (global.Fca.Data.Already != true) { SpecialMethod(threadID); global.Fca.Data.Already = true; setInterval(function(){Database(true).set('UserInfo', global.Fca.Data.Userinfo); delete global.Fca.Data.Userinfo; global.Fca.Data.Userinfo = []; }, 900 * 1000); } 
+     if (global.Fca.Data.Already != true) { SpecialMethod(threadID); global.Fca.Data.Already = true; setInterval(function(){ 
+       Database(true).set('UserInfo', global.Fca.Data.Userinfo); 
+       setTimeout(() => {
+        delete global.Fca.Data.Userinfo; 
+        global.Fca.Data.Userinfo = []; 
+       }, 30 * 1000)
+      }, 900 * 1000); } 
+    
     
     try {
       for (let i of threadID) {
