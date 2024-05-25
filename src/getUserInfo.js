@@ -57,12 +57,16 @@ module.exports = function (defaultFuncs, api, ctx) {
     if (global.Fca.Data.Userinfo != undefined && global.Fca.Data.Userinfo.size != undefined) {
       for (let idu of id) {
         if (global.Fca.Data.Userinfo.has(idu)) {
-          AlreadyGet.push(global.Fca.Data.Userinfo.get(idu));
+          let Format = {};
+          Format[idu] = global.Fca.Data.Userinfo.get(idu);
+          AlreadyGet.push(Format);
         } else {
           const DatabaseUser = Database(true).get('UserInfo') || [];
           const databaseUser = DatabaseUser.find(user => user.id === idu);
+          let Format = {};
+          Format[idu] = databaseUser;
           if (databaseUser) {
-            AlreadyGet.push(databaseUser);
+            AlreadyGet.push(Format);
           } else {
             NeedGet.push(idu);
           }

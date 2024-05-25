@@ -3,7 +3,6 @@
 
 var utils = require("../utils");
 // tương lai đi rồi fix ahahha
-var ThreadInfo_Global = [];
 function formatEventReminders(reminder) {
   return {
     reminderID: reminder.id,
@@ -284,8 +283,7 @@ module.exports = function(defaultFuncs, api, ctx) {
       Queues.forEach((i, index) => {
           // [ { threadID, TimeCreate }, {} ]
           const averageTimestamp = Math.round(i.reduce((acc, obj) => acc + obj.TimeCreate, 0) / i.length);
-  
-          const DataAvg = checkAverageStaticTimestamp(averageTimestamp)
+          const DataAvg = checkAverageStaticTimestamp(averageTimestamp);
           if (DataAvg.Check) {
             //cần chờ
              // holdTime.push(DataAvg.timeLeft);
@@ -309,7 +307,7 @@ module.exports = function(defaultFuncs, api, ctx) {
 
       //hold lam cai cho gi khi ta co check lien tuc 10s 1 lan 😔
 
-      const MAXIMUM_RECALL_TIME = 10 * 1000;
+      const MAXIMUM_RECALL_TIME = 30 * 1000;
       clearTimeout(updateTimeout);
       updateTimeout = setTimeout(() => { autoCheckAndUpdateRecallTime(); }, MAXIMUM_RECALL_TIME)
   }
@@ -370,17 +368,8 @@ module.exports = function(defaultFuncs, api, ctx) {
   
       threadIDs.forEach(id => {
           // id, id ,id
-          if (ThreadInfo_Global.length >= 1 && ThreadInfo_Global.some(info => info.threadID == id)) {
-            inFastArr.push(id);
-          }
-          else hasData(id) == true ? inDb.push(id) : createNow.push(id)
+          hasData(id) == true ? inDb.push(id) : createNow.push(id)
       });
-      if (inFastArr.length >= 1) {
-        let threadInfos = inFastArr.map(id => ThreadInfo_Global.find(i => i.threadID == id));
-        cbThreadInfos = cbThreadInfos.concat(threadInfos);
-        //request update queue
-        threadInfos.forEach(i => addToQueues({ threadID: i.threadID, TimeCreate: i.TimeCreate }));
-      }
 
       if (inDb.length >= 1) {
           let threadInfos = inDb.map(id => getData(id));
@@ -388,7 +377,7 @@ module.exports = function(defaultFuncs, api, ctx) {
           updateUserInfo(threadInfos);
   
           //request update queue
-          threadInfos.forEach(i => addToQueues({ threadID: i.threadID, TimeCreate: i.TimeCreate }));
+          threadInfos.forEach(i => addToQueues({ threadID: i.threadID, TimeCreate: Date.now() }));
       }
       if (createNow.length >= 1) {
           //5 data per chunk []
@@ -405,12 +394,11 @@ module.exports = function(defaultFuncs, api, ctx) {
               const newThreadInf = await getMultiInfo(i); // always [ {} ] or [ {}, {} ]
               if (newThreadInf.Success == true) {
                 let MultiThread = newThreadInf.Data;  
-                ThreadInfo_Global = ThreadInfo_Global.concat(MultiThread);
                 formatAndCreateData(MultiThread)
                 cbThreadInfos = cbThreadInfos.concat(MultiThread)
     
                 //request update queue
-                MultiThread.forEach(i => addToQueues({ threadID: i.threadID, TimeCreate: i.TimeCreate }));
+                MultiThread.forEach(i => addToQueues({ threadID: i.threadID, TimeCreate: Date.now() }));
             }
             else {
                 global.Fca.Require.logger.Warning('CANT NOT GET THREADINFO 💀 MAYBE U HAS BEEN BLOCKED FROM FACEBOOK');

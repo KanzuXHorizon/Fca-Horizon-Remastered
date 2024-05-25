@@ -9,3 +9,6 @@ yarn.lock
 package-lock.json
 .npmrc
 Extra/Bypass/test/index.html
+src/Dev_BackupgeThreadinfo
+src/oldthreadinfo.js
+test.js
