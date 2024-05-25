@@ -3,6 +3,7 @@
 
 var utils = require("../utils");
 // tương lai đi rồi fix ahahha
+var ThreadInfo_Global = [];
 function formatEventReminders(reminder) {
   return {
     reminderID: reminder.id,
@@ -145,12 +146,36 @@ function formatThreadGraphQLResponse(data) {
   };
 }
 
+const MAX_ARRAY_LENGTH = 5; //safe 
+var Request_Update_Time = 0;
+var updateInterval;
+var updateTimeout;
+let Queues = [];
+
+let onetimecook = false
+
+function addToQueues(num) {
+  const existingArray = Queues.some(subArr => subArr.some(obj => obj.threadID == num.threadID));
+
+  if (!existingArray) {
+    if (Queues.length > 0 && Queues[Queues.length - 1].length === MAX_ARRAY_LENGTH) {
+      Queues.push([num]);
+    } else {
+      const lastArray = Queues.length > 0 ? Queues[Queues.length - 1] : [];
+      lastArray.push(num);
+
+      if (Queues.length === 0) {
+        Queues.push(lastArray);
+      }
+    }
+  }
+}
+
+
 module.exports = function(defaultFuncs, api, ctx) {
 
-  var { createData,getData,hasData,setLastRun,updateData, getAll } = require('../Extra/ExtraGetThread');
-  var { capture } = require('../Extra/Src/Last-Run');
+  var { createData,getData,hasData,updateData, getAll } = require('../Extra/ExtraGetThread');
   var Database = require('../Extra/Database');
-  global.Fca.Data.Userinfo = [];
   
   return async function getThreadInfoGraphQL(threadID, callback) {
     var resolveFunc = function(){};
@@ -168,248 +193,244 @@ module.exports = function(defaultFuncs, api, ctx) {
         resolveFunc(data);
       };
     }
-
-      // được tìm thấy vào giữa tháng 8/2022 bởi @KanzuWakazaki - đã được chia sẻ cho @D-Jukie và Horizon Team Public group 🤴
-      // những code tương tự muliti thread như này đều có thể là copy idea 🐧
-      // đã áp dụng vào fca mới(cloud - fca(private)) vào cuối tháng 8/2022 bởi @IteralingCode(Hidden Member( always :) )) - Synthetic 4 - @Horizon Team
-      //cập nhật dự án bị bỏ rơi này vào ngày 19/11/2022 bởi @KanzuWakazaki(Owner) - Synthetic 1  - @Horizon Team nhằm đáp ứng nhu cầu của client !
-
-      if (utils.getType(threadID) !== "Array") threadID = [threadID];
+    
+    if (utils.getType(threadID) !== "Array") threadID = [threadID];
 
 
-    var SpecialMethod = function(TID) {
-      const All = getAll();
-      const Real = [];
-      const Average = [];
-      for (let i of All) {
-        if (i.data.threadID != undefined) {
-          if (i.data.TimeCreate + 900 * 1000 <= Date.now()) {
-            Real.push(i.data.threadID);
-          }
-          else {
-            Average.push({
-              threadID: i.data.threadID,
-              TimeCreate: i.data.TimeCreate
-            });
-            continue;
-          }
-        } else continue;
+    if (utils.getType(global.Fca.Data.Userinfo) == "Array" || global.Fca.Data.Userinfo == undefined) global.Fca.Data.Userinfo = new Map();
+
+    const updateUserInfo = (threadInfo) => {
+      if (!global.Fca.Data.Userinfo) {
+        global.Fca.Data.Userinfo = new Map();
       }
-    const AllofThread = [];
-    if (Average.length > 0) {
-      var Time = 0;
-      for (let i of Average) {
-        Time += i.TimeCreate;
-      }
-      Time = Time / Average.length;
-      if (Time + 900 * 1000 <= Date.now()) {
-        for (let i of Average) {
-          Real.push(i.threadID);
+    
+      threadInfo.forEach(thread => {
+        const userInfo = thread.userInfo;
+    
+        if (Array.isArray(userInfo)) {
+          const userInfoMap = new Map(userInfo.map(user => [user.id, user]));
+          for (const [id, user] of userInfoMap) {
+            global.Fca.Data.Userinfo.set(id, user);
+          }
         }
-      } //can't =))
-      else {
-        setTimeout(function () {
-          SpecialMethod(TID);
-        }, Time + 900 * 1000 - Date.now());
-      }
-    }
-    else {
-      setTimeout(function () {
-        SpecialMethod(TID);
-      }, 900 * 1000);
-    }
-    if (Real.length == 0) return;
-    else if (Real.length == 1) {
-      return DefaultMethod(TID);
-    } 
-    else if (All.length > 1) {
-      for (let i of All) {
-        if (i.data.threadID !== undefined) AllofThread.push(i.data.threadID);
-      }
-      
-      const processChunk = (chunk) => {
-        const Form = {};
-        const ThreadInfo = [];
-        chunk.forEach((x, y) => {
-          Form["o" + y] = {
-            doc_id: "3449967031715030",
-            query_params: { id: x, message_limit: 0, load_messages: false, load_read_receipts: false, before: null }
-          };
-        });
-      
-        const form = { queries: JSON.stringify(Form), batch_name: "MessengerGraphQLThreadFetcher" };
-      
-        defaultFuncs
-          .post("https://www.facebook.com/api/graphqlbatch/", ctx.jar, form)
+      });
+    };
+  
+  const getMultiInfo = async function (threadIDs) {
+      let form = {};
+      let tempThreadInf = [];
+          threadIDs.forEach((x,y) => {
+              form["o" + y] = {
+                  doc_id: "3449967031715030",
+                  query_params: { id: x, message_limit: 0, load_messages: false, load_read_receipts: false, before: null }
+              }; 
+          });
+      let Submit = { queries: JSON.stringify(form), batch_name: "MessengerGraphQLThreadFetcher" };
+          
+      const promise = new Promise((resolve, reject) => {
+          defaultFuncs.post("https://www.facebook.com/api/graphqlbatch/", ctx.jar, Submit)
           .then(utils.parseAndCheckLogin(ctx, defaultFuncs))
           .then(resData => {
-            if (resData.error || resData[resData.length - 1].error_results !== 0) throw "Lỗi: getThreadInfoGraphQL Có Thể Do Bạn Spam Quá Nhiều";
-            resData = resData.slice(0, -1).sort((a, b) => Object.keys(a)[0].localeCompare(Object.keys(b)[0]));
-            resData.forEach((x, y) => ThreadInfo.push(formatThreadGraphQLResponse(x["o" + y].data)));
-            try {
-              if (ThreadInfo.length === 1) {
-                updateData(threadID, ThreadInfo[0]);
-                if (utils.getType(ThreadInfo[0].userInfo) === "Array") {
-                  ThreadInfo[0].userInfo.forEach(i => {
-                    if (global.Fca.Data.Userinfo.some(ii => ii.id === i.id)) global.Fca.Data.Userinfo.splice(global.Fca.Data.Userinfo.findIndex(ii => ii.id === i.id), 1);
-                    global.Fca.Data.Userinfo.push(i);
+              if (resData.error || resData[resData.length - 1].error_results !== 0) throw "Lỗi: getThreadInfoGraphQL Có Thể Do Bạn Spam Quá Nhiều";
+                  resData = resData.slice(0, -1).sort((a, b) => Object.keys(a)[0].localeCompare(Object.keys(b)[0]));
+                  resData.forEach((x, y) => tempThreadInf.push(formatThreadGraphQLResponse(x["o" + y].data)));
+                  return resolve({
+                      Success: true,
+                      Data: tempThreadInf
                   });
-                }
-              } else {
-                ThreadInfo.forEach(i => {
-                  updateData(i.threadID, i);
-                  if (utils.getType(i.userInfo) === "Array") {
-                    i.userInfo.forEach(ii => {
-                      if (global.Fca.Data.Userinfo.some(iii => iii.id === ii.id)) global.Fca.Data.Userinfo.splice(global.Fca.Data.Userinfo.findIndex(iii => iii.id === ii.id), 1);
-                      global.Fca.Data.Userinfo.push(ii);
-                    });
-                  }
-                });
-              }
-            } catch (e) {
-              console.log(e);
-            }
           })
-          .catch(() => { throw "Lỗi: getThreadInfoGraphQL Có Thể Do Bạn Spam Quá Nhiều"; });
-      };
-      
-      if (AllofThread.length > 5) {
-        const chunks = [];
-        for (let i = 0; i < AllofThread.length; i += 5) {
-          chunks.push(AllofThread.slice(i, i + 5));
-        }
-        chunks.forEach(processChunk);
-      } else {
-        processChunk(AllofThread);
-      }
-      }
-    };
-
-    var DefaultMethod = function(TID) { 
-      var ThreadInfo = [];
-      for (let i of TID) {
-        ThreadInfo.push(getData(i));
-      }
-      if (ThreadInfo.length == 1) {
-        callback(null,ThreadInfo[0]);
-        if (utils.getType(ThreadInfo[0].userInfo) == "Array") {
-          for (let i of ThreadInfo[0].userInfo) {
-            if (global.Fca.Data.Userinfo.some(ii => ii.id == i.id)) {
-              global.Fca.Data.Userinfo.splice(global.Fca.Data.Userinfo.findIndex(ii => ii.id == i.id), 1);
-            }
-            global.Fca.Data.Userinfo.push(i);
-          }
-      } else {
-        for (let i of ThreadInfo) {
-          if (utils.getType(i.userInfo) == "Array") {
-            for (let ii of i.userInfo) {
-              if (global.Fca.Data.Userinfo.some(iii => iii.id == ii.id)) {
-                global.Fca.Data.Userinfo.splice(global.Fca.Data.Userinfo.findIndex(iii => iii.id == ii.id), 1);
-              }
-              global.Fca.Data.Userinfo.push(ii);
-            }
-          }
-        }
-        callback(null,ThreadInfo);
-      }
-    }
-  };
-    var CreateMethod = function(TID) { 
-      var Form = {};
-      var ThreadInfo = [];
-
-      TID.map(function (x,y) {
-        Form["o" + y] = {
-          doc_id: "3449967031715030",
-          query_params: {
-            id: x,
-            message_limit: 0,
-            load_messages: false,
-            load_read_receipts: false,
-            before: null
-          }
-        };
-      });
-
-      var form = {
-        queries: JSON.stringify(Form),
-        batch_name: "MessengerGraphQLThreadFetcher"
-      };
-      defaultFuncs
-      .post("https://www.facebook.com/api/graphqlbatch/", ctx.jar, form)
-        .then(utils.parseAndCheckLogin(ctx, defaultFuncs))
-        .then(function(resData) {
-        if (resData.error) {
-          throw resData.error;
-        }
-        if (resData[resData.length - 1].error_results !== 0) {
-          throw resData.error;
-        }
-        resData = resData.splice(0, resData.length - 1);
-        resData.sort((a, b) => { return Object.keys(a)[0].localeCompare(Object.keys(b)[0]); });
-        resData.map(function (x,y) {
-          ThreadInfo.push(formatThreadGraphQLResponse(x["o"+y].data));
-        });
-        if (Object.keys(resData).length == 1) {
-          createData(threadID,ThreadInfo[0]);	
-          callback(null, ThreadInfo[0]);
-          capture(callback);
-          setLastRun('LastUpdate', callback);
-          if (global.Fca.Data.Userinfo == undefined) global.Fca.Data.Userinfo = [];
-          if (utils.getType(ThreadInfo[0].userInfo) == "Array") {
-            for (let i of ThreadInfo[0].userInfo) {
-              if (global.Fca.Data.Userinfo.some(ii => ii.id == i.id)) {
-                global.Fca.Data.Userinfo.splice(global.Fca.Data.Userinfo.findIndex(ii => ii.id == i.id), 1);
-              }
-              global.Fca.Data.Userinfo.push(i);
-            }
-          }
-        } else {
-          // api.Horizon_Data([ThreadInfo], "Threads", "Post");
-          for (let i of ThreadInfo) {
-            createData(i.threadID,i);
-            if (utils.getType(i.userInfo) == "Array") {
-              for (let ii of i.userInfo) {
-                if (global.Fca.Data.Userinfo.some(iii => iii.id == ii.id)) {
-                  global.Fca.Data.Userinfo.splice(global.Fca.Data.Userinfo.findIndex(iii => iii.id == ii.id), 1);
-                }
-                global.Fca.Data.Userinfo.push(ii);
-              }
-            }
-          }
-          callback(null, ThreadInfo);
-        }
+          .catch(() => { 
+              reject({ Success: false, Data: '' }) 
+          });
       })
-      .catch(function(err){
-        throw err;
-      });
-    };
-     if (global.Fca.Data.Already != true) { SpecialMethod(threadID); global.Fca.Data.Already = true; setInterval(function(){ 
-       Database(true).set('UserInfo', global.Fca.Data.Userinfo); 
-       setTimeout(() => {
-        delete global.Fca.Data.Userinfo; 
-        global.Fca.Data.Userinfo = []; 
-       }, 30 * 1000)
-      }, 900 * 1000); } 
-    
-    
-    try {
-      for (let i of threadID) {
-        switch (hasData(i)) {
-            case true: {     
-              DefaultMethod(threadID);
-              break;
-            }
-          case false: {
-            CreateMethod(threadID);
-            break;
-          }
-        }
+  
+      return await promise;
+  }
+  
+  const formatAndUpdateData = (AllThreadInfo) => {
+      try {
+          AllThreadInfo.forEach(threadInf => { updateData(threadInf.threadID, threadInf); })
+          updateUserInfo(AllThreadInfo) // [ {}, {} ]
+  
+      } catch (e) {
+          console.log(e);
       }
+  }
+
+  const formatAndCreateData = (AllThreadInfo) => {
+    try {
+        AllThreadInfo.forEach(threadInf => { createData(threadInf.threadID, threadInf); })
+        updateUserInfo(AllThreadInfo) // [ {}, {} ]
+
+    } catch (e) {
+        console.log(e);
     }
-    catch (err) {
-      console.log(err);
+}
+  
+  const checkAverageStaticTimestamp = function (avgTimeStamp) {
+    const DEFAULT_UPDATE_TIME = 900 * 1000; //thời gian cập nhật tối đa + với thời gian trung bình của tổng request 1 mảng
+    //khi request phút thứ 3, 1 req ở phút thứ 7, 1 req ở phút thứ 10, vậy trung bình là (3+7+1) / time.length (3) + với 15p = tg trung bình để cập nhật 1 mảng
+    const MAXIMUM_ERROR_TIME = 10 * 1000;
+    return { //khi check = false thì cần cập nhật vì đã hơn thời gian tb + 15p
+        Check:  (parseInt(avgTimeStamp) + parseInt(DEFAULT_UPDATE_TIME)) + parseInt(MAXIMUM_ERROR_TIME) >= Date.now(), // ở đây avgTimeStamp là thời gian cố định của 1 mảng queue khi đầy 
+        timeLeft: (parseInt(avgTimeStamp) + parseInt(DEFAULT_UPDATE_TIME)) - Date.now() + parseInt(MAXIMUM_ERROR_TIME)
     }
+  }
+  
+  const autoCheckAndUpdateRecallTime = () => {
+      let holdTime = [];
+      let oneTimeCall = false;
+      //lấy tất cả trung bình thời gian của tất cả mảng và tìm thời gian còn lại ngắn nhất, nếu có sẵn id cần cập nhật thì cập nhật ngày lập tức
+      Queues.forEach((i, index) => {
+          // [ { threadID, TimeCreate }, {} ]
+          const averageTimestamp = Math.round(i.reduce((acc, obj) => acc + obj.TimeCreate, 0) / i.length);
+  
+          const DataAvg = checkAverageStaticTimestamp(averageTimestamp)
+          if (DataAvg.Check) {
+            //cần chờ
+             // holdTime.push(DataAvg.timeLeft);
+             //cho thi cho 10s sau check lai roi cho tiep nhe =))
+          }
+          else {
+            oneTimeCall = true;
+          }
+      });
+
+      if (oneTimeCall) autoUpdateData(); // cập nhật ngay, nhin la biet tot hon hold roi =))
+
+      // if (holdTime.length >= 1) {
+      //     holdTime.sort((a,b) => a - b) //low to high time
+      //     if (holdTime[0] > Request_Update_Time) {
+      //         Request_Update_Time = holdTime[0];
+      //         clearInterval(updateInterval);
+      //         updateInterval = setInterval(() => { autoUpdateData(); }, holdTime[0])
+      //     }
+      // }
+
+      //hold lam cai cho gi khi ta co check lien tuc 10s 1 lan 😔
+
+      const MAXIMUM_RECALL_TIME = 10 * 1000;
+      clearTimeout(updateTimeout);
+      updateTimeout = setTimeout(() => { autoCheckAndUpdateRecallTime(); }, MAXIMUM_RECALL_TIME)
+  }
+  
+  const autoUpdateData = async function() {
+      //[ [ {}, {} ], [ {}, {}  ] ]
+      let doUpdate = [];
+      let holdTime = [];
+  
+      Queues.forEach((i, index) => {
+          // [ {}, {} ]
+          const averageTimestamp = Math.round(i.reduce((acc, obj) => acc + obj.TimeCreate, 0) / i.length);
+          // thời gian trung bình của 1 mảng từ lúc bắt đầu request lần đầu, cần + thêm thời gian cố định là 15p !
+  
+          const DataAvg = checkAverageStaticTimestamp(averageTimestamp)
+          if (DataAvg.Check) {
+              // chờ tiếp
+          }
+          else {
+            // đã hơn thời gian 15p
+              doUpdate.push(i) // [ {}, {} ]
+              Queues.splice(index, 1); //đạt điều kiện nên xoá để tý nó tự thêm 💀
+          }
+  
+      });
+  
+      if (doUpdate.length >= 1) {
+          // maybe [ [ {}, {} ] [ {}, {} ] ]
+          let ids = []; // [ id, id ]
+          doUpdate.forEach(i => {
+              //[ {} {} ]
+              const onlyThreadID = [...new Set(i.map(obj => obj.threadID))]; // [ id1, id2 ]
+              ids.push(onlyThreadID) //[ [ id1, id2 ] ]
+          })
+  
+          // [ [ id1, id2 ],[ id1, id2 ] ] 5 per arr
+  
+          ids.forEach(async function(i) {
+              const dataResp = await getMultiInfo(i);
+              if (dataResp.Success == true) {
+                  let MultiThread = dataResp.Data;
+                  formatAndUpdateData(MultiThread)
+              }
+              else {
+                  global.Fca.Require.logger.Warning('CANT NOT GET THREADINFO 💀 MAYBE U HAS BEEN BLOCKED FROM FACEBOOK');
+              }
+          })
+      }
+  }
+  
+  const createOrTakeDataFromDatabase = async (threadIDs) => {
+      let inDb = []; //NOTE: xử lý resp thành 1 mảng nếu có nhiều hơn 1 threadID và obj nếu 1 threadID
+      let inFastArr = [];
+      let createNow = [];
+      let cbThreadInfos = [];
+      // kiểm tra và phân ra 2 loại 1 là chưa  có 2 là có =))
+      // kiểm tra
+  
+      threadIDs.forEach(id => {
+          // id, id ,id
+          if (ThreadInfo_Global.length >= 1 && ThreadInfo_Global.some(info => info.threadID == id)) {
+            inFastArr.push(id);
+          }
+          else hasData(id) == true ? inDb.push(id) : createNow.push(id)
+      });
+      if (inFastArr.length >= 1) {
+        let threadInfos = inFastArr.map(id => ThreadInfo_Global.find(i => i.threadID == id));
+        cbThreadInfos = cbThreadInfos.concat(threadInfos);
+        //request update queue
+        threadInfos.forEach(i => addToQueues({ threadID: i.threadID, TimeCreate: i.TimeCreate }));
+      }
+
+      if (inDb.length >= 1) {
+          let threadInfos = inDb.map(id => getData(id));
+          cbThreadInfos = cbThreadInfos.concat(threadInfos);
+          updateUserInfo(threadInfos);
+  
+          //request update queue
+          threadInfos.forEach(i => addToQueues({ threadID: i.threadID, TimeCreate: i.TimeCreate }));
+      }
+      if (createNow.length >= 1) {
+          //5 data per chunk []
+          const chunkSize = 5;
+          const totalChunk = []; // [ [ id, id ], [ id,id ] ]
+          
+          for (let i = 0; i < createNow.length; i += chunkSize) {
+            const chunk = createNow.slice(i, i + chunkSize);
+            totalChunk.push(chunk);
+          }
+  
+          for (let i of totalChunk) {
+              //i = [ id,id ]
+              const newThreadInf = await getMultiInfo(i); // always [ {} ] or [ {}, {} ]
+              if (newThreadInf.Success == true) {
+                let MultiThread = newThreadInf.Data;  
+                ThreadInfo_Global = ThreadInfo_Global.concat(MultiThread);
+                formatAndCreateData(MultiThread)
+                cbThreadInfos = cbThreadInfos.concat(MultiThread)
+    
+                //request update queue
+                MultiThread.forEach(i => addToQueues({ threadID: i.threadID, TimeCreate: i.TimeCreate }));
+            }
+            else {
+                global.Fca.Require.logger.Warning('CANT NOT GET THREADINFO 💀 MAYBE U HAS BEEN BLOCKED FROM FACEBOOK');
+            }
+          } 
+      }
+      return cbThreadInfos.length == 1 ? callback(null, cbThreadInfos[0]) : callback(null, cbThreadInfos)
+  }
+
+    if (global.Fca.Data.Already != true) {
+      global.Fca.Data.Already = true;
+      autoCheckAndUpdateRecallTime(); 
+      setInterval(function(){ 
+        const MapToArray = Array.from(global.Fca.Data.Userinfo, ([name, value]) => (value));
+        Database(true).set('UserInfo', MapToArray); 
+      }, 420 * 1000); 
+    } 
+
+    await createOrTakeDataFromDatabase(threadID);
+    
     return returnPromise;
   };
 };
