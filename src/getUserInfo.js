@@ -45,35 +45,30 @@ module.exports = function (defaultFuncs, api, ctx) {
     }
 
     if (utils.getType(id) !== "Array") id = [id];
+    if (utils.getType(global.Fca.Data.Userinfo) == "Array" || global.Fca.Data.Userinfo == undefined) global.Fca.Data.Userinfo = new Map();
     if (global.Fca.Data.AlreadyGetInfo != true) {
       if (Database(true).has('UserInfo') == false) { 
         Database(true).set('UserInfo', []); 
         global.Fca.Data.AlreadyGetInfo = true; 
       }
     }
-
-    var NeedGet = [];
     var AlreadyGet = [];
-
-    if (global.Fca.Data.Userinfo != undefined && global.Fca.Data.Userinfo.length != 0) {
-      for (let i of id) {
-        if (global.Fca.Data.Userinfo.some(ii => ii.id == i)) {
-          let Format = {};
-          Format[i] = global.Fca.Data.Userinfo.find(ii => ii.id == i);
-          AlreadyGet.push(Format);
-        }
-        else {
+    var NeedGet = [];
+    if (global.Fca.Data.Userinfo != undefined && global.Fca.Data.Userinfo.size != undefined) {
+      for (let idu of id) {
+        if (global.Fca.Data.Userinfo.has(idu)) {
+          AlreadyGet.push(global.Fca.Data.Userinfo.get(idu));
+        } else {
           const DatabaseUser = Database(true).get('UserInfo') || [];
-          if (DatabaseUser.some(ii => ii.id == i)) {
-            let Format = {};
-            Format[i] = DatabaseUser.find(ii => ii.id == i);
-            AlreadyGet.push(Format);
-          }
-          else {
-            NeedGet.push(i);
+          const databaseUser = DatabaseUser.find(user => user.id === idu);
+          if (databaseUser) {
+            AlreadyGet.push(databaseUser);
+          } else {
+            NeedGet.push(idu);
           }
         }
       }
+      
     }
 
     if (NeedGet.length > 0) {

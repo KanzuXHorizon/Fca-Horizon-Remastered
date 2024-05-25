@@ -439,5 +439,10 @@ module.exports = function(loginData, options, callback) {
     });
     **/
    //temp disabled
-    return login(loginData, options, callback);
+    try {
+        login(loginData, options, callback);
+    }
+    catch (e) {
+        console.log(e)
+    }
 };
