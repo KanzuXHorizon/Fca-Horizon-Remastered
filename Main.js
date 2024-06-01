@@ -18,7 +18,7 @@ var utils = global.Fca.Require.utils,
     express = require("express")(),
     { join } = require('path'),
     cheerio = require("cheerio"),
-    { readFileSync } = require('fs-extra'),
+    { readFileSync, writeFileSync } = require('fs-extra'),
     Database = require("./Extra/Database"),
     readline = require("readline"),
     chalk = require("chalk"),
@@ -220,7 +220,7 @@ function setOptions(globalOptions, options) {
                         break;
                     }
                     case 'userAgent': {
-                        globalOptions.userAgent = (options.userAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36');
+                        globalOptions.userAgent = (options.userAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36');
                         break;
                     }
                     case 'proxy': {
@@ -252,7 +252,7 @@ function setOptions(globalOptions, options) {
  * @param {{ getCookies: (arg0: string) => any[]; }} jar
  */
 
-function buildAPI(globalOptions, html, jar) {
+function buildAPI(globalOptions, html, jar, bypass_region) {
     //check tiktik
     var userID;
     var cookie = jar.getCookies("https://www.facebook.com");
@@ -319,8 +319,7 @@ function buildAPI(globalOptions, html, jar) {
                 }
             return;
             }
-        });    
-
+        });   
         var ctx = {
             userID: userID,
             jar: jar,
@@ -345,13 +344,18 @@ function buildAPI(globalOptions, html, jar) {
                 return utils.getAppState(jar);
             }
         };
-
+     
         if (region && mqttEndpoint) {
             //do sth
         }
         else {
-            log.warn("login", getText(Language.NoAreaData));
-            api["htmlData"] = html;
+            if (bypass_region) {
+                logger.Normal(Language.NoAreaDataBypass);
+            }
+            else {
+                log.warn("login", getText(Language.NoAreaData));
+                api["htmlData"] = html;
+            }
         }
 
         var defaultFuncs = utils.makeDefaults(html, userID, ctx);
@@ -950,20 +954,55 @@ try {
     } catch (e) {
         console.log(e);
     }
-
-
+    let redirect = [1, "https://m.facebook.com/"];
+    let bypass_region_err = false;
         var ctx,api;
             mainPromise = mainPromise
                 .then(function(res) {
-                    var reg = /<meta http-equiv="refresh" content="0;url=([^"]+)[^>]+>/,redirect = reg.exec(res.body);
+                    var reg = /<meta http-equiv="refresh" content="0;url=([^"]+)[^>]+>/;
+                    redirect = reg.exec(res.body);
                         if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions).then(utils.saveCookies(jar));
                     return res;
                 })
                 .then(function(res) {
-                    var html = res.body,Obj = buildAPI(globalOptions, html, jar);
+                    let reg_antierr = /This browser is not supported/gs; // =))))))
+                    if (reg_antierr.test(res.body)) {
+                        const Data = JSON.stringify(res.body);
+                        const Dt_Check = Data.split('2Fhome.php&amp;gfid=')[1];
+                        if (Dt_Check == undefined) return res
+                        const fid = Dt_Check.split("\\\\")[0];//fix sau
+                        if (Dt_Check == undefined || Dt_Check == "") return res
+                        const final_fid = fid.split(`\\`)[0];
+                        if (final_fid == undefined || final_fid == '') return res;
+                        const redirectlink = redirect[1] + "a/preferences.php?basic_site_devices=m_basic&uri=" + encodeURIComponent("https://m.facebook.com/home.php") + "&gfid=" + final_fid;
+                        bypass_region_err = true;
+                        return utils.get(redirectlink, jar, null, globalOptions).then(utils.saveCookies(jar));
+                    }
+                    else return res
+                })
+                // .then(function(res) {
+                //     let reg_old_web = /Switch Default Site/gs;
+                //     if (reg_old_web.test(res.body)) {
+                //         let Data_Resp = JSON.stringify(res.body);
+                //         const link = Data_Resp.split('settings/site')[1].split("\"")[0].replace('\\', '')
+                //         const redirect_link2 = redirect[1] + "settings/site" + utils.cleanHTML(link)
+                //         console.log(redirect_link2)
+                //         return utils.get("https://www.facebook.com/", jar, null, globalOptions).then(utils.saveCookies(jar)); // try ag
+                //     }
+                //     else return res;
+                // })
+                // .then(function(res) {
+                //     var reg = /<meta http-equiv="refresh" content="0;url=([^"]+)[^>]+>/;
+                //     redirect = reg.exec(res.body);
+                //         if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions).then(utils.saveCookies(jar));
+                //     return res;
+                // })
+                .then(function(res){
+                    console.log('okay')
+                    global.Fca.Require.fs.writeFileSync('./AAAAA.html', JSON.stringify(res.body,null,2))
+                    var html = res.body,Obj = buildAPI(globalOptions, html, jar,bypass_region_err);
                         ctx = Obj.ctx;
                         api = Obj.api;
-                        process.env.api = Obj.api;
                     return res;
                 });
             if (globalOptions.pageID) {

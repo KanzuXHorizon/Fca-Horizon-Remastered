@@ -145,7 +145,7 @@ function formatThreadGraphQLResponse(data) {
   };
 }
 
-const MAX_ARRAY_LENGTH = 5; //safe 
+const MAX_ARRAY_LENGTH = 6; //safe 
 var Request_Update_Time = 0;
 var updateInterval;
 var updateTimeout;

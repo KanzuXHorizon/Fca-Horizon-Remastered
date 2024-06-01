@@ -53,7 +53,7 @@ module.exports = function(defaultFuncs, api, ctx) {
         callback(null, resData);
     })
     .catch(function(err) {
-      log.error("getThreadInfoGraphQL", "Lỗi: getThreadInfoGraphQL Có Thể Do Bạn Spam Quá Nhiều, Hãy Thử Lại !");
+      log.error("getThreadInfoGraphQL", "Lỗi: getUserInfoV5 Có Thể Do Bạn Spam Quá Nhiều, Hãy Thử Lại !");
     return callback(err);
   });
     return returnPromise;

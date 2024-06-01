@@ -2960,7 +2960,39 @@ function getPaths(obj, parentPath = []) {
     return paths;
 }
     
+function cleanHTML (text) {
+    text = text.replace(/(<br>)|(<\/?i>)|(<\/?em>)|(<\/?b>)|(!?~)|(&amp;)|(&#039;)|(&lt;)|(&gt;)|(&quot;)/g, (match) => {
+        switch (match) {
+          case "<br>":
+            return "\n";
+          case "<i>":
+          case "<em>":
+          case "</i>":
+          case "</em>":
+            return "*";
+          case "<b>":
+          case "</b>":
+            return "**";
+          case "~!":
+          case "!~":
+            return "||";
+          case "&amp;":
+            return "&";
+          case "&#039;":
+            return "'";
+          case "&lt;":
+            return "<";
+          case "&gt;":
+            return ">";
+          case "&quot;":
+            return '"';
+        }
+    });
+    return text;
+}
+
 module.exports = {
+    cleanHTML,
     isReadableStream:isReadableStream,
     get:get,
     post:post,

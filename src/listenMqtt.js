@@ -91,12 +91,13 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
   const foreground = false;
 
   const sessionID = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER) + 1;
+  const GUID = utils.getGUID()
   const username = {
     u: ctx.userID,
     s: sessionID,
     chat_on: chatOn,
     fg: foreground,
-    d: utils.getGUID(),
+    d: GUID,
     ct: 'websocket',
     aid: '219994525426954',
     aids: null,
@@ -117,11 +118,11 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
 
   let host;
   if (ctx.mqttEndpoint) {
-    host = `${ctx.mqttEndpoint}&sid=${sessionID}`;
+    host = `${ctx.mqttEndpoint}&sid=${sessionID}&cid=${GUID}`;
   } else if (ctx.region) {
-    host = `wss://edge-chat.facebook.com/chat?region=${ctx.region.toLowerCase()}&sid=${sessionID}`;
+    host = `wss://edge-chat.facebook.com/chat?region=${ctx.region.toLowerCase()}&sid=${sessionID}&cid=${GUID}`;
   } else {
-    host = `wss://edge-chat.facebook.com/chat?sid=${sessionID}`;
+    host = `wss://edge-chat.facebook.com/chat?sid=${sessionID}&cid=${GUID}`;
   }
 
   const options = {
