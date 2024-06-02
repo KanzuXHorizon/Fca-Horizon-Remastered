@@ -998,8 +998,6 @@ try {
                 //     return res;
                 // })
                 .then(function(res){
-                    console.log('okay')
-                    global.Fca.Require.fs.writeFileSync('./AAAAA.html', JSON.stringify(res.body,null,2))
                     var html = res.body,Obj = buildAPI(globalOptions, html, jar,bypass_region_err);
                         ctx = Obj.ctx;
                         api = Obj.api;
