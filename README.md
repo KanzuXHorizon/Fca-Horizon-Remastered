@@ -1,6 +1,6 @@
 [![Socket Badge](https://socket.dev/api/badge/npm/package/fca-horizon-remastered)](https://socket.dev/npm/package/fca-horizon-remastered)
 
-# The following are not allowed here:
+# The following are not allowed here and little note:
 
 - Name: "Cao Chung Đạt"
 - Changing sources, editing credits, and copying commits from this repository to create a similar one is not allowed.
