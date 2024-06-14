@@ -1,5 +1,13 @@
 [![Socket Badge](https://socket.dev/api/badge/npm/package/fca-horizon-remastered)](https://socket.dev/npm/package/fca-horizon-remastered)
 
+# The following are not allowed here and a little note:
+
+- Name: "Cao Chung Đạt"
+- Changing sources, editing credits, and copying commits from this repository to create a similar one is not allowed.
+- Editing is only allowed after obtaining permission from the current lead developer.
+- Permission is granted only if the lead developer is no longer able or willing to maintain the update. For each instance detected, the consequence will be a restriction on updating new features such as e2ee, bypass bot, etc.
+- IMPORTANT: Do not change the credits.
+
 ## Important !
 
 <img width="517" alt="Reason" src="https://i.imgur.com/rD3ujmL.png">
