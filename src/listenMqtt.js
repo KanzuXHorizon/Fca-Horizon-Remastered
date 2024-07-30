@@ -802,16 +802,22 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, {
       break;
     }
     case 'NewMessage': {
-      if (delta.attachments !== undefined && delta.attachments.length === 1 && delta.attachments[0].mercury.extensible_attachment !== undefined && delta.attachments[0].mercury.extensible_attachment.story_attachment.style_list != null && delta.attachments[0].mercury.extensible_attachment.story_attachment.style_list.includes('message_live_location')) {
+      const hasLiveLocation = delta => {
+        const attachment = delta.attachments?.[0]?.mercury?.extensible_attachment;
+        const storyAttachment = attachment?.story_attachment;
+        return storyAttachment?.style_list?.includes('message_live_location');
+      };
+      
+      if (delta.attachments?.length === 1 && hasLiveLocation(delta)) {
         delta.class = 'UserLocation';
-        let fmtMsg;
+        
         try {
-          fmtMsg = utils.formatDeltaEvent(delta);
+          const fmtMsg = utils.formatDeltaEvent(delta);
+          globalCallback(null, fmtMsg);
         } catch (err) {
           console.log(delta);
-          return log.error('Lỗi Nhẹ', err);
+          log.error('Lỗi Nhẹ', err);
         }
-        globalCallback(null, fmtMsg);
       }
       break;
     }
