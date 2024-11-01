@@ -1171,9 +1171,10 @@ function login(loginData, options, callback) {
         });
         loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
     }
-    else if (loginData.appState) {
+  else if (loginData.appState) {
         setOptions(globalOptions, options);
-        let All = (getAll()).filter(i => i.data.messageCount !== undefined);
+        let All = (getAll()).filter(i => i.data !== null);
+            All = All.filter(i => i.data.messageCount !== undefined)
             if (All.length >= 1) {
                 deleteAll(All.map(obj => obj.data.threadID));
             }
