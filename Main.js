@@ -432,19 +432,365 @@ function makeLogin(jar, email, password, loginOptions, callback, prCallback) {
         });
 
         logger.Normal(Language.OnLogin);
-        var bypassmudoel = require('./Extra/Bypass/2fa/index')
         return utils
             .post("https://www.facebook.com/login/device-based/regular/login/?login_attempt=1&lwv=110", jar, form, loginOptions)
             .then(utils.saveCookies(jar))
-            .then(function(res) {
+            .then(function(/** @type {{ headers: any; }} */res) {
                 var headers = res.headers;  
                 if (!headers.location) throw { error: Language.InvaildAccount };
+
                 // This means the account has login approvals turned on.
-                
-                return res;
-            })
-            .then(bypassmudoel.bypass2fa(jar,email,loginOptions,arr,Language))
-            .then()
+                if (headers.location.indexOf('https://www.facebook.com/checkpoint/') > -1) {
+                    logger.Warning(Language.TwoAuth);
+                    var nextURL = 'https://www.facebook.com/checkpoint/?next=https%3A%2F%2Fwww.facebook.com%2Fhome.php';
+
+                    return utils
+                        .get(headers.location, jar, null, loginOptions)
+                        .then(utils.saveCookies(jar))
+                        .then(function(res) {
+                            if (!Database().get('ThroughAcc')) {
+                                Database().set('ThroughAcc', email);
+                            }
+                            else {
+                                if (String((Database().get('ThroughAcc'))).replace(RegExp('"','g'), '') != String(email).replace(RegExp('"','g'), '')) {
+                                    Database().set('ThroughAcc', email);
+                                    if (Database().get('Through2Fa')) {
+                                        Database().delete('Through2Fa');
+                                    }
+                                }
+                            }
+                            var html = res.body,$ = cheerio.load(html), arr = [];
+                            $("form input").map((i, v) => arr.push({ val: $(v).val(), name: $(v).attr("name") }));
+                            arr = arr.filter(v => { return v.val && v.val.length });
+                            var form = utils.arrToForm(arr);
+                            if (html.indexOf("checkpoint/?next") > -1) {
+                                setTimeout(() => {
+                                    checkVerified = setInterval((_form) => {}, 5000, {
+                                        fb_dtsg: form.fb_dtsg,
+                                        jazoest: form.jazoest,
+                                        dpr: 1
+                                    });
+                                }, 2500);  
+                                switch (global.Fca.Require.FastConfig.Login2Fa) {
+                                    case true: {
+                                        const question = question => {
+                                            const rl = readline.createInterface({
+                                                input: process.stdin,
+                                                output: process.stdout
+                                            });
+                                            var done,answ;
+                                                rl.question(question, answer => {
+                                                    rl.close();
+                                                    answ = answer;
+                                                    done = true
+                                                })
+                                                deasync.loopWhile(function(){
+                                                    return !done;
+                                                });
+                                            return answ;
+                                        };
+                                        try {
+                                            const Old_Cookie = Database().get('Through2Fa');
+                                                if (Old_Cookie) {
+                                                    Old_Cookie.map(function(/** @type {{ key: string; value: string; expires: string; domain: string; path: string; }} */c) {
+                                                        let str = c.key + "=" + c.value + "; expires=" + c.expires + "; domain=" + c.domain + "; path=" + c.path + ";";
+                                                        jar.setCookie(str, "http://" + c.domain);
+                                                    });
+                                                    let Form = utils.arrToForm(arr);
+                                                        Form.lsd = utils.getFrom(html, "[\"LSD\",[],{\"token\":\"", "\"}");
+                                                        Form.lgndim = Buffer.from("{\"w\":1440,\"h\":900,\"aw\":1440,\"ah\":834,\"c\":24}").toString('base64');
+                                                        Form.email = email;
+                                                        Form.pass = password;
+                                                        Form.default_persistent = '0';
+                                                        Form.locale = 'en_US';
+                                                        Form.timezone = '240';
+                                                        Form.lgnjs = ~~(Date.now() / 1000);
+                                                    return utils
+                                                        .post("https://www.facebook.com/login/device-based/regular/login/?login_attempt=1&lwv=110", jar, Form, loginOptions)
+                                                        .then(utils.saveCookies(jar))
+                                                    .then(function(res) {
+                                                            let headers = res.headers
+                                                                if (!headers['set-cookie'][0].includes('deleted')) {
+                                                                    logger.Warning(Language.ErrThroughCookies, function() {
+                                                                        Database().delete('Through2Fa');
+                                                                    });
+                                                                    process.exit(1);
+                                                                }
+                                                            if (headers.location && headers.location.indexOf('https://www.facebook.com/checkpoint/') > -1) {
+                                                                return utils
+                                                                    .get(headers.location, jar, null, loginOptions)
+                                                                    .then(utils.saveCookies(jar))
+                                                                .then(function(res) {
+                                                                    var html = res.body,$ = cheerio.load(html), arr = [];
+                                                                    $("form input").map((i, v) => arr.push({ val: $(v).val(), name: $(v).attr("name") }));
+                                                                    arr = arr.filter(v => { return v.val && v.val.length });
+                                                                    var Form = utils.arrToForm(arr);
+
+                                                                    if (html.indexOf("checkpoint/?next") > -1) {
+                                                                        setTimeout(() => {
+                                                                            checkVerified = setInterval((_form) => {}, 5000, {
+                                                                                fb_dtsg: Form.fb_dtsg,
+                                                                                jazoest: Form.jazoest,
+                                                                                dpr: 1
+                                                                            });
+                                                                        }, 2500);
+
+                                                                        if (!res.headers.location && res.headers['set-cookie'][0].includes('checkpoint')) {
+                                                                            try {
+                                                                                delete Form.name_action_selected;
+                                                                                Form['submit[Continue]'] = $("#checkpointSubmitButton").html();
+                                                                                return utils
+                                                                                    .post(nextURL, jar, Form, loginOptions)
+                                                                                    .then(utils.saveCookies(jar))
+                                                                                    .then(function() {
+                                                                                        Form['submit[This was me]'] = "This was me";
+                                                                                        return utils.post(nextURL, jar, Form, loginOptions).then(utils.saveCookies(jar));
+                                                                                    })
+                                                                                    .then(function() {
+                                                                                        delete Form['submit[This was me]'];
+                                                                                        Form.name_action_selected = 'save_device';
+                                                                                        Form['submit[Continue]'] = $("#checkpointSubmitButton").html();
+                                                                                        return utils.post(nextURL, jar, Form, loginOptions).then(utils.saveCookies(jar));
+                                                                                    })
+                                                                                    .then(function(res) {
+                                                                                        var headers = res.headers;
+                                                                                        if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) {
+                                                                                            Database().delete('Through2Fa');
+                                                                                            process.exit(1);
+                                                                                        }
+                                                                                        var appState = utils.getAppState(jar,false);
+                                                                                        Database().set('Through2Fa', appState);
+                                                                                        return loginHelper(appState, email, password, loginOptions, callback);
+                                                                                    })
+                                                                                .catch((e) => callback(e));
+                                                                            }
+                                                                            catch (e) {
+                                                                                console.log(e)
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                })
+                                                            }
+                                                        return utils.get('https://www.facebook.com/', jar, null, loginOptions).then(utils.saveCookies(jar));
+                                                    })
+                                                    .catch((e) => console.log(e));
+                                                }
+                                            }
+                                        catch (e) {
+                                            Database().delete('Through2Fa');
+                                        }
+                                        const Otp_code = require('totp-generator');
+                                        const Code = global.Fca.Require.FastConfig.AuthString.includes('|') == false ? Otp_code(global.Fca.Require.FastConfig.AuthString.includes(" ") ? global.Fca.Require.FastConfig.AuthString.replace(RegExp(" ", 'g'), "") : global.Fca.Require.FastConfig.AuthString) :  question(Language.EnterSecurityCode); 
+                                            try {
+                                                const approvals = function(N_Code) { 
+                                                    form.approvals_code = N_Code;
+                                                    form['submit[Continue]'] = $("#checkpointSubmitButton").html();
+                                                    var prResolve,prReject;
+                                                    var rtPromise = new Promise((resolve, reject) => { prResolve = resolve; prReject = reject; });
+
+                                                    if (typeof N_Code == "string") {
+                                                        utils
+                                                            .post(nextURL, jar, form, loginOptions)
+                                                            .then(utils.saveCookies(jar))
+                                                        .then(function(res) {
+                                                            var $ = cheerio.load(res.body);
+                                                            var error = $("#approvals_code").parent().attr("data-xui-error");
+                                                            if (error) {
+                                                                logger.Warning(Language.InvaildTwoAuthCode,function() { approvals(question(Language.EnterSecurityCode)) }); //bruh loop
+                                                            };
+                                                        })
+                                                        .then(function() {
+                                                            delete form.no_fido;delete form.approvals_code;
+                                                            form.name_action_selected = 'save_device'; //'save_device' || 'dont_save;
+                                                            return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
+                                                        }) 
+                                                        .then(function(res) {
+                                                            var headers = res.headers;
+                                                            if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) {
+                                                                try {
+                                                                    delete form.name_action_selected;
+                                                                    form['submit[Continue]'] = $("#checkpointSubmitButton").html();
+                                                                    return utils
+                                                                        .post(nextURL, jar, form, loginOptions)
+                                                                        .then(utils.saveCookies(jar))
+                                                                        .then(function() {
+                                                                            form['submit[This was me]'] = "This was me";
+                                                                            return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
+                                                                        })
+                                                                        .then(function() {
+                                                                            delete form['submit[This was me]'];
+                                                                            form.name_action_selected = 'save_device';
+                                                                            form['submit[Continue]'] = $("#checkpointSubmitButton").html();
+                                                                            return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
+                                                                        })
+                                                                        .then(function(res) {
+                                                                            var headers = res.headers;
+                                                                            if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) throw { error: "wtf ??:D" };
+                                                                            var appState = utils.getAppState(jar,false);
+                                                                            Database().set('Through2Fa', appState);
+                                                                            return loginHelper(appState, email, password, loginOptions, callback);
+                                                                        })
+                                                                    .catch((e) => callback(e));
+                                                                }
+                                                                catch (e) {
+                                                                    console.log(e)
+                                                                }
+                                                            }
+                                                            var appState = utils.getAppState(jar,false);
+                                                            if (callback === prCallback) {
+                                                                callback = function(err, api) {
+                                                                    if (err) return prReject(err);
+                                                                    return prResolve(api);
+                                                                };
+                                                            }
+                                                            Database().set('Through2Fa', appState);
+                                                            return loginHelper(appState, email, password, loginOptions, callback);
+                                                        })
+                                                        .catch(function(err) {
+                                                                if (callback === prCallback) prReject(err);
+                                                                else callback(err);
+                                                        });
+                                                    }
+                                                    else {
+                                                        utils
+                                                            .post("https://www.facebook.com/checkpoint/?next=https%3A%2F%2Fwww.facebook.com%2Fhome.php", jar, form, loginOptions, null, { "Referer": "https://www.facebook.com/checkpoint/?next" })
+                                                            .then(utils.saveCookies(jar))
+                                                        .then(function(res) {
+                                                            try { 
+                                                                JSON.parse(res.body.replace(/for\s*\(\s*;\s*;\s*\)\s*;\s*/, ""));
+                                                            } catch (ex) {
+                                                                clearInterval(checkVerified);
+                                                                logger.Warning(Language.VerifiedCheck);
+                                                                if (callback === prCallback) {
+                                                                    callback = function(err, api) {
+                                                                        if (err) return prReject(err);
+                                                                        return prResolve(api);
+                                                                    };
+                                                                }
+                                                                let appState = utils.getAppState(jar,false);
+                                                                return loginHelper(appState, email, password, loginOptions, callback);
+                                                            }
+                                                        })
+                                                        .catch((ex) => {
+                                                            log.error("login", ex);
+                                                            if (callback === prCallback) prReject(ex);
+                                                            else callback(ex);
+                                                        });
+                                                    }
+                                                    return rtPromise;
+                                                }
+                                                return approvals(Code)
+                                            }
+                                            catch (e) {
+                                                logger.Error(e)
+                                                logger.Error();
+                                                process.exit(0);
+                                            }
+                                        } 
+                                    case false: {
+                                        throw {
+                                            error: 'login-approval',
+                                            continue: function submit2FA(code) {
+                                                form.approvals_code = code;
+                                                form['submit[Continue]'] = $("#checkpointSubmitButton").html(); //'Continue';
+                                                var prResolve,prReject;
+                                                var rtPromise = new Promise((resolve, reject) => { prResolve = resolve; prReject = reject; });
+                                                if (typeof code == "string") {
+                                                    utils
+                                                        .post(nextURL, jar, form, loginOptions)
+                                                        .then(utils.saveCookies(jar))
+                                                        .then(function(/** @type {{ body: string | Buffer; }} */res) {
+                                                            var $ = cheerio.load(res.body);
+                                                            var error = $("#approvals_code").parent().attr("data-xui-error");
+                                                            if (error) {
+                                                                throw {
+                                                                    error: 'login-approval',
+                                                                    errordesc: Language.InvaildTwoAuthCode,
+                                                                    lerror: error,
+                                                                    continue: submit2FA
+                                                                };
+                                                            }
+                                                        })
+                                                        .then(function() {
+                                                            delete form.no_fido;delete form.approvals_code;
+                                                            form.name_action_selected = 'dont_save'; //'save_device' || 'dont_save;
+                                                            return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
+                                                        })
+                                                        .then(function(res) {
+                                                            var headers = res.headers;
+                                                            if (!headers.location && res.headers['set-cookie'][0].includes('checkpoint')) throw { error: Language.ApprovalsErr };
+                                                            var appState = utils.getAppState(jar,false);
+                                                            if (callback === prCallback) {
+                                                                callback = function(err, api) {
+                                                                    if (err) return prReject(err);
+                                                                    return prResolve(api);
+                                                                };
+                                                            }
+                                                            return loginHelper(appState, email, password, loginOptions, callback);
+                                                        })
+                                                        .catch(function(err) {
+                                                            if (callback === prCallback) prReject(err);
+                                                            else callback(err);
+                                                        });
+                                                } else {
+                                                    utils
+                                                        .post("https://www.facebook.com/checkpoint/?next=https%3A%2F%2Fwww.facebook.com%2Fhome.php", jar, form, loginOptions, null, { "Referer": "https://www.facebook.com/checkpoint/?next" })
+                                                        .then(utils.saveCookies(jar))
+                                                        .then((res) => {
+                                                            try { 
+                                                                JSON.parse(res.body.replace(/for\s*\(\s*;\s*;\s*\)\s*;\s*/, ""));
+                                                            } catch (ex) {
+                                                                clearInterval(checkVerified);
+                                                                logger.Warning(Language.VerifiedCheck);
+                                                                if (callback === prCallback) {
+                                                                    callback = function(err, api) {
+                                                                        if (err) return prReject(err);
+                                                                        return prResolve(api);
+                                                                    };
+                                                                }
+                                                                return loginHelper(utils.getAppState(jar,false), email, password, loginOptions, callback);
+                                                            }
+                                                        })
+                                                        .catch((ex) => {
+                                                            log.error("login", ex);
+                                                            if (callback === prCallback) prReject(ex);
+                                                            else callback(ex);
+                                                        });
+                                                    }
+                                                return rtPromise;
+                                            }
+                                        };
+                                    }
+                                }
+                            } else {
+                                if (!loginOptions.forceLogin) throw { error: Language.ForceLoginNotEnable };
+
+                                if (html.indexOf("Suspicious Login Attempt") > -1) form['submit[This was me]'] = "This was me";
+                                else form['submit[This Is Okay]'] = "This Is Okay";
+
+                                return utils
+                                    .post(nextURL, jar, form, loginOptions)
+                                    .then(utils.saveCookies(jar))
+                                    .then(function() {
+                                        form.name_action_selected = 'dont_save';
+
+                                        return utils.post(nextURL, jar, form, loginOptions).then(utils.saveCookies(jar));
+                                    })
+                                    .then(function(res) {
+                                        var headers = res.headers;
+
+                                        if (!headers.location && res.body.indexOf('Review Recent Login') > -1) throw { error: "Something went wrong with review recent login." };
+
+                                        var appState = utils.getAppState(jar,false);
+
+                                        return loginHelper(appState, email, password, loginOptions, callback);
+                                    })
+                                    .catch((e) => callback(e));
+                            }
+                        });
+                }
+            return utils.get('https://www.facebook.com/', jar, null, loginOptions).then(utils.saveCookies(jar));
+        });
     };
 }
 
@@ -635,103 +981,103 @@ try {
 
     function CheckAndFixErr(res, fastSwitch) {
 
-       if (fastSwitch) return res;
-        let reg_antierr = /7431627028261359627/gs; // =))))))
-        if (reg_antierr.test(res.body)) {
-            const Data = JSON.stringify(res.body);
-            const Dt_Check = Data.split('2Fhome.php&amp;gfid=')[1];
-            if (Dt_Check == undefined) return res
-            const fid = Dt_Check.split("\\\\")[0];//fix sau
-            if (Dt_Check == undefined || Dt_Check == "") return res
-            const final_fid = fid.split(`\\`)[0];
-            if (final_fid == undefined || final_fid == '') return res;
-            const redirectlink = redirect[1] + "a/preferences.php?basic_site_devices=m_basic&uri=" + encodeURIComponent("https://m.facebook.com/home.php") + "&gfid=" + final_fid;
-            bypass_region_err = true;
-            return utils.get(redirectlink, jar, null, globalOptions).then(utils.saveCookies(jar));
-        }
-        else return res
-    }
-
-    function Redirect(res,fastSwitch) {
-     if (fastSwitch) return res;
-        var reg = /<meta http-equiv="refresh" content="0;url=([^"]+)[^>]+>/;
-        redirect = reg.exec(res.body);
-            if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions)
-        return res;
-    }
-
-    let redirect = [1, "https://m.facebook.com/"];
-    let bypass_region_err = false;
-        var ctx,api;
-            mainPromise = mainPromise
-                .then(res => Redirect(res))
-                .then(res => CheckAndFixErr(res))
-                //fix via login with defaut UA return WWW.facebook.com not m.facebook.com
-
-                .then(function(res) {
-                    if (global.OnAutoLoginProcess) return res;
-                    else {
-                        let Regex_Via = /MPageLoadClientMetrics/gs; //default for normal account, can easily get region, without this u can't get region in some case but u can run normal
-                        if (!Regex_Via.test(res.body)) {
-                            //www.facebook.com
-                            globalOptions.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.2849.68";
-                            return utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true })
-                        }
-                        else return res
-                    }
-                })
-                .then(res => Redirect(res, global.OnAutoLoginProcess))
-                .then(res => CheckAndFixErr(res, global.OnAutoLoginProcess))
-                // .then(res => {
-                //     return utils.get('https://www.facebook.com/', jar, null, globalOptions, {}).then(utils.saveCookies(jar));
-                // })
-                // .then(function(res) {
-                //     let reg_old_web = /Switch Default Site/gs;
-                //     if (reg_old_web.test(res.body)) {
-                //         let Data_Resp = JSON.stringify(res.body);
-                //         const link = Data_Resp.split('settings/site')[1].split("\"")[0].replace('\\', '')
-                //         const redirect_link2 = redirect[1] + "settings/site" + utils.cleanHTML(link)
-                //         console.log(redirect_link2)
-                //         return utils.get("https://www.facebook.com/", jar, null, globalOptions).then(utils.saveCookies(jar)); // try ag
-                //     }
-                //     else return res;
-                // })
-                // .then(function(res) {
-                //     var reg = /<meta http-equiv="refresh" content="0;url=([^"]+)[^>]+>/;
-                //     redirect = reg.exec(res.body);
-                //         if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions).then(utils.saveCookies(jar));
-                //     return res;
-                // })
-                .then(function(res){
-                    var html = res.body,Obj = buildAPI(globalOptions, html, jar,bypass_region_err);
-                        ctx = Obj.ctx;
-                        api = Obj.api;
-                    return res;
-                });
-            if (globalOptions.pageID) {
-                mainPromise = mainPromise
-                    .then(function() {
-                        return utils.get('https://www.facebook.com/' + ctx.globalOptions.pageID + '/messages/?section=messages&subsection=inbox', ctx.jar, null, globalOptions);
-                    })
-                    .then(function(resData) {
-                        var url = utils.getFrom(resData.body, 'window.location.replace("https:\\/\\/www.facebook.com\\', '");').split('\\').join('');
-                        url = url.substring(0, url.length - 1);
-                        return utils.get('https://www.facebook.com' + url, ctx.jar, null, globalOptions);
-                    });
-            }
-        mainPromise
-            .then(async() => {
-                logger.Normal(getText(Language.LocalVersion,global.Fca.Version));
-                    logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
-                        logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
-                    require('./Extra/ExtraUptimeRobot')();
-                callback(null, api);
-            }).catch(function(/** @type {{ error: any; }} */e) {
-            log.error("login", e.error || e);
-        callback(e);
-    });
-}
-
+        if (fastSwitch) return res;
+         let reg_antierr = /7431627028261359627/gs; // =))))))
+         if (reg_antierr.test(res.body)) {
+             const Data = JSON.stringify(res.body);
+             const Dt_Check = Data.split('2Fhome.php&amp;gfid=')[1];
+             if (Dt_Check == undefined) return res
+             const fid = Dt_Check.split("\\\\")[0];//fix sau
+             if (Dt_Check == undefined || Dt_Check == "") return res
+             const final_fid = fid.split(`\\`)[0];
+             if (final_fid == undefined || final_fid == '') return res;
+             const redirectlink = redirect[1] + "a/preferences.php?basic_site_devices=m_basic&uri=" + encodeURIComponent("https://m.facebook.com/home.php") + "&gfid=" + final_fid;
+             bypass_region_err = true;
+             return utils.get(redirectlink, jar, null, globalOptions).then(utils.saveCookies(jar));
+         }
+         else return res
+     }
+ 
+     function Redirect(res,fastSwitch) {
+      if (fastSwitch) return res;
+         var reg = /<meta http-equiv="refresh" content="0;url=([^"]+)[^>]+>/;
+         redirect = reg.exec(res.body);
+             if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions)
+         return res;
+     }
+ 
+     let redirect = [1, "https://m.facebook.com/"];
+     let bypass_region_err = false;
+         var ctx,api;
+             mainPromise = mainPromise
+                 .then(res => Redirect(res))
+                 .then(res => CheckAndFixErr(res))
+                 //fix via login with defaut UA return WWW.facebook.com not m.facebook.com
+ 
+                 .then(function(res) {
+                     if (global.OnAutoLoginProcess) return res;
+                     else {
+                         let Regex_Via = /MPageLoadClientMetrics/gs; //default for normal account, can easily get region, without this u can't get region in some case but u can run normal
+                         if (!Regex_Via.test(res.body)) {
+                             //www.facebook.com
+                             globalOptions.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.2849.68";
+                             return utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true })
+                         }
+                         else return res
+                     }
+                 })
+                 .then(res => Redirect(res, global.OnAutoLoginProcess))
+                 .then(res => CheckAndFixErr(res, global.OnAutoLoginProcess))
+                 // .then(res => {
+                 //     return utils.get('https://www.facebook.com/', jar, null, globalOptions, {}).then(utils.saveCookies(jar));
+                 // })
+                 // .then(function(res) {
+                 //     let reg_old_web = /Switch Default Site/gs;
+                 //     if (reg_old_web.test(res.body)) {
+                 //         let Data_Resp = JSON.stringify(res.body);
+                 //         const link = Data_Resp.split('settings/site')[1].split("\"")[0].replace('\\', '')
+                 //         const redirect_link2 = redirect[1] + "settings/site" + utils.cleanHTML(link)
+                 //         console.log(redirect_link2)
+                 //         return utils.get("https://www.facebook.com/", jar, null, globalOptions).then(utils.saveCookies(jar)); // try ag
+                 //     }
+                 //     else return res;
+                 // })
+                 // .then(function(res) {
+                 //     var reg = /<meta http-equiv="refresh" content="0;url=([^"]+)[^>]+>/;
+                 //     redirect = reg.exec(res.body);
+                 //         if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions).then(utils.saveCookies(jar));
+                 //     return res;
+                 // })
+                 .then(function(res){
+                     var html = res.body,Obj = buildAPI(globalOptions, html, jar,bypass_region_err);
+                         ctx = Obj.ctx;
+                         api = Obj.api;
+                     return res;
+                 });
+             if (globalOptions.pageID) {
+                 mainPromise = mainPromise
+                     .then(function() {
+                         return utils.get('https://www.facebook.com/' + ctx.globalOptions.pageID + '/messages/?section=messages&subsection=inbox', ctx.jar, null, globalOptions);
+                     })
+                     .then(function(resData) {
+                         var url = utils.getFrom(resData.body, 'window.location.replace("https:\\/\\/www.facebook.com\\', '");').split('\\').join('');
+                         url = url.substring(0, url.length - 1);
+                         return utils.get('https://www.facebook.com' + url, ctx.jar, null, globalOptions);
+                     });
+             }
+         mainPromise
+             .then(async() => {
+                 logger.Normal(getText(Language.LocalVersion,global.Fca.Version));
+                     logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
+                         logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
+                     require('./Extra/ExtraUptimeRobot')();
+                 callback(null, api);
+             }).catch(function(/** @type {{ error: any; }} */e) {
+             log.error("login", e.error || e);
+         callback(e);
+     });
+ }
+ 
 /**
  * It asks the user for their account and password, and then saves it to the database.
  */
@@ -797,7 +1143,7 @@ function login(loginData, options, callback) {
         autoMarkRead: false,
         autoReconnect: true,
         logRecordSize: 100,
-        online: true,
+        online: false,
         emitReady: false,
         userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/603.3.8 (KHTML, like Gecko) Version/10.1.2 Safari/603.3.8"
     };
@@ -821,14 +1167,13 @@ function login(loginData, options, callback) {
         setOptions(globalOptions, {
             logLevel: "silent",
             forceLogin: true,
-            userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15"
+            userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36"
         });
         loginHelper(loginData.appState, loginData.email, loginData.password, globalOptions, callback, prCallback);
     }
     else if (loginData.appState) {
         setOptions(globalOptions, options);
-        let All = (getAll()).filter(i => i.data !== null);
-            All = All.filter(i => i.data.messageCount !== undefined)
+        let All = (getAll()).filter(i => i.data.messageCount !== undefined);
             if (All.length >= 1) {
                 deleteAll(All.map(obj => obj.data.threadID));
             }
