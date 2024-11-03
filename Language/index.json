@@ -6,9 +6,9 @@
                 "ErrAppState": "Appstate - Cookie Của Bạn Đã Bị Lỗi, Hãy Thay Cái Mới, Hoặc Vô Trình Duyệt Ẩn Danh Rồi Đăng Nhập Và Thử Lại !",
                 "CheckPointLevelI": "Phát Hiện CheckPoint - Không Đăng Nhập Được, Hãy Thử Logout Rồi Login Và Lấy Lại Appstate - Cookie !",
                 "UID": "Đăng Nhập Tại ID: %1",
-                "Area": "Vùng Của Tài Khoản Là: %1",
+                "Area": "Chào Mừng Bạn Đến Với Server: %1",
                 "NoAreaData": "Không Thể Lấy Vùng Của Tài Khoản!",
-                "NoAreaDataBypass": "Không thể lấy vùng của tài khoản nhưng fca đã bypass😔",
+                "NoAreaDataBypass": "Không thể lấy vùng của tài khoản nhưng đã bỏ qua bước đó 🐑",
                 "OnLogin": "Đang Đăng Nhập ...",
                 "InvaildAccount": "Sai Mật Khẩu Hoặc Tài Khoản !",
                 "TwoAuth": "Bạn Đang Bật 2 Bảo Mật !",
@@ -82,7 +82,10 @@
                 "Ws_2Fa": "Đây là mã xác thực 2 yếu tố(2FA) của bạn cho Horizon_Extension, hãy sử dụng Google Authenticator để lấy mã phòng trường hợp quên mật khẩu hoặc yêu cầu xác minh !\n\n=> Đây: %1",
                 "Ws_2Fa_Check": "Hãy nhập mã 2Fa của bạn từ ứng dụng xác thực: ",
 
+                "2FaBypassCheckpoint": "Tài khoản bạn đang cố gắng đăng nhập qua 2FA đã bị dính 1 dạng checkpoint nào đấy, hiện tại chưa có bản fix cho checkpoint ở 2FA, hãy liên hệ đến https://www.facebook.com/Lazic.Kanzu (Nguyễn Thái Hảo) để biết chi tiết cách sửa lỗi !\n\n MÃ LỖI: %1",
+
                 "Bypass_956": "Đang thử nghiệm coi bạn có dính checkpoint 956 hay không!",
+                "Bypass_AutoNoti": "Đã vượt qua cảnh báo hành vi thành công!",
 
                 "WishMessage": [
                     "Chúc Bạn Một Ngày Tốt Lành Nhé !",
@@ -117,9 +120,9 @@
                 "ErrAppState": "Appstate - Your Cookie Is Wrong, Please Replace It, Or Go To Incognito Browser Then Sign In And Try Again !",
                 "CheckPointLevelI": "CheckPoint Detected - Can't Login, Try Logout Then Login And Retrieve Appstate - Cookie !",
                 "UID": "Login as ID: %1",
-                "Area": "Area Of Account Is: %1",
+                "Area": "Welcome To Server: %1",
                 "NoAreaData": "Can't Get Area Of Account !",
-                "NoAreaDataBypass": "Can't get the area of the account but fca bypass 😔",
+                "NoAreaDataBypass": "Can't get account area but fca ignores it 🐑",
                 "OnLogin": "Currently logged ...",
                 "InvaildAccount": "Wrong Password Or Account !",
                 "TwoAuth": "You Currently On 2 Factor Security !",
@@ -185,6 +188,8 @@
                 "EVMChange": "Changing replit.nix to support node v14!",
                 "EVMChangeSuccess": "Successfully changed replit.nix, go ahead and restart!",
 
+                "2FaBypassCheckpoint": "The account you are trying to log in to with 2FA has encountered a checkpoint error. There is currently no fix for 2FA checkpoints. Please contact https://www.facebook.com/Lazic.Kanzu (Nguyễn Thái Hảo) for detailed troubleshooting instructions.\n\n ERROR CODE: %1",
+
                 "Ws_TypeUserName": "Please enter a username for your websocket extension account: ",
                 "Ws_TypePassWord": "Please enter a password for your websocket extension account: ",
                 "Ws_Success": "Successfully set data for websocket extension!",
@@ -192,6 +197,7 @@
                 "Ws_2Fa_Check": "Please enter your 2FA code from the authentication app: ",
                 
                 "Bypass_956": "Testing to see if you get checkpoint 956 or not!",
+                "Bypass_AutoNoti": "Successfully passed the behavior warning!",
 
                 "WishMessage": [
                     "Have a Nice Day !",

@@ -843,13 +843,23 @@ function markDelivery(ctx, api, threadID, messageID) {
 
 module.exports = function(defaultFuncs, api, ctx) {
   var globalCallback = identity;
+  var okeoke;
   getSeqID = function getSeqID() {
     ctx.t_mqttCalled = false;
     defaultFuncs
       .post("https://www.facebook.com/api/graphqlbatch/", ctx.jar, form)
+      .then(res => {
+        okeoke = res;
+        return res;
+      })
       .then(utils.parseAndCheckLogin(ctx, defaultFuncs))
       .then((resData) => {
         if (utils.getType(resData) != "Array") {
+          if (resData.request.uri && resData.request.uri.href.includes("https://www.facebook.com/checkpoint/")) {
+            if (resData.request.uri.href.includes('601051028565049')) {
+                return global.Fca.BypassAutomationNotification(undefined, ctx.jar, ctx.globalOptions, undefined ,process.env.UID)
+            }
+          }
           if (global.Fca.Require.FastConfig.AutoLogin) {
             return global.Fca.Require.logger.Warning(global.Fca.Require.Language.Index.AutoLogin, function() {
               return global.Fca.Action('AutoLogin');
@@ -875,6 +885,11 @@ module.exports = function(defaultFuncs, api, ctx) {
       })
       .catch((err) => {
         log.error("getSeqId", err);
+        if (okeoke.request.uri && okeoke.request.uri.href.includes("https://www.facebook.com/checkpoint/")) {
+              if (okeoke.request.uri.href.includes('601051028565049')) {
+                  return global.Fca.BypassAutomationNotification(undefined, ctx.jar, ctx.globalOptions, undefined ,process.env.UID)
+              }
+          }
         if (utils.getType(err) == "Object" && err.error === global.Fca.Require.Language.Index.ErrAppState) ctx.loggedIn = false;
         return globalCallback(err);
       });

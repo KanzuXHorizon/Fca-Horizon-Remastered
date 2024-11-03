@@ -244,6 +244,89 @@ function setOptions(globalOptions, options) {
     });
 }
 
+function BypassAutomationNotification(resp, jar, globalOptions, appstate,ID) {
+    global.Fca.BypassAutomationNotification = BypassAutomationNotification
+    try {
+        let UID;
+        if (ID) UID = ID
+        else {
+            UID = (appstate.find(i => i.key == 'c_user') || appstate.find(i => i.key == 'i_user'))
+            UID = UID.value;
+        }
+        if (resp !== undefined) {
+            if (resp.request.uri && resp.request.uri.href.includes("https://www.facebook.com/checkpoint/")) {
+                if (resp.request.uri.href.includes('601051028565049')) {
+                    const fb_dtsg = utils.getFrom(resp.body, '["DTSGInitData",[],{"token":"', '","');
+                    const jazoest = utils.getFrom(resp.body, 'jazoest=', '",');
+                    const lsd = utils.getFrom(resp.body, "[\"LSD\",[],{\"token\":\"", "\"}");
+
+                    const FormBypass = {
+                        av: UID,
+                        fb_dtsg, jazoest, lsd,
+                        fb_api_caller_class: "RelayModern",
+                        fb_api_req_friendly_name: "FBScrapingWarningMutation",
+                        variables: JSON.stringify({}),
+                        server_timestamps: true,
+                        doc_id: 6339492849481770
+                    }
+                    return utils.post("https://www.facebook.com/api/graphql/", jar, FormBypass, globalOptions)
+                    .then(utils.saveCookies(jar)).then(function(res) {
+                        global.Fca.Require.logger.Warning(global.Fca.Require.Language.Index.Bypass_AutoNoti);
+                        return process.exit(1);                    
+                    });
+                }
+                else {
+                    return resp;
+                }
+            }
+            else {
+                return resp
+            }
+        }
+        else {
+            return utils.get('https://www.facebook.com/', jar, null, globalOptions).then(function(res) {
+                if (res.request.uri && res.request.uri.href.includes("https://www.facebook.com/checkpoint/")) {
+                    if (res.request.uri.href.includes('601051028565049')) return { Status: true, Body: res.body }
+                    else return { Status: false, Body: res.body }
+                }
+                else return { Status: false, Body: res.body }
+            }).then(function(res) {
+                if (res.Status === true) {
+                    const fb_dtsg = utils.getFrom(res.Body, '["DTSGInitData",[],{"token":"', '","');
+                    const jazoest = utils.getFrom(res.Body, 'jazoest=', '",');
+                    const lsd = utils.getFrom(res.Body, "[\"LSD\",[],{\"token\":\"", "\"}");
+
+                    const FormBypass = {
+                        av: UID,
+                        fb_dtsg, jazoest, lsd,
+                        fb_api_caller_class: "RelayModern",
+                        fb_api_req_friendly_name: "FBScrapingWarningMutation",
+                        variables: JSON.stringify({}),
+                        server_timestamps: true,
+                        doc_id: 6339492849481770
+                    }
+                return utils.post("https://www.facebook.com/api/graphql/", jar, FormBypass, globalOptions).then(utils.saveCookies(jar))
+                    .then(res => {
+                        global.Fca.Require.logger.Warning(global.Fca.Require.Language.Index.Bypass_AutoNoti);
+                        return res
+                    })
+                }
+                else return res;
+
+            })
+            .then(function(res) {
+                return utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true }).then(utils.saveCookies(jar))
+            })
+            .then(function(res) {
+                return process.exit(1)
+            })
+        }
+    }
+    catch (e) {
+        console.log(e)
+    }
+}
+
 //-[ Function BuildAPI ]-!/
 
 /**
@@ -298,16 +381,16 @@ function buildAPI(globalOptions, html, jar, bypass_region) {
 
         // tổng hợp danh sách region never die của Kanzu =))
         /**
-         * PRN = Paris (France)
-         * VLL (Virginia Low Latency)
-         * ATN (Ashburn)
-         * SIN = Singapore
-         * HKG = Hong Kong
-         * TPE = Taipei (Taiwan)
-         * ICN = Seoul (South Korea)
+         * PRN = Pacific Northwest Region (Khu vực Tây Bắc Thái Bình Dương)
+         * VLL = Valley Region
+         * ASH = Ashburn Region
+         * DFW = Dallas/Fort Worth Region
+         * LLA = Los Angeles Region
+         * FRA = Frankfurt
+         * SIN = Singapore 
          * NRT = Tokyo (Japan)
-         * BOM = Mumbai (India)
-         * TPE = Taipei (Taiwan)
+         * HKG = Hong Kong
+         * SYD = Sydney
          */
 
         let Slot = Object.keys(CHECK_MQTT);
@@ -337,12 +420,69 @@ function buildAPI(globalOptions, html, jar, bypass_region) {
             }
         });   
 
+        const regions = [
+            {
+                code: "PRN",
+                name: "Pacific Northwest Region",
+                location: "Khu vực Tây Bắc Thái Bình Dương"
+            },
+            {
+                code: "VLL",
+                name: "Valley Region",
+                location: "Valley"
+            },
+            {
+                code: "ASH",
+                name: "Ashburn Region",
+                location: "Ashburn"
+            },
+            {
+                code: "DFW",
+                name: "Dallas/Fort Worth Region",
+                location: "Dallas/Fort Worth"
+            },
+            {
+                code: "LLA",
+                name: "Los Angeles Region",
+                location: "Los Angeles"
+            },
+            {
+                code: "FRA",
+                name: "Frankfurt",
+                location: "Frankfurt"
+            },
+            {
+                code: "SIN",
+                name: "Singapore",
+                location: "Singapore"
+            },
+            {
+                code: "NRT",
+                name: "Tokyo",
+                location: "Japan"
+            },
+            {
+                code: "HKG",
+                name: "Hong Kong",
+                location: "Hong Kong"
+            },
+            {
+                code: "SYD",
+                name: "Sydney",
+                location: "Sydney"
+            }
+        ];
+
         if (!region) {
-            region = ['prn',"TPE","atn","hkg","sin"][Math.random()*5|0];
+            region = ['prn',"ash","vll","hkg","sin"][Math.random()*5|0];
+            
         }
         if (!mqttEndpoint) {
             mqttEndpoint = "wss://edge-chat.facebook.com/chat?region=" + region;
         }
+
+        const Location = regions.find(r => r.code === region.toUpperCase());
+        logger.Normal(getText(Language.Area,Location.name));
 
         var ctx = {
             userID: userID,
@@ -1026,8 +1166,9 @@ try {
                          else return res
                      }
                  })
-                 .then(res => Redirect(res, global.OnAutoLoginProcess))
-                 .then(res => CheckAndFixErr(res, global.OnAutoLoginProcess))
+                .then(res => BypassAutomationNotification(res, jar, globalOptions, appState))
+                .then(res => Redirect(res, global.OnAutoLoginProcess))
+                .then(res => CheckAndFixErr(res, global.OnAutoLoginProcess))
                  // .then(res => {
                  //     return utils.get('https://www.facebook.com/', jar, null, globalOptions, {}).then(utils.saveCookies(jar));
                  // })
@@ -1048,35 +1189,38 @@ try {
                  //         if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions).then(utils.saveCookies(jar));
                  //     return res;
                  // })
-                 .then(function(res){
-                     var html = res.body,Obj = buildAPI(globalOptions, html, jar,bypass_region_err);
-                         ctx = Obj.ctx;
-                         api = Obj.api;
-                     return res;
-                 });
-             if (globalOptions.pageID) {
-                 mainPromise = mainPromise
-                     .then(function() {
-                         return utils.get('https://www.facebook.com/' + ctx.globalOptions.pageID + '/messages/?section=messages&subsection=inbox', ctx.jar, null, globalOptions);
-                     })
-                     .then(function(resData) {
-                         var url = utils.getFrom(resData.body, 'window.location.replace("https:\\/\\/www.facebook.com\\', '");').split('\\').join('');
-                         url = url.substring(0, url.length - 1);
-                         return utils.get('https://www.facebook.com' + url, ctx.jar, null, globalOptions);
-                     });
-             }
-         mainPromise
-             .then(async() => {
-                 logger.Normal(getText(Language.LocalVersion,global.Fca.Version));
-                     logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
-                         logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
-                     require('./Extra/ExtraUptimeRobot')();
-                 callback(null, api);
-             }).catch(function(/** @type {{ error: any; }} */e) {
-             log.error("login", e.error || e);
-         callback(e);
-     });
- }
+                  .then(function(res){
+                    if (global.Remake) return loginHelper(appState, email, password, globalOptions, callback, prCallback)
+                    var html = res.body,Obj = buildAPI(globalOptions, html, jar,bypass_region_err);
+                        ctx = Obj.ctx;
+                        api = Obj.api;
+                    return res;
+                });
+            if (globalOptions.pageID) {
+                mainPromise = mainPromise
+                    .then(function() {
+                        return utils.get('https://www.facebook.com/' + ctx.globalOptions.pageID + '/messages/?section=messages&subsection=inbox', ctx.jar, null, globalOptions);
+                    })
+                    .then(function(resData) {
+                        var url = utils.getFrom(resData.body, 'window.location.replace("https:\\/\\/www.facebook.com\\', '");').split('\\').join('');
+                        url = url.substring(0, url.length - 1);
+                        return utils.get('https://www.facebook.com' + url, ctx.jar, null, globalOptions);
+                    });
+            }
+        if (global.Remake) return;
+        mainPromise
+            .then(async() => {
+                logger.Normal(getText(Language.LocalVersion,global.Fca.Version));
+                    logger.Normal(getText(Language.CountTime,global.Fca.Data.CountTime()))   
+                        logger.Normal(Language.WishMessage[Math.floor(Math.random()*Language.WishMessage.length)]);
+                    require('./Extra/ExtraUptimeRobot')();
+                callback(null, api);
+            }).catch(function(/** @type {{ error: any; }} */e) {
+            log.error("login", e.error || e);
+        callback(e);
+    });
+}
+
  
 /**
  * It asks the user for their account and password, and then saves it to the database.

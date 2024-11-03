@@ -2692,7 +2692,12 @@ function parseAndCheckLogin(ctx, defaultFuncs, retryCount) {
                         const Check = () => new Promise((re) => {
                             defaultFuncs.get('https://facebook.com', ctx.jar).then(function(res) {
                                 if (res.headers.location && res.headers.location.includes('https://www.facebook.com/checkpoint/')) {
-                                    if (res.headers.includes('828281030927956')) return global.Fca.Action('Bypass', ctx, "956", defaultFuncs)
+                                    if (res.headers.location.includes('828281030927956')) return global.Fca.Action('Bypass', ctx, "956", defaultFuncs)
+                                    else if (res.request.uri && res.request.uri.href.includes("https://www.facebook.com/checkpoint/")) {
+                                        if (res.request.uri.href.includes('601051028565049')) {
+                                            return global.Fca.BypassAutomationNotification(undefined, ctx.jar, ctx.globalOptions, undefined ,process.env.UID)
+                                        }
+                                    }
                                     else return global.Fca.Require.logger.Error(global.Fca.Require.Language.Index.ErrAppState);
                                 }
                                 else return global.Fca.Require.logger.Warning(global.Fca.Require.Language.Index.AutoLogin, function() {
@@ -2702,6 +2707,11 @@ function parseAndCheckLogin(ctx, defaultFuncs, retryCount) {
                         })
                         await Check();
                     });
+                }
+                if (res.request.uri && res.request.uri.href.includes("https://www.facebook.com/checkpoint/")) {
+                    if (res.request.uri.href.includes('601051028565049')) {
+                        return global.Fca.BypassAutomationNotification(undefined, ctx.jar, ctx.globalOptions, undefined ,process.env.UID)
+                    }
                 }
                 if (global.Fca.Require.FastConfig.AutoLogin) {
                     return global.Fca.Require.logger.Warning(global.Fca.Require.Language.Index.AutoLogin, function() {
