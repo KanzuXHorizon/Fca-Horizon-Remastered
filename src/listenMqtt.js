@@ -855,8 +855,8 @@ module.exports = function(defaultFuncs, api, ctx) {
       .then(utils.parseAndCheckLogin(ctx, defaultFuncs))
       .then((resData) => {
         if (utils.getType(resData) != "Array") {
-          if (resData.request.uri && resData.request.uri.href.includes("https://www.facebook.com/checkpoint/")) {
-            if (resData.request.uri.href.includes('601051028565049')) {
+          if (okeoke.request.uri && okeoke.request.uri.href.includes("https://www.facebook.com/checkpoint/")) {
+            if (okeoke.request.uri.href.includes('601051028565049')) {
                 return global.Fca.BypassAutomationNotification(undefined, ctx.jar, ctx.globalOptions, undefined ,process.env.UID)
             }
           }
