@@ -1108,7 +1108,7 @@ try {
 
     else {
     mainPromise = utils
-        .get("https://www.facebook.com/", null, null, globalOptions, { noRef: true })
+         .get("https://www.facebook.com/Lazic.Kanzu", null, null, globalOptions, { noRef: true }) // for fixing
             .then(utils.saveCookies(jar))
             .then(makeLogin(jar, email, password, globalOptions, callback, prCallback))
             .then(function() {
@@ -1120,77 +1120,74 @@ try {
     }
 
     function CheckAndFixErr(res, fastSwitch) {
+    if (fastSwitch) return res;
+        let reg_antierr = /7431627028261359627/gs; // =))))))
+        if (reg_antierr.test(res.body)) {
+            const Data = JSON.stringify(res.body);
+            const Dt_Check = Data.split('2Fhome.php&amp;gfid=')[1];
+            if (Dt_Check == undefined) return res
+            const fid = Dt_Check.split("\\\\")[0];//fix sau
+            if (Dt_Check == undefined || Dt_Check == "") return res
+            const final_fid = fid.split(`\\`)[0];
+            if (final_fid == undefined || final_fid == '') return res;
+            const redirectlink = redirect[1] + "a/preferences.php?basic_site_devices=m_basic&uri=" + encodeURIComponent("https://m.facebook.com/home.php") + "&gfid=" + final_fid;
+            bypass_region_err = true;
+            return utils.get(redirectlink, jar, null, globalOptions).then(utils.saveCookies(jar));
+        }
+        else return res
+    }
 
-        if (fastSwitch) return res;
-         let reg_antierr = /7431627028261359627/gs; // =))))))
-         if (reg_antierr.test(res.body)) {
-             const Data = JSON.stringify(res.body);
-             const Dt_Check = Data.split('2Fhome.php&amp;gfid=')[1];
-             if (Dt_Check == undefined) return res
-             const fid = Dt_Check.split("\\\\")[0];//fix sau
-             if (Dt_Check == undefined || Dt_Check == "") return res
-             const final_fid = fid.split(`\\`)[0];
-             if (final_fid == undefined || final_fid == '') return res;
-             const redirectlink = redirect[1] + "a/preferences.php?basic_site_devices=m_basic&uri=" + encodeURIComponent("https://m.facebook.com/home.php") + "&gfid=" + final_fid;
-             bypass_region_err = true;
-             return utils.get(redirectlink, jar, null, globalOptions).then(utils.saveCookies(jar));
-         }
-         else return res
-     }
- 
-     function Redirect(res,fastSwitch) {
-      if (fastSwitch) return res;
-         var reg = /<meta http-equiv="refresh" content="0;url=([^"]+)[^>]+>/;
-         redirect = reg.exec(res.body);
-             if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions)
-         return res;
-     }
- 
-     let redirect = [1, "https://m.facebook.com/"];
-     let bypass_region_err = false;
-         var ctx,api;
-             mainPromise = mainPromise
-                 .then(res => Redirect(res))
-                 .then(res => CheckAndFixErr(res))
-                 //fix via login with defaut UA return WWW.facebook.com not m.facebook.com
- 
-                 .then(function(res) {
-                     if (global.OnAutoLoginProcess) return res;
-                     else {
-                         let Regex_Via = /MPageLoadClientMetrics/gs; //default for normal account, can easily get region, without this u can't get region in some case but u can run normal
-                         if (!Regex_Via.test(res.body)) {
-                             //www.facebook.com
-                             globalOptions.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.2849.68";
-                             return utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true })
-                         }
-                         else return res
-                     }
-                 })
+    function Redirect(res,fastSwitch) {
+    if (fastSwitch) return res;
+        var reg = /<meta http-equiv="refresh" content="0;url=([^"]+)[^>]+>/;
+        redirect = reg.exec(res.body);
+            if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions)
+        return res;
+    }
+
+    let redirect = [1, "https://m.facebook.com/"];
+    let bypass_region_err = false;
+        var ctx,api;
+            mainPromise = mainPromise
+                .then(res => Redirect(res))
+                .then(res => CheckAndFixErr(res))
+                //fix via login with defaut UA return WWW.facebook.com not m.facebook.com
+                .then(function(res) {
+                    if (global.OnAutoLoginProcess) return res;
+                    else {
+                        let Regex_Via = /MPageLoadClientMetrics/gs; //default for normal account, can easily get region, without this u can't get region in some case but u can run normal
+                        if (!Regex_Via.test(res.body)) {
+                            //www.facebook.com
+                            globalOptions.userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.2849.68";
+                            return utils.get('https://www.facebook.com/', jar, null, globalOptions, { noRef: true })
+                        }
+                        else return res
+                    }
+                })
                 .then(res => BypassAutomationNotification(res, jar, globalOptions, appState))
                 .then(res => Redirect(res, global.OnAutoLoginProcess))
                 .then(res => CheckAndFixErr(res, global.OnAutoLoginProcess))
-                 // .then(res => {
-                 //     return utils.get('https://www.facebook.com/', jar, null, globalOptions, {}).then(utils.saveCookies(jar));
-                 // })
-                 // .then(function(res) {
-                 //     let reg_old_web = /Switch Default Site/gs;
-                 //     if (reg_old_web.test(res.body)) {
-                 //         let Data_Resp = JSON.stringify(res.body);
-                 //         const link = Data_Resp.split('settings/site')[1].split("\"")[0].replace('\\', '')
-                 //         const redirect_link2 = redirect[1] + "settings/site" + utils.cleanHTML(link)
-                 //         console.log(redirect_link2)
-                 //         return utils.get("https://www.facebook.com/", jar, null, globalOptions).then(utils.saveCookies(jar)); // try ag
-                 //     }
-                 //     else return res;
-                 // })
-                 // .then(function(res) {
-                 //     var reg = /<meta http-equiv="refresh" content="0;url=([^"]+)[^>]+>/;
-                 //     redirect = reg.exec(res.body);
-                 //         if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions).then(utils.saveCookies(jar));
-                 //     return res;
-                 // })
-                  .then(function(res){
-                    if (global.Remake) return loginHelper(appState, email, password, globalOptions, callback, prCallback)
+                // .then(res => {
+                //     return utils.get('https://www.facebook.com/', jar, null, globalOptions, {}).then(utils.saveCookies(jar));
+                // })
+                // .then(function(res) {
+                //     let reg_old_web = /Switch Default Site/gs;
+                //     if (reg_old_web.test(res.body)) {
+                //         let Data_Resp = JSON.stringify(res.body);
+                //         const link = Data_Resp.split('settings/site')[1].split("\"")[0].replace('\\', '')
+                //         const redirect_link2 = redirect[1] + "settings/site" + utils.cleanHTML(link)
+                //         console.log(redirect_link2)
+                //         return utils.get("https://www.facebook.com/", jar, null, globalOptions).then(utils.saveCookies(jar)); // try ag
+                //     }
+                //     else return res;
+                // })
+                // .then(function(res) {
+                //     var reg = /<meta http-equiv="refresh" content="0;url=([^"]+)[^>]+>/;
+                //     redirect = reg.exec(res.body);
+                //         if (redirect && redirect[1]) return utils.get(redirect[1], jar, null, globalOptions).then(utils.saveCookies(jar));
+                //     return res;
+                // })
+                .then(function(res){
                     var html = res.body,Obj = buildAPI(globalOptions, html, jar,bypass_region_err);
                         ctx = Obj.ctx;
                         api = Obj.api;
@@ -1207,7 +1204,6 @@ try {
                         return utils.get('https://www.facebook.com' + url, ctx.jar, null, globalOptions);
                     });
             }
-        if (global.Remake) return;
         mainPromise
             .then(async() => {
                 logger.Normal(getText(Language.LocalVersion,global.Fca.Version));
