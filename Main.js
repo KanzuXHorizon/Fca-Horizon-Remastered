@@ -470,11 +470,16 @@ function buildAPI(globalOptions, html, jar, bypass_region) {
                 code: "SYD",
                 name: "Sydney",
                 location: "Sydney"
+            },
+            {
+                code: "PNB",
+                name: "Pacific Northwest - Beta",
+                location: "Pacific Northwest "
             }
         ];
 
         if (!region) {
-            region = ['prn',"ash","vll","hkg","sin"][Math.random()*5|0];
+            region = ['prn',"pnb","vll","hkg","sin"][Math.random()*5|0];
             
         }
         if (!mqttEndpoint) {
@@ -482,7 +487,7 @@ function buildAPI(globalOptions, html, jar, bypass_region) {
         }
 
         const Location = regions.find(r => r.code === region.toUpperCase());
-        logger.Normal(getText(Language.Area,Location.name));
+        logger.Normal(getText(Language.Area,(Location.name || region.toUpperCase())));
 
         var ctx = {
             userID: userID,
