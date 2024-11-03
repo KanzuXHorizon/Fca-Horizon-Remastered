@@ -485,9 +485,9 @@ function buildAPI(globalOptions, html, jar, bypass_region) {
         if (!mqttEndpoint) {
             mqttEndpoint = "wss://edge-chat.facebook.com/chat?region=" + region;
         }
-
+        
         const Location = regions.find(r => r.code === region.toUpperCase());
-        logger.Normal(getText(Language.Area,(Location.name || region.toUpperCase())));
+        logger.Normal(getText(Language.Area,(Location == undefined ? region.toUpperCase() : Location.name)));
 
         var ctx = {
             userID: userID,
