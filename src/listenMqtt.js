@@ -135,7 +135,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
       headers: {
         Cookie: cookies,
         Origin: 'https://www.facebook.com',
-        'User-Agent': ctx.globalOptions.userAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36',
+        'User-Agent': ctx.globalOptions.userAgent,
         Referer: 'https://www.facebook.com/',
         Host: new URL(host).hostname,
       },
@@ -210,7 +210,7 @@ function listenMqtt(defaultFuncs, api, ctx, globalCallback) {
         warningThreshold: 0.7,
         releaseThreshold: 0.8,
         maxThreshold: 0.9,
-        interval: 60 * 1000,
+        interval: 300 * 1000,
         logLevel: 'warn',
         logFile: path.join(process.cwd(), 'Horizon_Database' ,'memory.log'),
         smartReleaseEnabled: true,
@@ -558,22 +558,27 @@ function parseDelta(defaultFuncs, api, ctx, globalCallback, {
               messageID: delta.deltaMessageReply.repliedToMessage.messageMetadata.messageId,
               senderID: delta.deltaMessageReply.repliedToMessage.messageMetadata.actorFbId.toString(),
               attachments: delta.deltaMessageReply.repliedToMessage.attachments
-                .map((att) => {
-                  const mercury = JSON.parse(att.mercuryJSON);
+              .map((att) => {
+                let mercury;
+                try {
+                  mercury = JSON.parse(att.mercuryJSON);
                   Object.assign(att, mercury);
-                  return att;
-                })
-                .map((att) => {
-                  let x;
-                  try {
-                    x = utils._formatAttachment(att);
-                  } catch (ex) {
-                    x = att;
-                    x.error = ex;
-                    x.type = 'unknown';
-                  }
-                  return x;
-                }),
+                } catch (ex) {
+                  mercury = {};
+                }
+                return att;
+              })
+              .map((att) => {
+                let x;
+                try {
+                  x = utils._formatAttachment(att);
+                } catch (ex) {
+                  x = att;
+                  x.error = ex;
+                  x.type = 'unknown';
+                }
+                return x;
+              }),
               args: (delta.deltaMessageReply.repliedToMessage.body || '').trim().split(/\s+/),
               body: delta.deltaMessageReply.repliedToMessage.body || '',
               isGroup: !!delta.deltaMessageReply.repliedToMessage.messageMetadata.threadKey.threadFbId,
